@@ -1,0 +1,8 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "npx prisma generate --schema src/prisma/schema.prisma"
+
+[deploy]
+startCommand = "npm run worker:payments"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

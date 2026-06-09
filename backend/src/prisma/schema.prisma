@@ -1,0 +1,362 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  password        String
+  role            Role      @default(CREATOR)
+  emailVerifiedAt DateTime?
+  suspendedAt     DateTime?
+  suspendedReason String?
+  ninCipher       String?
+  bvnCipher       String?
+  kycStatus       KycStatus @default(NONE)
+  kycSubmittedAt  DateTime?
+  kycReviewedAt   DateTime?
+  kycReviewNote   String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  creator                 Creator?
+  brand                   Brand?
+  refreshTokens           RefreshToken[]
+  passwordResetTokens     PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  supportTickets          SupportTicket[]
+  idempotencyKeys         IdempotencyKey[]
+  auditLogs               AuditLog[]
+
+  @@index([kycStatus])
+}
+
+enum Role {
+  CREATOR
+  BRAND
+  ADMIN
+}
+
+model Creator {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  handle       String   @unique
+  niche        String
+  bio          String?
+  followers    Int      @default(0)
+  engagement   Float    @default(0)
+  baseRate     Float    @default(0)
+  platforms    String[]
+  paystackCode String?
+  bankAccountName String?
+  bankAccountLast4 String?
+  bankBankCode String?
+  bankBankName String?
+  bankVerifiedAt DateTime?
+  isVerified   Boolean  @default(false)
+  verifiedAt   DateTime?
+  verifiedBy   String?
+  balanceKobo  Int      @default(0)
+  avatar       String?
+  location     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  offersReceived Offer[]       @relation("CreatorOffers")
+  transactions   Transaction[]
+  ledgerEntries  LedgerEntry[]
+  payouts        Payout[]
+
+  @@index([niche])
+  @@index([followers])
+  @@index([createdAt])
+}
+
+model Brand {
+  id                String    @id @default(uuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name              String
+  industry          String
+  website           String?
+  logo              String?
+  cacNumberCipher   String?
+  kycStatus         KycStatus @default(NONE)
+  kycSubmittedAt    DateTime?
+  kycReviewedAt     DateTime?
+  kycReviewNote     String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  offersSent Offer[] @relation("BrandOffers")
+
+  @@index([industry])
+  @@index([createdAt])
+  @@index([kycStatus])
+}
+
+model Offer {
+  id               String      @id @default(uuid())
+  brandId          String
+  brand            Brand       @relation("BrandOffers", fields: [brandId], references: [id])
+  creatorId        String
+  creator          Creator     @relation("CreatorOffers", fields: [creatorId], references: [id])
+  title            String
+  description      String
+  amountKobo       Int
+  platform         String
+  deadline         DateTime
+  status           OfferStatus @default(PENDING)
+  deliverableUrl   String?
+  deliverableNote  String?
+  submittedAt      DateTime?
+  approvedAt       DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  transaction Transaction?
+
+  @@index([brandId, createdAt])
+  @@index([creatorId, createdAt])
+  @@index([status, createdAt])
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  FUNDED
+  SUBMITTED
+  APPROVED
+  DISPUTED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  offerId     String   @unique
+  offer       Offer    @relation(fields: [offerId], references: [id])
+  creatorId   String
+  creator     Creator  @relation(fields: [creatorId], references: [id])
+  grossKobo   Int
+  feeKobo     Int
+  netKobo     Int
+  paystackRef String?
+
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  ledgerEntries LedgerEntry[]
+  payout        Payout?
+
+  @@index([creatorId, createdAt])
+  @@index([status])
+
+  @@index([paystackRef])
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model SupportTicket {
+  id        String        @id @default(uuid())
+  userId    String?
+  user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  name      String
+  email     String
+  subject   String
+  message   String
+  status    TicketStatus  @default(OPEN)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([status, createdAt])
+  @@index([email])
+}
+
+model IdempotencyKey {
+  id           String            @id @default(uuid())
+  key          String            @unique
+  userId       String?
+  user         User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  scope        String
+  requestHash  String
+  responseJson Json?
+  status       IdempotencyStatus @default(PROCESSING)
+  expiresAt    DateTime
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([scope, createdAt])
+  @@index([expiresAt])
+}
+
+model ProviderWebhookEvent {
+  id          String        @id @default(uuid())
+  provider    PaymentProvider
+  eventId     String
+  eventType   String
+  payload     Json
+  status      WebhookStatus @default(RECEIVED)
+  processedAt DateTime?
+  error       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([provider, eventId])
+  @@index([provider, eventType])
+  @@index([status, createdAt])
+}
+
+model LedgerEntry {
+  id               String          @id @default(uuid())
+  creatorId        String
+  creator          Creator         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  transactionId    String?
+  transaction      Transaction?    @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  type             LedgerEntryType
+  amountKobo       Int
+  balanceAfterKobo Int?
+  description      String
+  metadata         Json?
+  createdAt        DateTime        @default(now())
+
+  @@index([creatorId, createdAt])
+  @@index([transactionId])
+  @@index([type, createdAt])
+  @@unique([transactionId, type])
+}
+
+model Payout {
+  id            String         @id @default(uuid())
+  transactionId String         @unique
+  transaction   Transaction    @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  creatorId     String
+  creator       Creator        @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  amountKobo    Int
+  provider      PaymentProvider
+  providerRef   String?
+  status        PayoutStatus   @default(PENDING)
+  failureReason String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([creatorId, createdAt])
+  @@index([status, createdAt])
+  @@index([provider, providerRef])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  ip         String?
+  requestId  String?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([entityType, entityId])
+  @@index([action, createdAt])
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum PaymentProvider {
+  PAYSTACK
+}
+
+enum WebhookStatus {
+  RECEIVED
+  PROCESSING
+  PROCESSED
+  FAILED
+  DUPLICATE
+}
+
+enum IdempotencyStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum LedgerEntryType {
+  CREDIT
+  DEBIT
+  ADJUSTMENT
+  HOLD
+  RELEASE
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REVERSED
+}
+
+enum KycStatus {
+  NONE
+  PENDING
+  VERIFIED
+  REJECTED
+}

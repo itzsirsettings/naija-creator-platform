@@ -1,0 +1,23 @@
+-- KYC: encrypted identity-document storage and review state.
+DO $$
+BEGIN
+  CREATE TYPE "KycStatus" AS ENUM ('NONE', 'PENDING', 'VERIFIED', 'REJECTED');
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "ninCipher" TEXT;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "bvnCipher" TEXT;
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "kycStatus" "KycStatus" NOT NULL DEFAULT 'NONE';
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "kycSubmittedAt" TIMESTAMP(3);
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "kycReviewedAt" TIMESTAMP(3);
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "kycReviewNote" TEXT;
+
+ALTER TABLE "Brand" ADD COLUMN IF NOT EXISTS "cacNumberCipher" TEXT;
+ALTER TABLE "Brand" ADD COLUMN IF NOT EXISTS "kycStatus" "KycStatus" NOT NULL DEFAULT 'NONE';
+ALTER TABLE "Brand" ADD COLUMN IF NOT EXISTS "kycSubmittedAt" TIMESTAMP(3);
+ALTER TABLE "Brand" ADD COLUMN IF NOT EXISTS "kycReviewedAt" TIMESTAMP(3);
+ALTER TABLE "Brand" ADD COLUMN IF NOT EXISTS "kycReviewNote" TEXT;
+
+CREATE INDEX IF NOT EXISTS "User_kycStatus_idx" ON "User"("kycStatus");
+CREATE INDEX IF NOT EXISTS "Brand_kycStatus_idx" ON "Brand"("kycStatus");

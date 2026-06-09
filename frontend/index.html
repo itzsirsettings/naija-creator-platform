@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/tehilla-logo.png" />
+    <link rel="canonical" href="https://tehilla.work" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0b10" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="description" content="Tehilla — creator commerce for Nigerian creators and the brands that pay them. Clean offers, escrowed funds, direct bank payouts." />
+    <meta name="keywords" content="Nigerian creators, creator economy, brand sponsorships, influencer marketing, Nigeria, Tehilla, escrow payments, Paystack" />
+    <meta name="author" content="Tehilla" />
+    <meta name="robots" content="index, follow" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Tehilla" />
+    <meta property="og:title" content="Tehilla — Creator Commerce" />
+    <meta property="og:description" content="The sponsorship desk for Nigerian creators and the brands that pay them. Clean offers, escrowed funds, direct bank payouts." />
+    <meta property="og:url" content="https://tehilla.work" />
+    <meta property="og:image" content="https://tehilla.work/tehilla-logo.png" />
+    <meta property="og:locale" content="en_NG" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Tehilla — Creator Commerce" />
+    <meta name="twitter:description" content="The sponsorship desk for Nigerian creators and the brands that pay them. Clean offers, escrowed funds, direct bank payouts." />
+    <meta name="twitter:image" content="https://tehilla.work/tehilla-logo.png" />
+
+    <title>Tehilla — Creator Commerce</title>
+
+    <!-- Async font loading: non-blocking render with graceful FOIT prevention. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Geologica:wght,CRSV@100..900,0&display=swap" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Geologica:wght,CRSV@100..900,0&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Geologica:wght,CRSV@100..900,0&display=swap"
+      />
+    </noscript>
+
+    <!-- Paystack / API preconnect: warms the TLS handshake before the user clicks "Pay". -->
+    <link rel="preconnect" href="https://api.paystack.co" crossorigin />
+    <link rel="dns-prefetch" href="https://checkout.paystack.com" />
+
+    <!--
+      Speculation Rules: prerender marketing pages so navigation is instant on
+      supporting browsers (Chrome 109+). Graceful no-op elsewhere.
+    -->
+    <script type="speculationrules">
+      {
+        "prerender": [
+          { "where": { "href_matches": "/for-creators" }, "eagerness": "moderate" },
+          { "where": { "href_matches": "/for-brands" }, "eagerness": "moderate" },
+          { "where": { "href_matches": "/pricing" }, "eagerness": "moderate" },
+          { "where": { "href_matches": "/about" }, "eagerness": "moderate" },
+          { "where": { "href_matches": "/register" }, "eagerness": "moderate" }
+        ],
+        "prefetch": [
+          { "where": { "href_matches": "/login" }, "eagerness": "moderate" }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
