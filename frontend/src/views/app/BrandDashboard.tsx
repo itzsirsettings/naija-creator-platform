@@ -68,7 +68,7 @@ export default function BrandDashboard() {
   }
 
   return (
-    <div className="-m-6 min-h-full bg-background p-6 text-foreground">
+    <div className="text-foreground">
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>

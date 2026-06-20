@@ -1,6 +1,12 @@
-import { ArrowRight, ArrowUpRight, BarChart3, Handshake, Search, Sparkles, Wallet } from "lucide-react"
+"use client"
+
+import { useCallback, useEffect, useState } from "react"
+import { ArrowRight, ArrowUpRight, BarChart3, Handshake, Loader2, Search, Sparkles, Wallet } from "lucide-react"
 import { Link } from "@/lib/router"
 import { useAuth } from "@/context/AuthContext"
+import { isDemoApp } from "@/services/api"
+import { fetchBrandOffers, fetchCreatorOffers, type Offer } from "@/services/offers"
+import { fetchTransactions, type Transaction } from "@/services/payments"
 import { useAppData } from "@/context/AppDataContext"
 import { formatNaira } from "@/utils/format"
 import { StatTile, StatusPill } from "@/components/dashboard/widgets"
@@ -12,6 +18,8 @@ function timeGreeting(): string {
   return "Good evening"
 }
 
+const ACTIVE_STATUSES = ["ACCEPTED", "FUNDED", "SUBMITTED", "APPROVED"]
+
 interface QuickAction {
   label: string
   desc: string
@@ -19,28 +27,97 @@ interface QuickAction {
   icon: typeof Search
 }
 
+interface ActivityItem {
+  id: string
+  label: string
+  detail: string
+  status: string
+  date: string
+}
+
+const shortDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-NG", { month: "short", day: "numeric" })
+
 export default function Home() {
   const { user } = useAuth()
-  const { brandDashboard, creatorDashboard, transactions } = useAppData()
+  // Demo mode only: fall back to the canned dashboard so the marketing demo renders.
+  const demo = useAppData()
+
+  const [offers, setOffers] = useState<Offer[]>([])
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [isLoading, setIsLoading] = useState(!isDemoApp)
+
+  const isBrand = user?.role === "brand"
+
+  const loadData = useCallback(async () => {
+    if (isDemoApp || !user) {
+      setIsLoading(false)
+      return
+    }
+    setIsLoading(true)
+    try {
+      if (isBrand && user.brandId) {
+        setOffers(await fetchBrandOffers(user.brandId))
+      } else if (!isBrand && user.creatorId) {
+        const [offerData, txData] = await Promise.all([
+          fetchCreatorOffers(user.creatorId),
+          fetchTransactions(user.creatorId),
+        ])
+        setOffers(offerData)
+        setTransactions(txData)
+      }
+    } catch {
+      // Degrade gracefully to zero-state rather than crashing the home screen.
+    } finally {
+      setIsLoading(false)
+    }
+  }, [user, isBrand])
+
+  useEffect(() => { loadData() }, [loadData])
 
   if (!user) return null
 
-  const isBrand = user.role === "brand"
   const name = isBrand ? user.brandName || user.name : user.name
 
+  // ─── Derived, real stats ──────────────────────────────────────────────────
+  const activeCount = offers.filter((o) => ACTIVE_STATUSES.includes(o.status)).length
+  const completedCount = offers.filter((o) => o.status === "COMPLETED").length
+  const pendingApprovals = offers.filter((o) => o.status === "SUBMITTED").length
+  const pendingCreator = offers.filter((o) => o.status === "PENDING").length
+  const totalSpent = offers
+    .filter((o) => o.status === "COMPLETED")
+    .reduce((sum, o) => sum + o.amountKobo, 0) / 100
+  const earnings = transactions
+    .filter((tx) => tx.status === "paid" || tx.status === "completed")
+    .reduce((sum, tx) => sum + tx.netKobo, 0) / 100
+
   const stats = isBrand
-    ? [
-        { label: "Active Campaigns", value: brandDashboard.activeCampaigns, delta: "Across all creators" },
-        { label: "Total Spent", value: formatNaira(brandDashboard.totalSpent), delta: "Lifetime" },
-        { label: "Pending Approvals", value: brandDashboard.pendingApprovals, delta: "Awaiting your review" },
-        { label: "Shortlisted", value: brandDashboard.shortlistedCreators, delta: "Creators in pipeline" },
-      ]
-    : [
-        { label: "Active Offers", value: creatorDashboard.activeOffers, delta: "In progress" },
-        { label: "Earnings", value: formatNaira(creatorDashboard.earnings), delta: "Lifetime" },
-        { label: "Pending Approvals", value: creatorDashboard.pendingApprovals, delta: "Awaiting review" },
-        { label: "Completed", value: creatorDashboard.completedCampaigns, delta: "Campaigns done" },
-      ]
+    ? isDemoApp
+      ? [
+          { label: "Active Campaigns", value: demo.brandDashboard.activeCampaigns, delta: "Across all creators" },
+          { label: "Total Spent", value: formatNaira(demo.brandDashboard.totalSpent), delta: "Lifetime" },
+          { label: "Pending Approvals", value: demo.brandDashboard.pendingApprovals, delta: "Awaiting your review" },
+          { label: "Shortlisted", value: demo.brandDashboard.shortlistedCreators, delta: "Creators in pipeline" },
+        ]
+      : [
+          { label: "Active Campaigns", value: activeCount, delta: "Across all creators" },
+          { label: "Total Spent", value: formatNaira(totalSpent), delta: "Lifetime" },
+          { label: "Pending Approvals", value: pendingApprovals, delta: "Awaiting your review" },
+          { label: "Total Offers", value: offers.length, delta: "Sent to creators" },
+        ]
+    : isDemoApp
+      ? [
+          { label: "Active Offers", value: demo.creatorDashboard.activeOffers, delta: "In progress" },
+          { label: "Earnings", value: formatNaira(demo.creatorDashboard.earnings), delta: "Lifetime" },
+          { label: "Pending Approvals", value: demo.creatorDashboard.pendingApprovals, delta: "Awaiting review" },
+          { label: "Completed", value: demo.creatorDashboard.completedCampaigns, delta: "Campaigns done" },
+        ]
+      : [
+          { label: "Active Offers", value: activeCount, delta: "In progress" },
+          { label: "Earnings", value: formatNaira(earnings), delta: "Lifetime" },
+          { label: "Pending Approvals", value: pendingCreator, delta: "Awaiting review" },
+          { label: "Completed", value: completedCount, delta: "Campaigns done" },
+        ]
 
   const quickActions: QuickAction[] = isBrand
     ? [
@@ -60,13 +137,33 @@ export default function Home() {
     ? { label: "Find creators", to: "/discover" }
     : { label: "Browse offers", to: "/offers" }
 
-  const recent = transactions.slice(0, 5).map((tx) => ({
-    id: tx.id,
-    label: tx.label,
-    detail: `${tx.counterparty} · ${tx.type === "credit" ? "+" : "-"}${formatNaira(tx.amount)}`,
-    status: tx.status,
-    date: new Date(tx.date).toLocaleDateString("en-NG", { month: "short", day: "numeric" }),
-  }))
+  // ─── Real recent activity ─────────────────────────────────────────────────
+  let recent: ActivityItem[]
+  if (isDemoApp) {
+    recent = demo.transactions.slice(0, 5).map((tx) => ({
+      id: tx.id,
+      label: tx.label,
+      detail: `${tx.counterparty} · ${tx.type === "credit" ? "+" : "-"}${formatNaira(tx.amount)}`,
+      status: tx.status,
+      date: shortDate(tx.date),
+    }))
+  } else if (isBrand) {
+    recent = offers.slice(0, 5).map((o) => ({
+      id: o.id,
+      label: o.title,
+      detail: `${o.creator?.name ?? "Creator"} · ${formatNaira(o.amountKobo / 100)}`,
+      status: o.status,
+      date: shortDate(o.createdAt),
+    }))
+  } else {
+    recent = transactions.slice(0, 5).map((tx) => ({
+      id: tx.id,
+      label: "Campaign payment",
+      detail: `${tx.offer?.brand?.name ?? "Brand"} · +${formatNaira(tx.netKobo / 100)}`,
+      status: tx.status,
+      date: shortDate(tx.createdAt),
+    }))
+  }
 
   return (
     <div className="space-y-6">
@@ -78,7 +175,7 @@ export default function Home() {
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur-sm">
             <Sparkles className="size-3.5" /> {isBrand ? "Brand workspace" : "Creator workspace"}
           </span>
-          <h1 className="mt-4 font-heading text-3xl font-bold tracking-tight sm:text-[34px]">
+          <h1 className="mt-4 font-heading text-2xl font-bold tracking-tight sm:text-[34px]">
             {timeGreeting()}, {name}
           </h1>
           <p className="mt-2 max-w-md text-sm text-white/85">
@@ -106,7 +203,7 @@ export default function Home() {
       {/* KPI snapshot — consistent with the dashboard widgets */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => (
-          <StatTile key={s.label} label={s.label} value={s.value} delta={s.delta} />
+          <StatTile key={s.label} label={s.label} value={isLoading ? "—" : s.value} delta={s.delta} />
         ))}
       </div>
 
@@ -115,11 +212,15 @@ export default function Home() {
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-heading text-[15px] font-semibold text-foreground">Recent activity</h2>
-            <Link to="/payments" className="text-[11px] font-semibold uppercase tracking-wide text-[#1A24B8] hover:underline">
+            <Link to={isBrand ? "/offers" : "/payments"} className="text-[11px] font-semibold uppercase tracking-wide text-[#1A24B8] hover:underline">
               View all
             </Link>
           </div>
-          {recent.length ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" /> Loading…
+            </div>
+          ) : recent.length ? (
             <div className="divide-y divide-border">
               {recent.map((a) => (
                 <div key={a.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
@@ -135,7 +236,9 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">No recent activity yet.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              {isBrand ? "No offers yet. Discover creators to send your first brief." : "No activity yet. Accept an offer to get started."}
+            </p>
           )}
         </div>
 
