@@ -1,195 +1,210 @@
 # Tehilla Deployment
 
-This project runs as three Railway services plus Vercel for the frontend:
+Current stack: **Next.js (App Router) frontend on Vercel**, **Fastify + TypeScript API
+on Railway**, **BullMQ worker on Railway**, **Neon Postgres**, **Railway Redis**.
 
-| Surface       | Where        | What                                       |
-| ------------- | ------------ | ------------------------------------------ |
-| `frontend`    | Vercel       | Static SPA built from `frontend/`          |
-| `api`         | Railway      | Express API from `backend/`                |
-| `worker`      | Railway      | BullMQ payment worker from `backend/`      |
-| `postgres`    | Railway      | Managed Postgres (or Supabase Pro)         |
-| `redis`       | Railway      | Managed Redis (rate limits, queues, cache) |
+| Surface     | Where   | What                                               |
+| ----------- | ------- | -------------------------------------------------- |
+| `frontend`  | Vercel  | Next.js app built from `frontend/`                 |
+| `api`       | Railway | Fastify/TypeScript API from `backend/`             |
+| `worker`    | Railway | BullMQ payment worker from `backend/`              |
+| `postgres`  | Neon    | Managed Postgres (pooled + direct endpoints)       |
+| `redis`     | Railway | Managed Redis (rate limits, queues, cache)         |
+
+Production domains:
+
+- Frontend: `https://tehilla.work` (apex 308-redirects to `https://www.tehilla.work`)
+- API: `https://api.tehilla.work` (Railway custom domain → CNAME at the DNS provider)
+
+---
 
 ## Frontend (Vercel)
 
-- App root: `frontend/`
-- Build command: `npm run build`
-- Output directory: `dist`
-- SPA rewrite: `frontend/vercel.json`
-- Production env vars (required):
-  - `VITE_API_URL=https://<api-service>.up.railway.app/api`
-  - `VITE_APP_MODE=production`
-  - `VITE_DEMO_FALLBACK=false`
-  - `VITE_SENTRY_DSN=https://...@sentry.io/...`
+- **Root directory:** `frontend/` (set in Vercel → Project → Settings → Build & Deployment → Root Directory)
+- **Framework preset:** Next.js (auto-detected; see `frontend/vercel.json`)
+- **Build command:** `npm run build` (`next build`)
+- **Output:** `.next` (managed by Vercel; do **not** set output directory to `dist`)
+- **Security headers:** `frontend/vercel.json`
 
-The Vite config (`frontend/vite.config.js`) refuses to build for production if any of
-`VITE_DEMO_FALLBACK`, `VITE_APP_MODE`, `VITE_API_URL`, or `VITE_SENTRY_DSN` are
-misconfigured. Demo builds use `vite build --mode demo` so the assertion is skipped.
+### Frontend env vars (set in Vercel → Project → Settings → Environment Variables)
 
-Before deploying the live frontend:
+| Variable                   | Value / Notes                                                                 |
+| -------------------------- | ----------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_API_URL`      | Live API base ending in `/api`, e.g. `https://api.tehilla.work/api`. The browser calls this directly. |
+| `BACKEND_URL`              | API origin (no `/api`), e.g. `https://api.tehilla.work`. Used by `next.config.mjs` to rewrite `/api/*` server-side. Baked at **build time**. |
+| `NEXT_PUBLIC_DEMO_FALLBACK`| `false` in production (must not serve mock data).                             |
+| `NEXT_PUBLIC_SENTRY_DSN`   | Frontend Sentry DSN (`https://...@sentry.io/...`).                            |
+
+> `BACKEND_URL` is read at build time by `next.config.mjs`, so changing it requires a
+> redeploy. If `NEXT_PUBLIC_API_URL` is blank, the browser falls back to the same-origin
+> `/api` proxy, which `next.config.mjs` rewrites to `BACKEND_URL`.
+
+### Frontend preflight
 
 ```bash
 cd frontend
-npm run readiness:env
+npm run readiness:env   # validates NEXT_PUBLIC_* + BACKEND_URL against .env.production
 npm run build
 ```
 
-Run demo deployments as a separate Vercel project with `VITE_APP_MODE=demo`.
-Never point a demo deployment at live payment credentials or production data.
+---
 
 ## Backend (Railway `api` service)
 
-- App root: `backend/`
-- Build: Nixpacks (see `backend/railway.toml`)
-- Build command: `npx prisma generate --schema src/prisma/schema.prisma`
-- Release command (runs before each deploy): `npx prisma migrate deploy --schema src/prisma/schema.prisma`
-- Start command: `npm start`
-- Health check: `GET /health`
-- Required env vars (set in the Railway service, not in `.env`):
-  - `NODE_ENV=production`
-  - `PORT=5000` (Railway assigns this automatically; leave unset if Railway injects it)
-  - `DATABASE_URL` — pooled Postgres connection
-  - `DIRECT_URL` — migration-capable Postgres connection
-  - `JWT_SECRET` — `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
-  - `ACCESS_TOKEN_TTL=15m`
-  - `REFRESH_TOKEN_DAYS=30`
-  - `REDIS_URL` — Railway Redis `REDIS_URL` from the `redis` service
-  - `REDIS_REQUIRED=true`
-  - `PAYSTACK_SECRET_KEY=sk_live_...`
-  - `PAYMENT_MOCKS_ENABLED=false` (fails startup in production if true)
-  - `FRONTEND_URL=https://<your-vercel-app>.vercel.app`
-  - `SENTRY_DSN=https://...@sentry.io/...`
-  - `RESEND_API_KEY`, `EMAIL_FROM` (or complete SMTP credentials)
-  - `KYC_ENCRYPTION_KEY` — `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`
-  - `LOG_LEVEL=info`
-  - `METRICS_ENABLED=true`
-  - `REQUEST_TIMEOUT_MS=30000`
-  - `RATE_LIMIT_WINDOW_MS=900000`
-  - `API_RATE_LIMIT=300`
-  - `AUTH_RATE_LIMIT=20`
+- **Root directory:** `backend/`
+- **Builder:** Nixpacks (see `backend/railway.toml`)
+- **Build command:** `npx prisma generate --schema src/prisma/schema.prisma && npm run build`
+- **Release command** (runs before each deploy): `npx prisma migrate deploy --schema src/prisma/schema.prisma`
+- **Start command:** `npm start` (`node dist/app.js`)
+- **Health check:** `GET /health` → `{ "status": "ok" }`
+- **Readiness:** `GET /ready` → runs `SELECT 1` against Postgres
+- **Metrics:** `GET /metrics` (Prometheus, when `METRICS_ENABLED=true`)
 
-`backend/src/config/env.js` fails startup in production when any required secret
-is missing, when `REDIS_REQUIRED` is not true, when `PAYMENT_MOCKS_ENABLED` is not
-explicitly `false`, or when Sentry/KYC encryption is missing.
+Environment is validated at startup by `backend/src/config/config.ts` (Zod). In
+production the process **exits on boot** if any required secret is missing or still a
+placeholder, if `REDIS_REQUIRED=true` but `REDIS_URL` is empty, if
+`PAYMENT_MOCKS_ENABLED` is not `false`, or if `PAYMENT_PROVIDER` is not `paystack`.
 
-Before deploying the live API:
+### Backend env vars (set in the Railway service, NOT in a committed `.env`)
+
+| Variable                | Value / Notes                                                                 |
+| ----------------------- | ----------------------------------------------------------------------------- |
+| `NODE_ENV`              | `production`                                                                   |
+| `PORT`                  | `5000` (Railway injects its own; leave unset if Railway provides it)           |
+| `DATABASE_URL`          | Neon **pooled** connection (`...-pooler...neon.tech/...?sslmode=require`)      |
+| `DIRECT_URL`            | Neon **unpooled/direct** connection — used by `prisma migrate deploy`          |
+| `JWT_SECRET`            | ≥48 chars. `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"` |
+| `ACCESS_TOKEN_TTL`      | `15m`                                                                          |
+| `REFRESH_TOKEN_DAYS`    | `30`                                                                           |
+| `FRONTEND_URL`          | `https://www.tehilla.work` (drives CORS allow-list)                            |
+| `ALLOWED_ORIGINS`       | Extra comma-separated origins if needed (e.g. `https://tehilla.work`)          |
+| `REDIS_URL`             | Railway Redis URL. `redis.railway.internal` only resolves **inside** Railway.  |
+| `REDIS_REQUIRED`        | `true` (service exits on boot if Redis is unreachable)                         |
+| `PAYSTACK_SECRET_KEY`   | `sk_live_...`                                                                  |
+| `PAYMENT_PROVIDER`      | `paystack` (only provider wired at launch)                                     |
+| `PAYMENT_MOCKS_ENABLED` | `false` (startup fails in production if `true`)                                |
+| `KYC_ENCRYPTION_KEY`    | base64 of 32 bytes. `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` |
+| `RESEND_API_KEY`        | Resend key (or set `SMTP_HOST`/`SMTP_PORT`/`SMTP_USER`/`SMTP_PASS`)            |
+| `EMAIL_FROM`            | e.g. `Tehilla <no-reply@tehilla.work>`                                         |
+| `SENTRY_DSN`            | Backend Sentry DSN                                                             |
+| `LOG_LEVEL`             | `info`                                                                         |
+| `METRICS_ENABLED`       | `true`                                                                         |
+| `REQUEST_TIMEOUT_MS`    | `30000`                                                                        |
+| `RATE_LIMIT_WINDOW_MS`  | `900000`                                                                       |
+| `API_RATE_LIMIT`        | `300`                                                                          |
+| `AUTH_RATE_LIMIT`       | `20`                                                                           |
+
+Optional (Upstash REST cache, if used instead of/alongside Redis):
+`UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`.
+
+### Backend custom domain (api.tehilla.work)
+
+1. Railway → `api` service → Settings → Networking → **Custom Domain** → add `api.tehilla.work`.
+2. Railway returns a CNAME target (e.g. `<id>.up.railway.app`).
+3. At the DNS provider (Spaceship for `tehilla.work`): add a `CNAME` record
+   `api` → that Railway target.
+4. Verify: `curl https://api.tehilla.work/health` returns `{ "status": "ok" }`.
+   Until the record resolves on public DNS (`nslookup api.tehilla.work 1.1.1.1`),
+   the frontend cannot reach the API.
+
+### Backend preflight
 
 ```bash
 cd backend
-npm run readiness:env
-npm run readiness:db
-npm test
+npm run db:generate     # prisma generate
+npm run build           # tsc
+npm test                # vitest
+npx prisma migrate status --schema src/prisma/schema.prisma
 ```
+
+---
 
 ## Worker (Railway `worker` service)
 
-- App root: `backend/` (same repo path; uses `backend/railway.worker.toml`)
-- Build command: `npx prisma generate --schema src/prisma/schema.prisma`
-- Start command: `npm run worker:payments`
-- Shares the same `DATABASE_URL`, `DIRECT_URL`, `REDIS_URL`, `SENTRY_DSN`,
-  `PAYSTACK_SECRET_KEY`, and SMTP vars as the `api` service.
-- A worker service does not need `FRONTEND_URL` or `JWT_SECRET`.
+- **Root directory:** `backend/` (same repo path; uses `backend/railway.worker.toml`)
+- **Build command:** `npx prisma generate --schema src/prisma/schema.prisma`
+- **Start command:** `npm run worker:payments`
+- Shares `DATABASE_URL`, `DIRECT_URL`, `REDIS_URL`, `SENTRY_DSN`,
+  `PAYSTACK_SECRET_KEY`, and email/KYC vars with the `api` service.
+- Does **not** need `FRONTEND_URL` or `JWT_SECRET`.
 
-To add it in Railway: New Service → "Deploy from the same repo" → set root to
-`backend/` → override the start command to `npm run worker:payments` (or use the
-provided `railway.worker.toml`).
+To add it: Railway → New Service → "Deploy from the same repo" → root `backend/` →
+override start command to `npm run worker:payments` (or point it at `railway.worker.toml`).
 
-Run `npm run readiness:env` against the worker env too. The worker should share
-the same Redis, database, Paystack, Sentry, email, and KYC settings as the API.
+---
 
-## Postgres & Redis (Railway)
+## Postgres (Neon) & Redis (Railway)
 
-- Create a Postgres service in the same project. Copy the pooled connection
-  string into `DATABASE_URL` and the direct (non-pooled) string into
-  `DIRECT_URL`.
-- For Supabase, use the pooler/runtime URL in `DATABASE_URL`. If the deploy
-  environment cannot reach Supabase's IPv6-only direct host, use Supabase's
-  session pooler URL in `DIRECT_URL` so Prisma migrations can still run.
-- Create a Redis service in the same project. Copy its `REDIS_URL` into both
-  the `api` and `worker` services.
-- Enable automatic daily backups on the Postgres service. Document the
-  restore runbook in `RUNBOOKS.md` before launch.
+- **Neon:** copy the **pooled** connection string into `DATABASE_URL` and the
+  **direct** (non-pooled) string into `DIRECT_URL`. Both need `sslmode=require`.
+  Migrations run via the Railway release command (`prisma migrate deploy`).
+  Neon serverless compute can suspend; the direct endpoint may drop the first
+  connection while waking — retry once.
+- **Redis:** create a Redis service in the Railway project and copy its `REDIS_URL`
+  into both the `api` and `worker` services. Enable Neon point-in-time restore /
+  backups before launch (see `RUNBOOKS.md`).
+
+---
 
 ## First Admin
 
-Do not run the demo seed in production. Demo seed now refuses `NODE_ENV=production`.
-
-To create the first admin:
+Do not run the demo seed in production (it refuses `NODE_ENV=production`).
 
 ```bash
 cd backend
-ADMIN_EMAIL=admin@tehilla.work ADMIN_TEMP_PASSWORD=<secure-temporary-password> npm run db:seed:admin
+ADMIN_EMAIL=admin@tehilla.work ADMIN_TEMP_PASSWORD=<secure-temp-password> npm run db:seed:admin
 ```
 
-After first login, rotate the password through the reset-password flow and remove
-`ADMIN_EMAIL` / `ADMIN_TEMP_PASSWORD` from the hosting environment.
+After first login, rotate the password via the reset-password flow and remove
+`ADMIN_EMAIL` / `ADMIN_TEMP_PASSWORD` from the environment.
 
-## Live Payment Flow
+---
 
-- Brand creates an offer.
-- Creator accepts the offer.
-- Brand starts Paystack Checkout from the accepted offer.
-- Paystack `charge.success` or backend transaction verification records the transaction as paid and moves the offer to `FUNDED`.
-- Creator submits work, moving the offer to `SUBMITTED`.
-- Brand approves work, moving the offer to `APPROVED`, then queues Paystack payout.
-- Paystack `transfer.success` is the only path that marks payout `COMPLETED`, marks transaction `completed`, credits creator balance, writes the ledger entry, and marks the offer `COMPLETED`.
-- Paystack failure/reversal returns the transaction to `paid`, restores the offer to `APPROVED`, and leaves payout retryable.
+## Live Payment Flow (escrow)
 
-## Load Testing
+- Brand creates an offer → creator accepts.
+- Brand funds via Paystack Checkout; `charge.success` (or backend verification)
+  records the transaction paid and moves the offer to `FUNDED` (funds held).
+- Creator submits work → offer `SUBMITTED`.
+- Brand approves → offer `APPROVED`; balance becomes withdrawable.
+- Payout request **reserves** (debits) the creator balance atomically, then calls
+  Paystack Transfer → offer/payout `PROCESSING`.
+- `transfer.success` marks payout `COMPLETED` and offer `COMPLETED` (no second debit —
+  the balance was already reserved).
+- `transfer.failed` / `transfer.reversed` marks the payout `FAILED`/`REVERSED` and
+  **refunds the reservation** back to the creator balance.
 
-Local smoke load test:
-
-```bash
-docker run --rm -i grafana/k6:latest run -e BASE_URL=http://host.docker.internal:5000 - < load/k6-smoke.js
-```
-
-Staging/production viral launch test:
-
-```bash
-k6 run -e BASE_URL=https://<api-service>.up.railway.app load/k6-viral-launch.js
-```
-
-Acceptance targets:
-
-- Cached read p95 under 300ms
-- Write p95 under 800ms
-- Error rate under 1%
-- No unbounded list responses
-
-For a Supabase free/shared soft launch, keep the first week to a small controlled
-audience and upgrade before any broad public campaign.
+---
 
 ## Staging vs Production
 
-Use two Railway environments in the same project:
+- **staging** — Vercel preview branch + a Railway `staging` environment with Paystack
+  **test** keys; `NEXT_PUBLIC_API_URL` pointing at the staging API.
+- **production** — `master` branch + Railway `production` environment with Paystack
+  **live** keys; `NEXT_PUBLIC_API_URL` pointing at the production API.
 
-- **staging** — Vercel preview branch, Railway `staging` environment with
-  Paystack test keys, `VITE_API_URL` pointing at the staging API.
-- **production** — main branch, Railway `production` environment with
-  Paystack live keys, `VITE_API_URL` pointing at the production API.
+Never run a production migration against a staging DB seeded with test data — branch
+the database or restore a snapshot instead.
 
-Never run a production migration against staging after staging has been seeded
-with test data — branch the database or restore a snapshot instead.
+---
 
 ## Local Verification
 
-For local readiness checks, start Docker Postgres + Redis and use `backend/.env.local.example` values:
+Local API against Docker Postgres + Redis (uses `backend/.env.local.example` values):
 
 ```bash
-cd backend
-npm run infra:up
-
-# Windows PowerShell example if you do not want to overwrite backend/.env:
+# PowerShell example that doesn't overwrite backend/.env:
 $env:DATABASE_URL="postgresql://tehilla:password@127.0.0.1:15432/tehilla?schema=public"
 $env:DIRECT_URL=$env:DATABASE_URL
 $env:REDIS_URL="redis://localhost:6379"
+$env:REDIS_REQUIRED="false"
 
+cd backend
 npm run db:migrate:deploy
-npm run db:seed:demo
 npm start
 ```
 
-Then verify:
+Then:
 
 ```bash
 curl http://localhost:5000/health
@@ -197,15 +212,10 @@ curl http://localhost:5000/ready
 curl http://localhost:5000/metrics
 ```
 
-Full local checks:
+Frontend locally:
 
 ```bash
 cd frontend
-npm run build
-npm audit --audit-level=moderate
-
-cd ../backend
-npm run db:generate
-npm test
-npm audit --audit-level=moderate
+# .env points NEXT_PUBLIC_API_URL="" and BACKEND_URL=http://localhost:5000
+npm run dev    # http://localhost:3000, proxies /api to the local API
 ```

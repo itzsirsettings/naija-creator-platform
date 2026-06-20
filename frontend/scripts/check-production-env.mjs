@@ -36,10 +36,17 @@ const isHttpsUrl = (input) => {
   }
 };
 
-add("VITE_APP_MODE=production", value("VITE_APP_MODE") === "production", "Live frontend must use production mode.");
-add("VITE_DEMO_FALLBACK=false", value("VITE_DEMO_FALLBACK") === "false", "Live frontend must not fall back to demo data.");
-add("VITE_API_URL", isHttpsUrl(value("VITE_API_URL")) && !hasPlaceholder(value("VITE_API_URL")) && value("VITE_API_URL").endsWith("/api"), "Use the live API URL ending in /api.");
-add("VITE_SENTRY_DSN", isHttpsUrl(value("VITE_SENTRY_DSN")) && !hasPlaceholder(value("VITE_SENTRY_DSN")), "Frontend error tracking DSN is required.");
+// The browser API base must be a live HTTPS URL ending in /api, OR be left blank
+// when BACKEND_URL is set (same-origin /api proxy via next.config.mjs).
+const apiUrl = value("NEXT_PUBLIC_API_URL");
+const backendUrl = value("BACKEND_URL");
+const apiUrlOk =
+  (isHttpsUrl(apiUrl) && !hasPlaceholder(apiUrl) && apiUrl.endsWith("/api")) ||
+  (apiUrl === "" && isHttpsUrl(backendUrl) && !hasPlaceholder(backendUrl));
+
+add("NEXT_PUBLIC_DEMO_FALLBACK=false", value("NEXT_PUBLIC_DEMO_FALLBACK") === "false", "Live frontend must not fall back to demo data.");
+add("NEXT_PUBLIC_API_URL / BACKEND_URL", apiUrlOk, "Set NEXT_PUBLIC_API_URL to the live API ending in /api, or leave it blank and set an HTTPS BACKEND_URL.");
+add("NEXT_PUBLIC_SENTRY_DSN", isHttpsUrl(value("NEXT_PUBLIC_SENTRY_DSN")) && !hasPlaceholder(value("NEXT_PUBLIC_SENTRY_DSN")), "Frontend error tracking DSN is required.");
 
 const failed = checks.filter((check) => !check.ok);
 
