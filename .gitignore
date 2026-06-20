@@ -1,11 +1,60 @@
+# ─── Dependencies ─────────────────────────────────────────────────────────────
 node_modules/
+
+# ─── Build output ─────────────────────────────────────────────────────────────
 dist/
+.next/
+out/
+
+# ─── Environment / secrets ───────────────────────────────────────────────────
 .env*
 !.env.example
 !.env.production.example
 !.env.local.example
+
+# ─── Credentials & tokens (NEVER commit) ─────────────────────────────────────
+github_pat_*
+*.pem
+*.key
+*_rsa
+*_ed25519
+
+# ─── Claude / AI agent artifacts ──────────────────────────────────────────────
+.agents/
+.claude/
+claude-skills/
+impeccable/
+skills-lock.json
+CLAUDE-FABLE-5.md
 .codex-logs/
-*.log
+
+# ─── Design / planning docs (not app code) ───────────────────────────────────
+DESIGN.md
+DESIGN-airtable.md
+Tehilla_Prompt_Suite/
+logo_animate/
+
+# ─── Loose assets in repo root (belong in frontend/public or Figma) ──────────
+*.png
+*.jpg
+*.gif
+*.svg
+*.ico
+!frontend/public/**
+
+# ─── Misc junk files ─────────────────────────────────────────────────────────
+\!DOCTYPE*.txt
+TEHILLA FINTECH BACKEND ARCHITECT.txt
+
+# ─── Mobile app (separate repo) ──────────────────────────────────────────────
+tehilla-mobile/
+
+# ─── OS / editor ─────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 .vite/
+*.log
+.vscode/
+*.swp
+*.swo
+*~
