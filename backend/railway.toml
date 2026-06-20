@@ -1,6 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm run build && npx prisma generate --schema src/prisma/schema.prisma"
+buildCommand = "npx prisma generate --schema src/prisma/schema.prisma && npm run build"
 
 [deploy]
 startCommand = "npm start"
