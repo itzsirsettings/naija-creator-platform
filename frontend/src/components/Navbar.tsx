@@ -79,7 +79,7 @@ export default function Navbar() {
               <ChevronDown className="size-3" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 bg-white/75 backdrop-blur-xl border border-white/40 shadow-xl dark:bg-neutral-900/80 dark:border-white/10">
+          <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col gap-1">
                 <p className="text-sm font-semibold text-foreground">{user?.brandName || user?.name || "Guest"}</p>
