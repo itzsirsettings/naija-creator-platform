@@ -76,6 +76,10 @@ if (isProduction) {
   }
 }
 
+if (isProduction && !env.RESEND_API_KEY && !env.SMTP_HOST) {
+  console.warn('WARNING: No email transport configured. Verification emails will fail.');
+}
+
 if (env.KYC_ENCRYPTION_KEY) {
   const kycBuf = Buffer.from(env.KYC_ENCRYPTION_KEY, 'base64');
   if (kycBuf.length !== 32) {

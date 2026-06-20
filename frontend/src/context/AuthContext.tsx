@@ -134,7 +134,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
     const response = await api.post("/auth/login", { email, password })
-    const { accessToken } = unwrap<{ accessToken: string; user: RawUser }>(response)
+    const { accessToken, emailVerified } = unwrap<{
+      accessToken: string
+      user: RawUser
+      emailVerified?: boolean
+    }>(response)
+    if (emailVerified === false) {
+      throw Object.assign(new Error("Please verify your email before logging in."), {
+        code: "EMAIL_NOT_VERIFIED",
+        email,
+      })
+    }
     localStorage.setItem("tehilla_access_token", accessToken)
     setAccessToken(accessToken)
     setUser(await fetchMe())
@@ -145,7 +155,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser({ ...mockUser, ...data, id: "new-user", kycStatus: "UNVERIFIED", walletBalance: 0, walletHeld: 0 } as User)
       return {}
     }
-    // The API expects an uppercase role and an explicit terms acceptance.
     const response = await api.post("/auth/register", {
       name: data.name,
       email: data.email,
@@ -153,11 +162,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       role: data.role.toUpperCase(),
       termsAccepted: true,
     })
-    const { accessToken } = unwrap<{ accessToken: string; user: RawUser }>(response)
+    const { accessToken, emailVerificationRequired } = unwrap<{
+      accessToken: string
+      user: RawUser
+      emailVerificationRequired?: boolean
+    }>(response)
     localStorage.setItem("tehilla_access_token", accessToken)
     setAccessToken(accessToken)
     setUser(await fetchMe())
-    return {}
+    return { emailVerificationRequired: emailVerificationRequired ?? false }
   }, [])
 
   const logout = useCallback(async () => {

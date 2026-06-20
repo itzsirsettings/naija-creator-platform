@@ -5,13 +5,16 @@ import { Eye, EyeOff } from "lucide-react"
 
 export default function Login() {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, resendVerificationEmail } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [remember, setRemember] = useState(false)
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [needsVerification, setNeedsVerification] = useState(false)
+  const [resendLoading, setResendLoading] = useState(false)
+  const [resendSent, setResendSent] = useState(false)
 
   const [params] = useSearchParams()
   const redirectTo = params.get("redirect") || "/home"
@@ -19,17 +22,36 @@ export default function Login() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError("")
+    setNeedsVerification(false)
+    setResendSent(false)
     setLoading(true)
     try {
       await login(email, password)
       navigate(redirectTo, { replace: true })
     } catch (err: unknown) {
-      const message = err && typeof err === "object" && "response" in err
-        ? (err as { response: { data: { error: string } } }).response?.data?.error || "Login failed"
-        : err instanceof Error ? err.message : "Login failed"
-      setError(message)
+      if (err && typeof err === "object" && "code" in err && (err as { code: string }).code === "EMAIL_NOT_VERIFIED") {
+        setNeedsVerification(true)
+        setError("Please verify your email before logging in.")
+      } else {
+        const message = err && typeof err === "object" && "response" in err
+          ? (err as { response: { data: { error: string } } }).response?.data?.error || "Login failed"
+          : err instanceof Error ? err.message : "Login failed"
+        setError(message)
+      }
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleResendVerification() {
+    setResendLoading(true)
+    try {
+      await resendVerificationEmail(email)
+      setResendSent(true)
+    } catch {
+      setError("Failed to resend verification email. Please try again.")
+    } finally {
+      setResendLoading(false)
     }
   }
 
@@ -93,6 +115,26 @@ export default function Login() {
           </div>
 
           {error && <p className="text-[11.8px] text-[#ff6363] font-runde">{error}</p>}
+
+          {needsVerification && (
+            <div className="rounded-xl border border-[#e8e8e8] bg-[#fafafa] p-4 space-y-3">
+              <p className="text-[11.8px] text-[#666] font-runde">
+                Check your inbox at <strong className="text-[#0f0f0f]">{email}</strong> for a verification link.
+              </p>
+              {resendSent ? (
+                <p className="text-[11.8px] text-green-600 font-runde">Verification email sent!</p>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={resendLoading}
+                  className="w-full rounded-full border border-[#d8d8d8] py-3 text-[11.8px] font-medium text-[#0f0f0f] hover:bg-[#f0f0f0] transition-all disabled:opacity-50 font-runde"
+                >
+                  {resendLoading ? "Sending..." : "Resend verification email"}
+                </button>
+              )}
+            </div>
+          )}
 
           <button
             type="submit"

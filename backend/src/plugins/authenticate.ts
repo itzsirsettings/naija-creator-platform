@@ -37,7 +37,7 @@ export const authenticate = async (
 
   const user = await prisma.user.findUnique({
     where: { id: payload.id },
-    select: { id: true, email: true, role: true, suspendedAt: true },
+    select: { id: true, email: true, role: true, suspendedAt: true, permissions: true },
   });
 
   if (!user) throw AppError.unauthorized('Not authorized: user not found');
@@ -55,5 +55,16 @@ export const requireRole =
     if (!request.user) throw AppError.unauthorized('Not authenticated');
     if (!roles.includes(request.user.role)) {
       throw AppError.forbidden(`Access denied: requires role ${roles.join(' or ')}`);
+    }
+  };
+
+export const requirePermission =
+  (...perms: string[]) =>
+  async (request: FastifyRequest, _reply: FastifyReply): Promise<void> => {
+    if (!request.user) throw AppError.unauthorized('Not authenticated');
+    const userPerms = request.user.permissions ?? [];
+    if (userPerms.length === 0 && request.user.role === 'ADMIN') return;
+    if (!perms.every((p) => userPerms.includes(p))) {
+      throw AppError.forbidden(`Access denied: requires permission ${perms.join(', ')}`);
     }
   };

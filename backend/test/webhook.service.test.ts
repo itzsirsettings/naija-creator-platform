@@ -6,6 +6,8 @@ vi.mock('../src/repositories/payment.repository', () => ({
   recordPaidTransaction: vi.fn(),
   updatePayout: vi.fn(),
   debitCreatorBalance: vi.fn(),
+  // True-escrow: a failed/reversed transfer restores the reserved balance.
+  refundPayoutReservation: vi.fn(),
   markWebhook: vi.fn(),
 }));
 vi.mock('../src/repositories/offer.repository', () => ({
@@ -29,7 +31,7 @@ const provider = vi.mocked(paymentProvider);
 beforeEach(() => vi.clearAllMocks());
 
 describe('processPaystackWebhook — transfer.success', () => {
-  it('completes the payout, debits the creator, and marks the offer COMPLETED', async () => {
+  it('completes the payout and marks the offer COMPLETED (balance already reserved)', async () => {
     payRepo.findPayoutByProviderRef.mockResolvedValue({
       id: 'payout_1',
       creatorId: 'creator_1',
@@ -49,7 +51,8 @@ describe('processPaystackWebhook — transfer.success', () => {
       status: 'COMPLETED',
       providerRef: 'TRF_abc',
     });
-    expect(payRepo.debitCreatorBalance).toHaveBeenCalledWith('creator_1', 'tx_1', 90_000, expect.any(String));
+    // Balance was debited at reservation time, so success must NOT debit again.
+    expect(payRepo.debitCreatorBalance).not.toHaveBeenCalled();
     expect(offRepo.updateOfferStatus).toHaveBeenCalledWith('offer_1', { status: 'COMPLETED' });
     expect(payRepo.markWebhook).toHaveBeenCalledWith('wh_1', 'PROCESSED');
   });
@@ -89,9 +92,12 @@ describe('processPaystackWebhook — charge.success', () => {
 });
 
 describe('processPaystackWebhook — transfer.failed', () => {
-  it('marks the payout FAILED without touching balances', async () => {
+  it('marks the payout FAILED and restores the reserved balance', async () => {
     payRepo.findPayoutByProviderRef.mockResolvedValue({
       id: 'payout_1',
+      creatorId: 'creator_1',
+      transactionId: 'tx_1',
+      amountKobo: 90_000,
       transaction: { offerId: 'offer_1' },
     } as never);
 
@@ -105,6 +111,13 @@ describe('processPaystackWebhook — transfer.failed', () => {
       status: 'FAILED',
       failureReason: 'Bank declined',
     });
+    // Failed transfer must credit the reserved amount back to the creator.
+    expect(payRepo.refundPayoutReservation).toHaveBeenCalledWith(
+      'creator_1',
+      'tx_1',
+      90_000,
+      expect.any(String),
+    );
     expect(payRepo.debitCreatorBalance).not.toHaveBeenCalled();
   });
 });

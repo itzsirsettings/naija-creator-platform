@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import type { KycStatus } from '@prisma/client';
 import * as adminService from '../services/admin.service';
-import { authenticate, requireRole } from '../plugins/authenticate';
+import { authenticate, requireRole, requirePermission } from '../plugins/authenticate';
 import { idempotency } from '../plugins/idempotency';
 import { authSchemas } from '../schemas';
 
@@ -26,7 +26,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   // POST /api/admin/users/:id/suspend
   fastify.post('/users/:id/suspend', {
-    preHandler: [idempotency('admin.user.suspend')],
+    preHandler: [requirePermission('admin.suspend'), idempotency('admin.user.suspend')],
   }, async (request, reply) => {
     const { id } = request.params as { id: string };
     await adminService.suspendUser(id, request.user!.id, request.ip, request.id);
@@ -35,7 +35,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   // POST /api/admin/users/:id/unsuspend
   fastify.post('/users/:id/unsuspend', {
-    preHandler: [idempotency('admin.user.unsuspend')],
+    preHandler: [requirePermission('admin.suspend'), idempotency('admin.user.unsuspend')],
   }, async (request, reply) => {
     const { id } = request.params as { id: string };
     await adminService.unsuspendUser(id, request.user!.id, request.ip, request.id);
@@ -43,7 +43,9 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/admin/users/:id/kyc/review
-  fastify.post('/users/:id/kyc/review', async (request, reply) => {
+  fastify.post('/users/:id/kyc/review', {
+    preHandler: [requirePermission('admin.kyc')],
+  }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const { status, note } = authSchemas.kycReview.parse(request.body);
     await adminService.reviewKyc(id, status as KycStatus, note, request.user!.id, request.ip, request.id);
@@ -68,7 +70,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
 
   // POST /api/admin/offers/:id/force-complete
   fastify.post('/offers/:id/force-complete', {
-    preHandler: [idempotency('admin.offer.force_complete')],
+    preHandler: [requirePermission('admin.finance'), idempotency('admin.offer.force_complete')],
   }, async (request, reply) => {
     const { id } = request.params as { id: string };
     await adminService.forceCompleteOffer(id, request.user!.id, request.ip, request.id);
@@ -76,13 +78,13 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   });
 
   // GET /api/admin/transactions
-  fastify.get('/transactions', async (_request, reply) => {
+  fastify.get('/transactions', { preHandler: [requirePermission('admin.finance')] }, async (_request, reply) => {
     const transactions = await adminService.listTransactions();
     return reply.send(ok({ transactions }));
   });
 
   // GET /api/admin/audit
-  fastify.get('/audit', async (_request, reply) => {
+  fastify.get('/audit', { preHandler: [requirePermission('admin.audit')] }, async (_request, reply) => {
     const logs = await adminService.listAuditLog();
     return reply.send(ok({ logs }));
   });
@@ -91,5 +93,21 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.get('/webhooks', async (_request, reply) => {
     const webhooks = await adminService.listWebhooks();
     return reply.send(ok({ webhooks }));
+  });
+
+  // GET /api/admin/creators/:id/reconcile
+  fastify.get('/creators/:id/reconcile', { preHandler: [requirePermission('admin.finance')] }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const result = await adminService.reconcileCreatorBalance(id);
+    return reply.send(ok(result));
+  });
+
+  // GET /api/admin/users/:id/kyc
+  fastify.get('/users/:id/kyc', { preHandler: [requirePermission('admin.kyc')] }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const q = request.query as { reveal?: string };
+    const reveal = q.reveal === 'true';
+    const result = await adminService.getKycData(id, request.user!.id, reveal, request.ip, request.id);
+    return reply.send(ok(result));
   });
 }

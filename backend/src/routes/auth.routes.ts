@@ -34,7 +34,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
     const accessToken = authService.signAccessToken(fastify, user);
     const refreshToken = await authService.createRefreshSession(user.id);
     reply.setCookie(REFRESH_COOKIE, refreshToken, cookieOpts());
-    return reply.status(201).send(ok({ user: authService.publicUser(user), accessToken }));
+    return reply.status(201).send(ok({ user: authService.publicUser(user), accessToken, emailVerificationRequired: true }));
   });
 
   // POST /api/auth/login
@@ -42,7 +42,8 @@ export default async function authRoutes(fastify: FastifyInstance) {
     const { email, password } = authSchemas.login.parse(request.body);
     const { user, accessToken, refreshToken } = await authService.login(email, password, fastify);
     reply.setCookie(REFRESH_COOKIE, refreshToken, cookieOpts());
-    return reply.send(ok({ user: authService.publicUser(user), accessToken }));
+    const emailVerified = Boolean(user.emailVerifiedAt);
+    return reply.send(ok({ user: authService.publicUser(user), accessToken, emailVerified }));
   });
 
   // POST /api/auth/refresh

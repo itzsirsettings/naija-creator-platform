@@ -6,8 +6,10 @@ import * as creatorRepo from '../repositories/creator.repository';
 import * as offerRepo from '../repositories/offer.repository';
 import * as paymentRepo from '../repositories/payment.repository';
 import { recordAudit } from './audit.service';
+import { decryptField, maskCipher } from '../utils/kyc';
 import { AppError } from '../errors/AppError';
 import { calculateSplitKobo } from '../utils/money';
+import logger from '../lib/logger';
 
 export const listUsers = (params: adminRepo.ListUsersParams) => adminRepo.listUsers(params);
 
@@ -145,4 +147,72 @@ export const reviewKyc = async (
     ip,
     requestId,
   });
+};
+
+export const reconcileCreatorBalance = async (creatorId: string) => {
+  const creator = await creatorRepo.findCreatorById(creatorId);
+  if (!creator) throw AppError.notFound('Creator not found');
+
+  const ledger = await paymentRepo.computeLedgerBalance(creatorId);
+
+  const balanceDrift = creator.balanceKobo - ledger.computedBalanceKobo;
+  const heldDrift = creator.heldKobo - ledger.computedHeldKobo;
+  const inSync = balanceDrift === 0 && heldDrift === 0;
+
+  if (!inSync) {
+    logger.warn(
+      { creatorId, balanceDrift, heldDrift, cached: { balanceKobo: creator.balanceKobo, heldKobo: creator.heldKobo }, ledger },
+      'ledger reconciliation drift detected',
+    );
+  }
+
+  return {
+    creatorId,
+    cached: { balanceKobo: creator.balanceKobo, heldKobo: creator.heldKobo },
+    ledger: { balanceKobo: ledger.computedBalanceKobo, heldKobo: ledger.computedHeldKobo },
+    breakdown: ledger.breakdown,
+    balanceDrift,
+    heldDrift,
+    inSync,
+  };
+};
+
+export const getKycData = async (
+  targetUserId: string,
+  actorId: string,
+  reveal: boolean,
+  ip?: string,
+  requestId?: string,
+) => {
+  const user = await prisma.user.findUnique({
+    where: { id: targetUserId },
+    select: { id: true, email: true, role: true, ninCipher: true, bvnCipher: true, kycStatus: true },
+  });
+  if (!user) throw AppError.notFound('User not found');
+
+  const transform = reveal ? decryptField : maskCipher;
+  const nin = user.ninCipher ? transform(user.ninCipher) : null;
+  const bvn = user.bvnCipher ? transform(user.bvnCipher) : null;
+
+  let cacNumber: string | null = null;
+  if (user.role === 'BRAND') {
+    const brand = await prisma.brand.findUnique({
+      where: { userId: targetUserId },
+      select: { cacNumberCipher: true },
+    });
+    if (brand?.cacNumberCipher) {
+      cacNumber = transform(brand.cacNumberCipher);
+    }
+  }
+
+  await recordAudit({
+    actorId,
+    action: reveal ? 'kyc.view_full' : 'kyc.view_masked',
+    entityType: 'User',
+    entityId: targetUserId,
+    ip,
+    requestId,
+  });
+
+  return { userId: user.id, email: user.email, kycStatus: user.kycStatus, nin, bvn, cacNumber };
 };

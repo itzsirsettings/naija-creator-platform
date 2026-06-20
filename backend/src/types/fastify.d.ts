@@ -9,6 +9,7 @@ declare module '@fastify/jwt' {
       email: string;
       role: string;
       suspendedAt?: Date | null;
+      permissions?: string[];
     };
   }
 }

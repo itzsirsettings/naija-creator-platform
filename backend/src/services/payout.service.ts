@@ -4,6 +4,7 @@ import * as offerRepo from '../repositories/offer.repository';
 import * as creatorRepo from '../repositories/creator.repository';
 import { paymentProvider } from './payment.service';
 import { calculateSplitKobo } from '../utils/money';
+import { recordAudit } from './audit.service';
 import { AppError } from '../errors/AppError';
 import logger from '../lib/logger';
 
@@ -32,6 +33,14 @@ export const initiatePayment = async (
     reference,
     callbackUrl: successUrl,
     metadata: { offerId, transactionId: transaction.id },
+  });
+
+  await recordAudit({
+    actorId: brandUserId,
+    action: 'payment.initiate',
+    entityType: 'Transaction',
+    entityId: transaction.id,
+    metadata: { offerId, amountKobo: offer.amountKobo, reference },
   });
 
   return { ...result, transactionId: transaction.id };
@@ -93,12 +102,6 @@ export const requestPayout = async (offerId: string, actorUserId: string, actorR
   if (!creator.paystackCode) {
     throw AppError.badRequest('Creator has no bank account on file', 'NO_BANK_ACCOUNT');
   }
-  if (creator.balanceKobo < transaction.netKobo) {
-    throw AppError.badRequest('Insufficient withdrawable balance for this payout', 'INSUFFICIENT_BALANCE');
-  }
-
-  // Get-or-create the single payout row. Payout.transactionId @unique is the
-  // double-payout backstop; concurrent creates resolve to one winner (P2002).
   let payout = await paymentRepo.findPayoutByTransactionId(transaction.id);
   if (payout?.status === 'COMPLETED') throw AppError.conflict('Already paid out');
   if (payout?.status === 'PROCESSING') throw AppError.conflict('Payout already in progress');
@@ -117,10 +120,21 @@ export const requestPayout = async (offerId: string, actorUserId: string, actorR
     }
   }
 
-  // Atomically claim PENDING/FAILED/REVERSED → PROCESSING. Only the winner sends
-  // a transfer; a concurrent request sees claimed === false and bails.
   const claimed = await paymentRepo.claimPayoutForProcessing(payout.id);
   if (!claimed) throw AppError.conflict('Payout already in progress');
+
+  const reserved = await paymentRepo.reserveBalanceForPayout(
+    offer.creatorId,
+    transaction.id,
+    transaction.netKobo,
+  );
+  if (!reserved) {
+    await paymentRepo.updatePayout(payout.id, {
+      status: 'FAILED',
+      failureReason: 'Insufficient withdrawable balance',
+    });
+    throw AppError.badRequest('Insufficient withdrawable balance for this payout', 'INSUFFICIENT_BALANCE');
+  }
 
   const payoutReference = `payout_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
   const reason = `Tehilla offer payment: ${offer.title}`;
@@ -132,13 +146,26 @@ export const requestPayout = async (offerId: string, actorUserId: string, actorR
       reason,
       payoutReference,
     );
-    // Store the provider transfer_code so the transfer.success webhook can find
-    // this payout via findPayoutByProviderRef.
     const providerRef =
       (result.data?.['transfer_code'] as string | undefined) ?? result.reference ?? payoutReference;
     await paymentRepo.updatePayout(payout.id, { status: 'PROCESSING', providerRef });
+
+    await recordAudit({
+      actorId: actorUserId,
+      action: 'payout.request',
+      entityType: 'Payout',
+      entityId: payout.id,
+      metadata: { offerId, amountKobo: transaction.netKobo, providerRef },
+    });
+
     return { success: true, reference: providerRef };
   } catch (err) {
+    await paymentRepo.refundPayoutReservation(
+      offer.creatorId,
+      transaction.id,
+      transaction.netKobo,
+      'Payout failed — balance restored',
+    );
     await paymentRepo.updatePayout(payout.id, {
       status: 'FAILED',
       failureReason: (err as Error).message,
@@ -171,6 +198,12 @@ export const processPaystackWebhook = async (params: ProcessWebhookEventParams) 
       if (verified.data.status === 'success' && existing) {
         await paymentRepo.recordPaidTransaction({ transaction: existing, paystackRef: reference });
         await offerRepo.updateOfferStatus(existing.offerId, { status: 'FUNDED' });
+        await recordAudit({
+          action: 'payment.received',
+          entityType: 'Transaction',
+          entityId: existing.id,
+          metadata: { reference, amountKobo: existing.grossKobo, offerId: existing.offerId },
+        });
       }
     }
 
@@ -184,13 +217,13 @@ export const processPaystackWebhook = async (params: ProcessWebhookEventParams) 
           status: 'COMPLETED',
           providerRef: String(transferCode),
         });
-        await paymentRepo.debitCreatorBalance(
-          payout.creatorId,
-          payout.transactionId,
-          payout.amountKobo,
-          'Payout sent to bank',
-        );
         await offerRepo.updateOfferStatus(payout.transaction.offerId, { status: 'COMPLETED' });
+        await recordAudit({
+          action: 'payout.completed',
+          entityType: 'Payout',
+          entityId: payout.id,
+          metadata: { transferCode, amountKobo: payout.amountKobo, creatorId: payout.creatorId },
+        });
       }
     }
 
@@ -199,9 +232,22 @@ export const processPaystackWebhook = async (params: ProcessWebhookEventParams) 
       if (transferCode) {
         const payout = await paymentRepo.findPayoutByProviderRef(String(transferCode));
         if (payout) {
+          const newStatus = event === 'transfer.reversed' ? 'REVERSED' as const : 'FAILED' as const;
           await paymentRepo.updatePayout(payout.id, {
-            status: event === 'transfer.reversed' ? 'REVERSED' : 'FAILED',
+            status: newStatus,
             failureReason: (data['gateway_response'] as string | undefined) ?? event,
+          });
+          await paymentRepo.refundPayoutReservation(
+            payout.creatorId,
+            payout.transactionId,
+            payout.amountKobo,
+            `Payout ${newStatus.toLowerCase()} — balance restored`,
+          );
+          await recordAudit({
+            action: `payout.${newStatus.toLowerCase()}`,
+            entityType: 'Payout',
+            entityId: payout.id,
+            metadata: { transferCode, reason: data['gateway_response'], amountKobo: payout.amountKobo },
           });
         }
       }

@@ -6,6 +6,10 @@ vi.mock('../src/repositories/payment.repository', () => ({
   createPayoutForTransaction: vi.fn(),
   claimPayoutForProcessing: vi.fn(),
   updatePayout: vi.fn(),
+  // True-escrow: balance is reserved (debited) at payout initiation and
+  // refunded if the bank transfer later fails.
+  reserveBalanceForPayout: vi.fn(),
+  refundPayoutReservation: vi.fn(),
 }));
 vi.mock('../src/repositories/offer.repository', () => ({
   findOfferById: vi.fn(),
@@ -66,9 +70,15 @@ describe('requestPayout — escrow guard', () => {
     offRepo.findOfferById.mockResolvedValue(offer('APPROVED') as never);
     payRepo.findTransactionByOfferId.mockResolvedValue({ id: 'tx_1', netKobo: 90_000 } as never);
     crRepo.findCreatorById.mockResolvedValue({ id: 'creator_1', balanceKobo: 0, paystackCode: 'RCP_1' } as never);
+    payRepo.findPayoutByTransactionId.mockResolvedValue(null as never);
+    payRepo.createPayoutForTransaction.mockResolvedValue({ id: 'payout_1', status: 'PENDING' } as never);
+    payRepo.claimPayoutForProcessing.mockResolvedValue(true);
+    // The atomic reservation is the source of truth for sufficiency.
+    payRepo.reserveBalanceForPayout.mockResolvedValue(false);
     await expect(requestPayout('offer_1', 'creator_user', 'CREATOR')).rejects.toMatchObject({
       code: 'INSUFFICIENT_BALANCE',
     });
+    expect(provider.sendPayoutKobo).not.toHaveBeenCalled();
   });
 });
 
@@ -77,6 +87,7 @@ describe('requestPayout — happy path + concurrency', () => {
     offRepo.findOfferById.mockResolvedValue(offer('APPROVED') as never);
     payRepo.findTransactionByOfferId.mockResolvedValue({ id: 'tx_1', netKobo: 90_000 } as never);
     crRepo.findCreatorById.mockResolvedValue({ id: 'creator_1', balanceKobo: 90_000, paystackCode: 'RCP_1' } as never);
+    payRepo.reserveBalanceForPayout.mockResolvedValue(true);
   });
 
   it('admin can trigger payout; stores the provider transfer_code as providerRef', async () => {
@@ -120,6 +131,13 @@ describe('requestPayout — happy path + concurrency', () => {
     provider.sendPayoutKobo.mockRejectedValue(new Error('Paystack down'));
 
     await expect(requestPayout('offer_1', 'admin_user', 'ADMIN')).rejects.toThrow('Paystack down');
+    // Reserved balance must be restored when the transfer never leaves.
+    expect(payRepo.refundPayoutReservation).toHaveBeenCalledWith(
+      'creator_1',
+      'tx_1',
+      90_000,
+      expect.any(String),
+    );
     expect(payRepo.updatePayout).toHaveBeenCalledWith('payout_1', {
       status: 'FAILED',
       failureReason: 'Paystack down',

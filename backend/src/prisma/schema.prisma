@@ -25,6 +25,7 @@ model User {
   kycSubmittedAt  DateTime?
   kycReviewedAt   DateTime?
   kycReviewNote   String?
+  permissions     String[]  @default([])
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 

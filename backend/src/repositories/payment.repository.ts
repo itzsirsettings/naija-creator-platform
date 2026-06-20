@@ -263,6 +263,107 @@ export const debitCreatorBalance = async (
   });
 };
 
+/**
+ * Atomically reserve (debit) balance at payout initiation time.
+ * Prevents overdraft from concurrent payout requests across different offers.
+ * Idempotent via @@unique([transactionId, DEBIT]).
+ */
+export const reserveBalanceForPayout = async (
+  creatorId: string,
+  transactionId: string,
+  amountKobo: number,
+): Promise<boolean> => {
+  try {
+    await prisma.$transaction(async (tx) => {
+      const creator = await tx.creator.findUniqueOrThrow({ where: { id: creatorId } });
+      if (creator.balanceKobo < amountKobo) {
+        throw new Error('INSUFFICIENT_BALANCE');
+      }
+      const updated = await tx.creator.update({
+        where: { id: creatorId },
+        data: { balanceKobo: { decrement: amountKobo } },
+      });
+      await tx.ledgerEntry.create({
+        data: {
+          creatorId,
+          transactionId,
+          type: 'DEBIT',
+          amountKobo,
+          balanceAfterKobo: updated.balanceKobo,
+          description: 'Payout reserved — pending bank transfer',
+        },
+      });
+    });
+    return true;
+  } catch (err) {
+    if ((err as Error).message === 'INSUFFICIENT_BALANCE') return false;
+    if ((err as { code?: string }).code === 'P2002') return true;
+    throw err;
+  }
+};
+
+/**
+ * Reverse a payout reservation when the transfer fails or is reversed.
+ * Credits the balance back. Idempotent via @@unique([transactionId, ADJUSTMENT]).
+ */
+export const refundPayoutReservation = async (
+  creatorId: string,
+  transactionId: string,
+  amountKobo: number,
+  description: string,
+): Promise<void> => {
+  try {
+    await prisma.$transaction(async (tx) => {
+      const updated = await tx.creator.update({
+        where: { id: creatorId },
+        data: { balanceKobo: { increment: amountKobo } },
+      });
+      await tx.ledgerEntry.create({
+        data: {
+          creatorId,
+          transactionId,
+          type: 'ADJUSTMENT',
+          amountKobo,
+          balanceAfterKobo: updated.balanceKobo,
+          description,
+        },
+      });
+    });
+  } catch (err) {
+    if ((err as { code?: string }).code === 'P2002') return;
+    throw err;
+  }
+};
+
+/**
+ * Compute balance from ledger entries (source of truth) for reconciliation.
+ */
+export const computeLedgerBalance = async (creatorId: string) => {
+  const entries = await prisma.ledgerEntry.groupBy({
+    by: ['type'],
+    where: { creatorId },
+    _sum: { amountKobo: true },
+  });
+
+  const sums: Record<string, number> = {};
+  for (const entry of entries) {
+    sums[entry.type] = entry._sum.amountKobo ?? 0;
+  }
+
+  const release = sums['RELEASE'] ?? 0;
+  const credit = sums['CREDIT'] ?? 0;
+  const adjustment = sums['ADJUSTMENT'] ?? 0;
+  const debit = sums['DEBIT'] ?? 0;
+  const hold = sums['HOLD'] ?? 0;
+  const refund = sums['REFUND'] ?? 0;
+
+  return {
+    computedBalanceKobo: release + credit + adjustment - debit,
+    computedHeldKobo: hold - release - refund,
+    breakdown: sums,
+  };
+};
+
 export const listWebhookEvents = (limit = 50) =>
   prisma.providerWebhookEvent.findMany({
     orderBy: { createdAt: 'desc' },

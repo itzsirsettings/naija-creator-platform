@@ -1,5 +1,6 @@
 import * as paymentRepo from '../repositories/payment.repository';
 import { paymentProvider } from './payment.service';
+import { recordAudit } from './audit.service';
 import { AppError } from '../errors/AppError';
 import logger from '../lib/logger';
 
@@ -28,6 +29,12 @@ export const releaseFunds = async (offerId: string) => {
       'Escrow released — brand approved deliverable',
     );
     logger.info({ offerId, transactionId: transaction.id }, 'escrow released to withdrawable balance');
+    await recordAudit({
+      action: 'escrow.release',
+      entityType: 'Transaction',
+      entityId: transaction.id,
+      metadata: { offerId, creatorId: transaction.creatorId, amountKobo: transaction.netKobo },
+    });
     return creator;
   } catch (err) {
     if (isUniqueViolation(err)) {
@@ -103,5 +110,12 @@ export const refundFunds = async (offerId: string, actorId: string) => {
   await paymentRepo.updateTransactionStatus(transaction.id, 'refunded');
 
   logger.info({ offerId, transactionId: transaction.id, actorId }, 'escrow refunded to brand');
+  await recordAudit({
+    actorId,
+    action: 'escrow.refund',
+    entityType: 'Transaction',
+    entityId: transaction.id,
+    metadata: { offerId, creatorId: transaction.creatorId, grossKobo: transaction.grossKobo },
+  });
   return { refunded: true, transactionId: transaction.id };
 };
