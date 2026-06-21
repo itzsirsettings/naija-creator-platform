@@ -1,8 +1,10 @@
 import * as campaignRepo from '../repositories/campaign.repository';
 import * as creatorRepo from '../repositories/creator.repository';
 import * as brandRepo from '../repositories/brand.repository';
-import { canApplyToCampaigns } from '../lib/premium';
+import { canApplyToCampaigns, isPremiumActive, TIER_RANK } from '../lib/premium';
 import { AppError } from '../errors/AppError';
+
+const EARLY_ACCESS_HOURS = 24;
 
 export interface CreateCampaignInput {
   title: string;
@@ -25,8 +27,24 @@ export const createCampaign = async (userId: string, input: CreateCampaignInput)
   });
 };
 
-export const listCampaigns = (params: campaignRepo.ListCampaignsParams) =>
-  campaignRepo.listCampaigns(params);
+export const listCampaigns = async (
+  params: campaignRepo.ListCampaignsParams,
+  requestingUserId?: string,
+) => {
+  let createdBefore: Date | undefined;
+  if (requestingUserId) {
+    const creator = await creatorRepo.findCreatorByUserId(requestingUserId);
+    if (creator) {
+      const active = isPremiumActive(creator.premiumTier, creator.premiumUntil);
+      const rank = active ? (TIER_RANK[creator.premiumTier as keyof typeof TIER_RANK] ?? 0) : 0;
+      const isPopularPlus = rank >= TIER_RANK.POPULAR;
+      if (!isPopularPlus) {
+        createdBefore = new Date(Date.now() - EARLY_ACCESS_HOURS * 60 * 60 * 1000);
+      }
+    }
+  }
+  return campaignRepo.listCampaigns({ ...params, createdBefore });
+};
 
 export const listMyCampaigns = async (userId: string, params: campaignRepo.ListCampaignsParams) => {
   const brand = await brandRepo.findBrandByUserId(userId);

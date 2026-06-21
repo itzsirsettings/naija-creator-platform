@@ -107,6 +107,19 @@ export default function Premium() {
         </div>
       )}
 
+      {/* Outcome stat chips */}
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        {[
+          { icon: "📈", text: "Popular creators win 3× more campaigns" },
+          { icon: "⚡", text: "48% faster payouts" },
+          { icon: "💰", text: "₦12M+ in total creator payouts" },
+        ].map((s) => (
+          <span key={s.text} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-4 py-2 text-xs font-medium">
+            <span>{s.icon}</span> {s.text}
+          </span>
+        ))}
+      </div>
+
       {/* Billing toggle */}
       <div className="flex justify-center">
         <div className="inline-flex items-center gap-3 rounded-full border border-border bg-muted/30 p-1.5">

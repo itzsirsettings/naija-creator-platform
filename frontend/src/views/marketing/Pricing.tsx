@@ -53,8 +53,21 @@ export default function Pricing() {
           Scale your creator business with the tools, visibility, and trust features you need to win more deals and earn more revenue.
         </p>
 
+        {/* OUTCOME STATS */}
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+          {[
+            { icon: "📈", text: "Popular creators win 3× more campaigns" },
+            { icon: "⚡", text: "48% faster payouts vs. free tier" },
+            { icon: "💰", text: "₦12M+ in total creator payouts" },
+          ].map((s) => (
+            <span key={s.text} className="inline-flex items-center gap-1.5 rounded-full border border-[#d8d8d8]/80 bg-white px-4 py-2 text-[11.8px] font-medium text-[#0f0f0f] shadow-xs">
+              <span>{s.icon}</span> {s.text}
+            </span>
+          ))}
+        </div>
+
         {/* BILLING TOGGLE */}
-        <div className="mt-10 inline-flex items-center gap-3 rounded-full border border-[#d8d8d8]/80 bg-white p-1.5 shadow-xs">
+        <div className="mt-6 inline-flex items-center gap-3 rounded-full border border-[#d8d8d8]/80 bg-white p-1.5 shadow-xs">
           <button
             onClick={() => setIsAnnual(false)}
             className={`rounded-full px-5 py-2 text-[12.7px] font-semibold transition-all ${!isAnnual ? "bg-[#0f0f0f] text-white" : "text-[#666] hover:text-[#0f0f0f]"}`}

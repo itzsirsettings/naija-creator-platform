@@ -1,13 +1,14 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { ArrowUpRight, Crown, Inbox, Lock, Loader2, Megaphone, Plus, Users } from "lucide-react"
+import { ArrowUpRight, Crown, Inbox, Lock, Loader2, Megaphone, Plus, Users, Zap } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import ApplyModal from "@/components/ApplyModal"
 import { useAuth } from "@/context/AuthContext"
+import { markCampaignsSeen } from "@/hooks/useCampaignNotifs"
 import { Link, useNavigate } from "@/lib/router"
 import {
   fetchCampaigns, fetchMyCampaigns, createCampaign, closeCampaign,
@@ -150,12 +151,16 @@ function CreatorCampaigns() {
   const [applyTo, setApplyTo] = useState<Campaign | null>(null)
 
   const canApply = user?.premiumActive && (user.premiumTier === "POPULAR" || user.premiumTier === "PREMIUM")
+  const hasEarlyAccess = canApply
 
   const load = useCallback(async () => {
     setIsLoading(true)
     try { setCampaigns(await fetchCampaigns({ limit: 50 })) } catch { /* zero-state */ } finally { setIsLoading(false) }
   }, [])
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    load()
+    markCampaignsSeen()
+  }, [load])
 
   const handleApply = (c: Campaign) => {
     if (!canApply) {
@@ -186,20 +191,25 @@ function CreatorCampaigns() {
         <p className="text-muted-foreground">Open brand campaigns you can apply to.</p>
       </div>
 
-      {/* Locked banner for creators without Popular/Premium */}
+      {/* Inbound offers always work — only outbound campaign applications need Popular+ */}
       {!canApply && (
-        <div className="flex items-start gap-3 rounded-xl border border-[#1A24B8]/30 bg-[#1A24B8]/5 p-4 text-sm">
-          <Crown className="mt-0.5 size-5 shrink-0 text-[#1A24B8]" />
-          <div className="flex-1">
-            <p className="font-semibold text-[#1A24B8]">Popular plan required to apply to campaigns</p>
-            <p className="mt-0.5 text-muted-foreground">Upgrade to Popular or Premium to send applications directly to brand campaigns.</p>
+        <div className="space-y-2">
+          <div className="flex items-start gap-3 rounded-xl border border-[#1A24B8]/30 bg-[#1A24B8]/5 p-4 text-sm">
+            <Crown className="mt-0.5 size-5 shrink-0 text-[#1A24B8]" />
+            <div className="flex-1">
+              <p className="font-semibold text-[#1A24B8]">Popular plan required to apply to campaigns</p>
+              <p className="mt-0.5 text-muted-foreground">
+                Brands can still send you direct offers from your profile.{" "}
+                Upgrade to Popular to also apply to posted campaigns — and get 24h early access before Standard creators see them.
+              </p>
+            </div>
+            <Link
+              to="/app/premium"
+              className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-[#1A24B8] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#0A0F7A] transition-colors"
+            >
+              Upgrade <ArrowUpRight className="size-3" />
+            </Link>
           </div>
-          <Link
-            to="/app/premium"
-            className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-[#1A24B8] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#0A0F7A] transition-colors"
-          >
-            Upgrade <ArrowUpRight className="size-3" />
-          </Link>
         </div>
       )}
 
@@ -210,8 +220,15 @@ function CreatorCampaigns() {
           {campaigns.map((c) => (
             <div key={c.id} className="flex flex-col justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm">
               <div>
-                <div className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
-                  <Megaphone className="size-3.5" /> {c.brand?.name ?? "Brand"}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
+                    <Megaphone className="size-3.5" /> {c.brand?.name ?? "Brand"}
+                  </div>
+                  {hasEarlyAccess && Date.now() - new Date(c.createdAt).getTime() < 24 * 60 * 60 * 1000 && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#8B5CF6]/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#8B5CF6]">
+                      <Zap className="size-2.5" /> Early Access
+                    </span>
+                  )}
                 </div>
                 <h3 className="mt-1 font-heading text-sm font-semibold">{c.title}</h3>
                 <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{c.description}</p>

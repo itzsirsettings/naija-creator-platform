@@ -8,6 +8,8 @@ export interface ListCampaignsParams {
   brandId?: string;
   limit?: number;
   cursor?: string;
+  /** When set, only campaigns created at or before this date are returned (used for early-access gating). */
+  createdBefore?: Date;
 }
 
 const brandPreview = { select: { id: true, name: true, industry: true, logo: true } };
@@ -47,6 +49,7 @@ export const listCampaigns = async (params: ListCampaignsParams) => {
       ],
     });
   }
+  if (params.createdBefore) clauses.push({ createdAt: { lte: params.createdBefore } });
   if (Object.keys(cursorWhere).length) clauses.push(cursorWhere);
 
   const campaigns = await prisma.campaign.findMany({

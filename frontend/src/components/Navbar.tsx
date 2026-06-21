@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/context/AuthContext"
 import { useTheme } from "@/context/ThemeContext"
+import { useNavigate } from "@/lib/router"
+import { useCampaignNotifs } from "@/hooks/useCampaignNotifs"
 import { initials } from "@/utils/format"
 import { toast } from "sonner"
 
@@ -22,6 +24,8 @@ const kycBadge: Record<string, { label: string; Icon: typeof ShieldCheck; classN
 export default function Navbar() {
   const { user, logout } = useAuth()
   const { isLight, toggleTheme } = useTheme()
+  const navigate = useNavigate()
+  const { newCount } = useCampaignNotifs()
   const currentKyc = user ? (kycBadge[user.kycStatus] || kycBadge.NONE) : null
   const ThemeIcon = isLight ? Moon : Sun
 
@@ -44,12 +48,25 @@ export default function Navbar() {
         </button>
 
         <button
-          onClick={() => toast("3 campaign messages are ready in Offers.")}
-          aria-label="Notifications (3 unread)"
+          onClick={() => {
+            if (user?.role === "creator") {
+              navigate("/app/campaigns")
+            } else {
+              toast("Check Campaigns for the latest brand activity.")
+            }
+          }}
+          aria-label={newCount > 0 ? `${newCount} new campaigns` : "Notifications"}
           className="relative hidden sm:inline-flex items-center justify-center size-8 rounded-lg border border-border bg-card shadow-sm transition-colors hover:bg-muted"
         >
           <Bell className="size-4 stroke-[2.5]" />
-          <span aria-hidden="true" className="absolute -top-1 -right-1 size-2 rounded-full border border-white bg-[#1A24B8]" />
+          {newCount > 0 && (
+            <span
+              aria-hidden="true"
+              className="absolute -top-1 -right-1 flex items-center justify-center min-w-[14px] h-[14px] rounded-full border border-white bg-[#1A24B8] text-[8px] font-bold text-white px-0.5"
+            >
+              {newCount > 9 ? "9+" : newCount}
+            </span>
+          )}
         </button>
 
         <button

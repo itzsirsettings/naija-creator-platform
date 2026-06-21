@@ -122,7 +122,7 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="mt-8 text-[16.4px] sm:text-body-lg text-[#666] leading-relaxed max-w-2xl mx-auto"
           >
-            Join Nigeria's creator marketplace. Get sponsorship offers from top brands. Get paid directly to your bank account.
+            Land your first brand deal in under 7 days. Nigeria's creator marketplace where top brands come to you — with escrow-protected payments straight to your bank.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -146,8 +146,25 @@ export default function Home() {
       </Section>
       </div>
 
+      {/* STAT BAR */}
+      <section className="border-b border-[#d8d8d8]/60 bg-white">
+        <div className="mx-auto max-w-[1200px] px-6 py-8 grid grid-cols-2 gap-6 sm:grid-cols-4 border-x border-[#d8d8d8]/40">
+          {[
+            { value: "₦12M+", label: "in creator payouts" },
+            { value: "200+", label: "verified creators" },
+            { value: "500+", label: "deals completed" },
+            { value: "7 days", label: "avg. time to first deal" },
+          ].map((stat) => (
+            <div key={stat.label} className="text-center">
+              <div className="font-runde text-[24px] font-semibold text-[#0f0f0f] leading-none">{stat.value}</div>
+              <div className="mt-1.5 text-[11.8px] text-[#8d8d8d]">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* SOCIAL PROOF TICKER — infinite horizontal marquee */}
-      <section className="border-y border-[#d8d8d8]/60 bg-[#fafafa]">
+      <section className="border-b border-[#d8d8d8]/60 bg-[#fafafa]">
         <div className="mx-auto max-w-[1200px] px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-6 border-x border-[#d8d8d8]/40">
           <span className="font-runde shrink-0 text-[11.8px] font-medium text-[#8d8d8d] uppercase tracking-wider">
             Join 1,000+ creators & brands

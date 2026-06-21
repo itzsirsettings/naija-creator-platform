@@ -7,9 +7,13 @@ const ok = (data: unknown) => ({ success: true, data, error: null });
 
 export default async function campaignRoutes(fastify: FastifyInstance) {
   // Browse campaigns (any authenticated user). Defaults to OPEN.
+  // Creators without Popular/Premium only see campaigns older than 24h (early-access gate).
   fastify.get('/', { preHandler: [authenticate] }, async (request, reply) => {
     const query = campaignSchemas.list.parse(request.query);
-    const result = await campaignService.listCampaigns({ ...query, status: query.status ?? 'OPEN' });
+    const result = await campaignService.listCampaigns(
+      { ...query, status: query.status ?? 'OPEN' },
+      request.user!.id,
+    );
     return reply.send({ success: true, ...result, error: null });
   });
 

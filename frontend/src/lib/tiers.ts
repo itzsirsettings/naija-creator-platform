@@ -43,18 +43,18 @@ export const FEATURES: FeatureDef[] = [
   { key: "applyToCampaigns", label: "Apply to Posted Campaigns", minTier: "POPULAR", status: "live" },
   // Premium
   { key: "unlimitedTeam", label: "Unlimited Team Members", minTier: "PREMIUM", status: "rolling-out" },
-  { key: "dedicatedManager", label: "Dedicated Account Manager", minTier: "PREMIUM", status: "rolling-out" },
+  { key: "dedicatedManager", label: "Dedicated Account Manager — weekly strategy call", minTier: "PREMIUM", status: "rolling-out" },
   { key: "aiInsights", label: "AI Campaign Insights", minTier: "PREMIUM", status: "rolling-out" },
   { key: "advancedEscrowControls", label: "Advanced Escrow Controls", minTier: "PREMIUM", status: "rolling-out" },
-  { key: "earlyAccess", label: "Early Access Features", minTier: "PREMIUM", status: "rolling-out" },
+  { key: "earlyAccess", label: "24h Early Access to New Campaigns", minTier: "POPULAR", status: "live" },
   { key: "apiAccess", label: "API Access", minTier: "PREMIUM", status: "rolling-out" },
   { key: "customBrandPages", label: "Custom Brand Pages", minTier: "PREMIUM", status: "rolling-out" },
   { key: "premiumVerification", label: "Premium Creator Verification", minTier: "PREMIUM", status: "rolling-out" },
   { key: "enterpriseAnalytics", label: "Enterprise Analytics", minTier: "PREMIUM", status: "rolling-out" },
   { key: "whiteLabelReports", label: "White Label Reports", minTier: "PREMIUM", status: "rolling-out" },
   { key: "priorityPayouts", label: "Priority Payouts", minTier: "PREMIUM", status: "rolling-out" },
-  { key: "vipSupport", label: "VIP Support", minTier: "PREMIUM", status: "live" },
-  { key: "growthConsultation", label: "Strategic Growth Consultation", minTier: "PREMIUM", status: "rolling-out" },
+  { key: "vipSupport", label: "VIP Support — dedicated Slack + 24h SLA", minTier: "PREMIUM", status: "live" },
+  { key: "growthConsultation", label: "Strategic Growth Consultation — weekly strategy call", minTier: "PREMIUM", status: "rolling-out" },
 ]
 
 export interface PlanDef {
@@ -245,7 +245,7 @@ export const computeEntitlements = (tier: Tier, active: boolean): Entitlements =
     dedicatedManager: isPremium,
     aiInsights: isPremium,
     advancedEscrowControls: isPremium,
-    earlyAccess: isPremium,
+    earlyAccess: isPopularPlus,
     apiAccess: isPremium,
     customBrandPages: isPremium,
     premiumVerification: isPremium,
