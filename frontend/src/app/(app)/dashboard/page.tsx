@@ -6,6 +6,9 @@ import CreatorDashboard from "@/pages/app/CreatorDashboard"
 
 export default function DashboardRoute() {
   const { user } = useAuth()
-  if (user?.role === "creator") return <CreatorDashboard />
-  return <BrandDashboard />
+  // Only an explicit brand role sees the brand dashboard. Everyone else —
+  // creators, or any ambiguous/loading state — gets the creator view, so a
+  // creator can never be shown a brand account.
+  if (user?.role === "brand") return <BrandDashboard />
+  return <CreatorDashboard />
 }

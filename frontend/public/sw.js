@@ -1,61 +1,34 @@
-// Tehilla — static asset service worker.
-// Strategy: cache-first for hashed assets, stale-while-revalidate for the app shell.
+// Kill switch — replaces the legacy Vite-era caching service worker.
+//
+// The old service worker served the app shell with stale-while-revalidate,
+// which pinned returning browsers to a cached old build (wrong role view,
+// stale UI, mock data) regardless of new deploys. This version unregisters
+// itself, purges every cache, and reloads open tabs so no browser stays stuck.
+// Browsers automatically re-fetch sw.js on navigation, so existing installs
+// pick this up and self-destruct. The app no longer registers any worker.
 
-const CACHE_NAME = "tehilla-v1";
-const APP_SHELL = ["/", "/tehilla-logo.png", "/robots.txt", "/sitemap.xml"];
-
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL).catch(() => undefined))
-  );
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
-    )
+    (async () => {
+      // Delete all caches created by the previous worker.
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+
+      // Unregister this worker so it never controls a page again.
+      await self.registration.unregister();
+
+      // Reload any open tabs so they fetch the live build directly.
+      const clients = await self.clients.matchAll({ type: "window" });
+      for (const client of clients) {
+        client.navigate(client.url);
+      }
+    })()
   );
-  self.clients.claim();
 });
 
-self.addEventListener("fetch", (event) => {
-  const { request } = event;
-  if (request.method !== "GET") return;
-
-  const url = new URL(request.url);
-  if (url.origin !== self.location.origin) return;
-
-  // Hashed assets under /assets/*: cache-first
-  if (url.pathname.startsWith("/assets/")) {
-    event.respondWith(
-      caches.match(request).then(
-        (cached) =>
-          cached ||
-          fetch(request).then((response) => {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-            return response;
-          })
-      )
-    );
-    return;
-  }
-
-  // App shell / navigations: stale-while-revalidate
-  if (request.mode === "navigate" || APP_SHELL.includes(url.pathname)) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        const network = fetch(request)
-          .then((response) => {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-            return response;
-          })
-          .catch(() => cached);
-        return cached || network;
-      })
-    );
-  }
-});
+// Pass-through: never serve from cache while we wind down.
+self.addEventListener("fetch", () => {});
