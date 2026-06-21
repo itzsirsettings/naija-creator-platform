@@ -1,3 +1,5 @@
+"use client"
+
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Inbox, Loader2, Search } from "lucide-react"
 import { toast } from "sonner"
@@ -6,10 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import CreatorCard from "@/components/CreatorCard"
 import CreatorProfileModal from "@/components/CreatorProfileModal"
 import OfferModal from "@/components/OfferModal"
+import BrandCard from "@/components/BrandCard"
 import { useAuth } from "@/context/AuthContext"
 import { isDemoApp } from "@/services/api"
 import { fetchCreators, type Creator } from "@/services/creators"
-import { createOffer, initiatePayment } from "@/services/offers"
+import { fetchBrands, type Brand } from "@/services/brands"
+import { createOffer } from "@/services/offers"
 import { mockCreators } from "@/data/mockData"
 
 const niches = ["All Niches", "Fashion & Lifestyle", "Tech & Gaming", "Food & Culture", "Fitness & Wellness", "Music & Entertainment", "Beauty", "Travel"]
@@ -24,7 +28,14 @@ const followerBands = [
   { label: "500K+", value: 500000 },
 ]
 
+// ─── Route by role: brands discover creators, creators discover brands ───────
 export default function Discover() {
+  const { user } = useAuth()
+  return user?.role === "brand" ? <CreatorDiscovery /> : <BrandDiscovery />
+}
+
+// ─── Brand view: find creators to send offers to ─────────────────────────────
+function CreatorDiscovery() {
   const { user } = useAuth()
   const [creators, setCreators] = useState<Creator[]>([])
   const [isLoading, setIsLoading] = useState(!isDemoApp)
@@ -65,11 +76,7 @@ export default function Discover() {
     return () => clearTimeout(timeout)
   }, [loadCreators])
 
-  // Only brands send offers (offers go brand -> creator).
-  const isBrand = user?.role === "brand"
-
   const filteredCreators = useMemo(() => {
-    // Never show the signed-in creator their own profile in Discover.
     let list = creators.filter((c) => c.id !== user?.creatorId)
     if (platform !== "All Platforms") {
       list = list.filter((c) => c.platforms?.includes(platform))
@@ -100,118 +107,138 @@ export default function Discover() {
     <div className="space-y-6">
       <div>
         <h1 className="font-heading text-2xl font-bold tracking-tight">Discover Creators</h1>
-        <p className="text-muted-foreground">
-          {isBrand
-            ? "Find the perfect Nigerian creators for your next campaign."
-            : "Browse Nigerian creators on the platform."}
-        </p>
+        <p className="text-muted-foreground">Find the perfect Nigerian creators for your next campaign.</p>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <div className="relative flex-1">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <div className="relative min-w-0 flex-1">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            className="pl-9"
-            placeholder="Search by name, handle, niche..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
+          <Input className="pl-9" placeholder="Search by name, handle, niche..." value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
         <Select value={niche} onValueChange={setNiche}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <SelectValue placeholder="Niche" />
-          </SelectTrigger>
-          <SelectContent>
-            {niches.map((n) => (
-              <SelectItem key={n} value={n}>{n}</SelectItem>
-            ))}
-          </SelectContent>
+          <SelectTrigger className="w-full sm:w-[180px]"><SelectValue placeholder="Niche" /></SelectTrigger>
+          <SelectContent>{niches.map((n) => <SelectItem key={n} value={n}>{n}</SelectItem>)}</SelectContent>
         </Select>
         <Select value={platform} onValueChange={setPlatform}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <SelectValue placeholder="Platform" />
-          </SelectTrigger>
-          <SelectContent>
-            {platforms.map((p) => (
-              <SelectItem key={p} value={p}>{p}</SelectItem>
-            ))}
-          </SelectContent>
+          <SelectTrigger className="w-full sm:w-[180px]"><SelectValue placeholder="Platform" /></SelectTrigger>
+          <SelectContent>{platforms.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
         </Select>
         <Select value={location} onValueChange={setLocation}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <SelectValue placeholder="Location" />
-          </SelectTrigger>
-          <SelectContent>
-            {locations.map((l) => (
-              <SelectItem key={l} value={l}>{l}</SelectItem>
-            ))}
-          </SelectContent>
+          <SelectTrigger className="w-full sm:w-[180px]"><SelectValue placeholder="Location" /></SelectTrigger>
+          <SelectContent>{locations.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent>
         </Select>
-        <Select
-          value={String(minFollowers)}
-          onValueChange={(v) => setMinFollowers(Number(v))}
-        >
-          <SelectTrigger className="w-full sm:w-[140px]">
-            <SelectValue placeholder="Followers" />
-          </SelectTrigger>
-          <SelectContent>
-            {followerBands.map((b) => (
-              <SelectItem key={b.value} value={String(b.value)}>{b.label}</SelectItem>
-            ))}
-          </SelectContent>
+        <Select value={String(minFollowers)} onValueChange={(v) => setMinFollowers(Number(v))}>
+          <SelectTrigger className="w-full sm:w-[140px]"><SelectValue placeholder="Followers" /></SelectTrigger>
+          <SelectContent>{followerBands.map((b) => <SelectItem key={b.value} value={String(b.value)}>{b.label}</SelectItem>)}</SelectContent>
         </Select>
       </div>
 
       {isLoading ? (
-        <div className="flex flex-col items-center gap-2 py-16 text-center">
-          <Loader2 className="size-8 animate-spin text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Loading creators...</p>
-        </div>
+        <Loading label="Loading creators..." />
       ) : error ? (
-        <div className="flex flex-col items-center gap-3 py-16 text-center">
-          <p className="text-sm text-destructive">{error}</p>
-          <button onClick={loadCreators} className="text-sm font-medium text-primary hover:underline">
-            Try again
-          </button>
-        </div>
+        <ErrorState message={error} onRetry={loadCreators} />
       ) : filteredCreators.length ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredCreators.map((creator) => (
-            <CreatorCard
-              key={creator.id}
-              creator={creator}
-              canSendOffer={isBrand}
-              onSendOffer={setSelectedCreator}
-              onViewProfile={setProfileCreator}
-            />
+            <CreatorCard key={creator.id} creator={creator} canSendOffer onSendOffer={setSelectedCreator} onViewProfile={setProfileCreator} />
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-2 py-16 text-center">
-          <Inbox className="size-12 text-muted-foreground" />
-          <strong className="font-heading text-lg">No creators found</strong>
-          <p className="text-sm text-muted-foreground">
-            Try adjusting your search or filter criteria.
-          </p>
-        </div>
+        <EmptyState title="No creators found" hint="Try adjusting your search or filter criteria." />
       )}
 
       {selectedCreator ? (
-        <OfferModal
-          creator={selectedCreator}
-          onClose={() => setSelectedCreator(null)}
-          onSubmit={handleSendOffer}
-        />
+        <OfferModal creator={selectedCreator} onClose={() => setSelectedCreator(null)} onSubmit={handleSendOffer} />
       ) : null}
-
       {profileCreator ? (
-        <CreatorProfileModal
-          creator={profileCreator}
-          canSendOffer={isBrand}
-          onClose={() => setProfileCreator(null)}
-          onSendOffer={setSelectedCreator}
-        />
+        <CreatorProfileModal creator={profileCreator} canSendOffer onClose={() => setProfileCreator(null)} onSendOffer={setSelectedCreator} />
       ) : null}
+    </div>
+  )
+}
+
+// ─── Creator view: browse brands ("see who's hiring") ────────────────────────
+function BrandDiscovery() {
+  const [brands, setBrands] = useState<Brand[]>([])
+  const [isLoading, setIsLoading] = useState(!isDemoApp)
+  const [error, setError] = useState<string | null>(null)
+  const [query, setQuery] = useState("")
+
+  const loadBrands = useCallback(async () => {
+    if (isDemoApp) {
+      setBrands([])
+      setIsLoading(false)
+      return
+    }
+    setIsLoading(true)
+    setError(null)
+    try {
+      const result = await fetchBrands({ search: query || undefined, limit: 50 })
+      setBrands(result.brands)
+    } catch {
+      setError("Failed to load brands. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }, [query])
+
+  useEffect(() => {
+    const timeout = setTimeout(loadBrands, 300)
+    return () => clearTimeout(timeout)
+  }, [loadBrands])
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="font-heading text-2xl font-bold tracking-tight">Discover Brands</h1>
+        <p className="text-muted-foreground">See which brands are on the platform and looking for creators.</p>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input className="pl-9" placeholder="Search brands by name or industry..." value={query} onChange={(e) => setQuery(e.target.value)} />
+      </div>
+
+      {isLoading ? (
+        <Loading label="Loading brands..." />
+      ) : error ? (
+        <ErrorState message={error} onRetry={loadBrands} />
+      ) : brands.length ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {brands.map((brand) => <BrandCard key={brand.id} brand={brand} />)}
+        </div>
+      ) : (
+        <EmptyState title="No brands yet" hint="Brands will appear here as they join the platform." />
+      )}
+    </div>
+  )
+}
+
+// ─── Shared state visuals ────────────────────────────────────────────────────
+function Loading({ label }: { label: string }) {
+  return (
+    <div className="flex flex-col items-center gap-2 py-16 text-center">
+      <Loader2 className="size-8 animate-spin text-muted-foreground" />
+      <p className="text-sm text-muted-foreground">{label}</p>
+    </div>
+  )
+}
+
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="flex flex-col items-center gap-3 py-16 text-center">
+      <p className="text-sm text-destructive">{message}</p>
+      <button onClick={onRetry} className="text-sm font-medium text-primary hover:underline">Try again</button>
+    </div>
+  )
+}
+
+function EmptyState({ title, hint }: { title: string; hint: string }) {
+  return (
+    <div className="flex flex-col items-center gap-2 py-16 text-center">
+      <Inbox className="size-12 text-muted-foreground" />
+      <strong className="font-heading text-lg">{title}</strong>
+      <p className="text-sm text-muted-foreground">{hint}</p>
     </div>
   )
 }
