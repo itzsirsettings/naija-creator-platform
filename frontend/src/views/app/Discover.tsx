@@ -65,10 +65,17 @@ export default function Discover() {
     return () => clearTimeout(timeout)
   }, [loadCreators])
 
+  // Only brands send offers (offers go brand -> creator).
+  const isBrand = user?.role === "brand"
+
   const filteredCreators = useMemo(() => {
-    if (platform === "All Platforms") return creators
-    return creators.filter((c) => c.platforms?.includes(platform))
-  }, [creators, platform])
+    // Never show the signed-in creator their own profile in Discover.
+    let list = creators.filter((c) => c.id !== user?.creatorId)
+    if (platform !== "All Platforms") {
+      list = list.filter((c) => c.platforms?.includes(platform))
+    }
+    return list
+  }, [creators, platform, user?.creatorId])
 
   async function handleSendOffer(data: any) {
     try {
@@ -94,7 +101,9 @@ export default function Discover() {
       <div>
         <h1 className="font-heading text-2xl font-bold tracking-tight">Discover Creators</h1>
         <p className="text-muted-foreground">
-          Find the perfect Nigerian creators for your next campaign.
+          {isBrand
+            ? "Find the perfect Nigerian creators for your next campaign."
+            : "Browse Nigerian creators on the platform."}
         </p>
       </div>
 
@@ -171,6 +180,7 @@ export default function Discover() {
             <CreatorCard
               key={creator.id}
               creator={creator}
+              canSendOffer={isBrand}
               onSendOffer={setSelectedCreator}
               onViewProfile={setProfileCreator}
             />
@@ -197,6 +207,7 @@ export default function Discover() {
       {profileCreator ? (
         <CreatorProfileModal
           creator={profileCreator}
+          canSendOffer={isBrand}
           onClose={() => setProfileCreator(null)}
           onSendOffer={setSelectedCreator}
         />

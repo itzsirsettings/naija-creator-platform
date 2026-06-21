@@ -5,39 +5,49 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { formatCompactNumber, formatNaira, initials } from "@/utils/format"
 
 export default function CreatorProfileModal({
-  creator, onClose, onSendOffer
+  creator, onClose, onSendOffer, canSendOffer = true,
 }: {
-  creator: any; onClose: () => void; onSendOffer: (c: any) => void
+  creator: any
+  onClose: () => void
+  onSendOffer: (c: any) => void
+  canSendOffer?: boolean
 }) {
   if (!creator) return null
+
+  // Guard sparse real-creator data so the modal renders cleanly.
+  const platforms: string[] = Array.isArray(creator.platforms) ? creator.platforms : []
+  const niche = creator.niche || "New creator"
+  const handle = creator.handle || creator.name?.toLowerCase().replace(/\s+/g, "") || "creator"
+  const bio = creator.bio || "This creator hasn't added a bio yet."
+  const location = creator.location || "Nigeria"
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[450px]">
         <DialogHeader>
-          <DialogTitle>{creator.name}</DialogTitle>
-          <p className="text-sm text-muted-foreground">@{creator.handle} &middot; {creator.niche}</p>
+          <DialogTitle>{creator.name || "Unnamed creator"}</DialogTitle>
+          <p className="text-sm text-muted-foreground">@{handle} &middot; {niche}</p>
         </DialogHeader>
 
         <div className="flex items-start gap-3">
           <Avatar className="size-14">
             {creator.avatar && /^https?:\/\//i.test(creator.avatar) ? <AvatarImage src={creator.avatar} alt="" /> : null}
-            <AvatarFallback className="text-lg">{initials(creator.name)}</AvatarFallback>
+            <AvatarFallback className="text-lg">{initials(creator.name || "?")}</AvatarFallback>
           </Avatar>
           <div>
-            <p className="text-sm text-muted-foreground">{creator.bio}</p>
+            <p className="text-sm text-muted-foreground">{bio}</p>
             <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-              <MapPin className="size-3" /> {creator.location}
+              <MapPin className="size-3" /> {location}
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-4 gap-3 text-center">
           {[
-            { label: "Followers", value: formatCompactNumber(creator.followers) },
-            { label: "Engagement", value: `${creator.engagement}%` },
-            { label: "Base rate", value: formatNaira(creator.baseRate) },
-            { label: "Rating", value: creator.rating || "4.8", icon: true },
+            { label: "Followers", value: formatCompactNumber(creator.followers || 0) },
+            { label: "Engagement", value: `${creator.engagement || 0}%` },
+            { label: "Base rate", value: formatNaira(creator.baseRate || 0) },
+            { label: "Rating", value: creator.rating || "—", icon: true },
           ].map((stat) => (
             <div key={stat.label} className="rounded-lg bg-muted p-2">
               <div className="text-sm font-bold">{stat.value}</div>
@@ -48,15 +58,19 @@ export default function CreatorProfileModal({
           ))}
         </div>
 
-        <div className="flex flex-wrap gap-1.5">
-          {creator.platforms.map((platform: string) => (
-            <span key={platform} className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">{platform}</span>
-          ))}
-        </div>
+        {platforms.length ? (
+          <div className="flex flex-wrap gap-1.5">
+            {platforms.map((platform: string) => (
+              <span key={platform} className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">{platform}</span>
+            ))}
+          </div>
+        ) : null}
 
-        <Button onClick={() => { onSendOffer(creator); onClose() }}>
-          <Send className="mr-1 size-3" /> Send offer
-        </Button>
+        {canSendOffer ? (
+          <Button onClick={() => { onSendOffer(creator); onClose() }}>
+            <Send className="mr-1 size-3" /> Send offer
+          </Button>
+        ) : null}
       </DialogContent>
     </Dialog>
   )
