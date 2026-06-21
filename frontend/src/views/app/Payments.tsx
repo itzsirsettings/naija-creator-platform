@@ -6,9 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import TransactionList from "@/components/TransactionList"
 import { useAuth } from "@/context/AuthContext"
-import { isDemoApp } from "@/services/api"
 import { fetchTransactions, type Transaction } from "@/services/payments"
-import { mockTransactions } from "@/data/mockData"
 import { formatNaira } from "@/utils/format"
 
 function toDisplayTx(tx: Transaction) {
@@ -27,17 +25,12 @@ function toDisplayTx(tx: Transaction) {
 export default function Payments() {
   const { user } = useAuth()
   const [transactions, setTransactions] = useState<ReturnType<typeof toDisplayTx>[]>([])
-  const [isLoading, setIsLoading] = useState(!isDemoApp)
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("all")
 
   const loadTransactions = useCallback(async () => {
-    if (!user || isDemoApp) {
-      if (isDemoApp) setTransactions(mockTransactions as any)
-      setIsLoading(false)
-      return
-    }
-    if (!user.creatorId) {
+    if (!user || !user.creatorId) {
       setIsLoading(false)
       return
     }

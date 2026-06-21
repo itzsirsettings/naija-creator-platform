@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import OfferCard from "@/components/OfferCard"
 import SubmitWorkModal from "@/components/SubmitWorkModal"
 import { useAuth } from "@/context/AuthContext"
-import { isDemoApp } from "@/services/api"
 import {
   fetchCreatorOffers,
   fetchBrandOffers,
@@ -31,7 +30,7 @@ export default function Offers() {
   const isBrand = user?.role === "brand"
 
   const loadOffers = useCallback(async () => {
-    if (!user || isDemoApp) {
+    if (!user) {
       setIsLoading(false)
       return
     }

@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Progress } from "@/components/ui/progress"
 import StatCard from "@/components/StatCard"
 import { useAuth } from "@/context/AuthContext"
-import { isDemoApp } from "@/services/api"
 import { fetchBrandOffers, fetchCreatorOffers, type Offer } from "@/services/offers"
 import { fetchTransactions, type Transaction } from "@/services/payments"
 import { formatNaira } from "@/utils/format"
@@ -30,10 +29,10 @@ export default function Analytics() {
 
   const [offers, setOffers] = useState<Offer[]>([])
   const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [isLoading, setIsLoading] = useState(!isDemoApp)
+  const [isLoading, setIsLoading] = useState(true)
 
   const loadData = useCallback(async () => {
-    if (isDemoApp || !user) {
+    if (!user) {
       setIsLoading(false)
       return
     }

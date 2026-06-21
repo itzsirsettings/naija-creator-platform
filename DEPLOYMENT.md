@@ -148,7 +148,7 @@ override start command to `npm run worker:payments` (or point it at `railway.wor
 
 ## First Admin
 
-Do not run the demo seed in production (it refuses `NODE_ENV=production`).
+The demo seed has been removed — the only seed is the real admin bootstrap below.
 
 ```bash
 cd backend

@@ -4,10 +4,8 @@ import { useCallback, useEffect, useState } from "react"
 import { Building2, Wallet, ArrowRight, CalendarClock, Loader2, Plus } from "lucide-react"
 import { Link } from "@/lib/router"
 import { useAuth } from "@/context/AuthContext"
-import { isDemoApp } from "@/services/api"
 import { fetchCreatorOffers, type Offer } from "@/services/offers"
 import { fetchTransactions, type Transaction } from "@/services/payments"
-import { mockCreatorDashboard } from "@/data/mockData"
 import { formatNaira, formatCompactNumber } from "@/utils/format"
 import {
   StatTile,
@@ -22,10 +20,10 @@ export default function CreatorDashboard() {
   const { user } = useAuth()
   const [offers, setOffers] = useState<Offer[]>([])
   const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [isLoading, setIsLoading] = useState(!isDemoApp)
+  const [isLoading, setIsLoading] = useState(true)
 
   const loadData = useCallback(async () => {
-    if (!user?.creatorId || isDemoApp) {
+    if (!user?.creatorId) {
       setIsLoading(false)
       return
     }
@@ -47,22 +45,20 @@ export default function CreatorDashboard() {
   useEffect(() => { loadData() }, [loadData])
 
   // Derive stats from real data
-  const active = isDemoApp ? mockCreatorDashboard.activeOffers : offers.filter((o) => ["ACCEPTED", "FUNDED", "SUBMITTED"].includes(o.status)).length
-  const completed = isDemoApp ? mockCreatorDashboard.completedCampaigns : offers.filter((o) => o.status === "COMPLETED").length
-  const pending = isDemoApp ? mockCreatorDashboard.pendingApprovals : offers.filter((o) => o.status === "PENDING").length
-  const earnings = isDemoApp ? mockCreatorDashboard.earnings : transactions.filter((tx) => tx.status === "paid").reduce((sum, tx) => sum + tx.netKobo, 0) / 100
+  const active = offers.filter((o) => ["ACCEPTED", "FUNDED", "SUBMITTED"].includes(o.status)).length
+  const completed = offers.filter((o) => o.status === "COMPLETED").length
+  const pending = offers.filter((o) => o.status === "PENDING").length
+  const earnings = transactions.filter((tx) => tx.status === "paid").reduce((sum, tx) => sum + tx.netKobo, 0) / 100
   const totalCampaigns = completed + active + pending || 1
   const completionPct = Math.round((completed / totalCampaigns) * 100)
 
-  const recentOffers = isDemoApp
-    ? mockCreatorDashboard.recentPayments
-    : offers.slice(0, 5).map((o) => ({
-        id: o.id,
-        brandName: o.brand?.name ?? "Brand",
-        amount: o.amountKobo / 100,
-        status: o.status,
-        date: new Date(o.createdAt).toLocaleDateString("en-NG", { month: "short", day: "numeric" }),
-      }))
+  const recentOffers = offers.slice(0, 5).map((o) => ({
+    id: o.id,
+    brandName: o.brand?.name ?? "Brand",
+    amount: o.amountKobo / 100,
+    status: o.status,
+    date: new Date(o.createdAt).toLocaleDateString("en-NG", { month: "short", day: "numeric" }),
+  }))
 
   if (isLoading) {
     return (

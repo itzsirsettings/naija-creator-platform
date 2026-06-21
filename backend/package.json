@@ -12,7 +12,6 @@
     "db:migrate:deploy": "npx prisma migrate deploy --schema src/prisma/schema.prisma",
     "db:generate": "npx prisma generate --schema src/prisma/schema.prisma",
     "db:studio": "npx prisma studio --schema src/prisma/schema.prisma",
-    "db:seed:demo": "tsx src/prisma/seed.js",
     "db:seed:admin": "tsx src/prisma/seedAdmin.js",
     "test": "vitest run",
     "test:watch": "vitest"

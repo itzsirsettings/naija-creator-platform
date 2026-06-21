@@ -3,7 +3,6 @@
 import { useEffect } from "react"
 import { ThemeProvider } from "@/context/ThemeContext"
 import { AuthProvider } from "@/context/AuthContext"
-import { AppDataProvider } from "@/context/AppDataContext"
 import { ErrorBoundary, initErrorReporter } from "@/lib/errorReporter"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AppLoader } from "@/components/AppLoader"
@@ -30,11 +29,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <AppLoader>
         <ThemeProvider>
           <AuthProvider>
-            <AppDataProvider>
-              <TooltipProvider delayDuration={0}>
-                <ErrorBoundary>{children}</ErrorBoundary>
-              </TooltipProvider>
-            </AppDataProvider>
+            <TooltipProvider delayDuration={0}>
+              <ErrorBoundary>{children}</ErrorBoundary>
+            </TooltipProvider>
           </AuthProvider>
         </ThemeProvider>
       </AppLoader>

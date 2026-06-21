@@ -7,8 +7,6 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 })
 
-export const isDemoApp = String(process.env.NEXT_PUBLIC_DEMO_FALLBACK) === "true"
-
 export function setAccessToken(token: string | null) {
   if (token) {
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`

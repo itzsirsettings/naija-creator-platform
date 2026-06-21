@@ -2,8 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 import { useNavigate } from "@/lib/router"
-import api, { isDemoApp, setAccessToken } from "@/services/api"
-import { mockUser } from "@/data/mockData"
+import api, { setAccessToken } from "@/services/api"
 
 interface User {
   id: string
@@ -94,12 +93,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (isDemoApp) {
-      setUser(mockUser as User)
-      setIsLoading(false)
-      return
-    }
-
     const token = localStorage.getItem("tehilla_access_token")
     if (!token) {
       setIsLoading(false)
@@ -129,10 +122,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [navigate])
 
   const login = useCallback(async (email: string, password: string) => {
-    if (isDemoApp) {
-      setUser(mockUser as User)
-      return
-    }
     const response = await api.post("/auth/login", { email, password })
     const { accessToken, emailVerified } = unwrap<{
       accessToken: string
@@ -151,10 +140,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const register = useCallback(async (data: { name: string; email: string; password: string; role: "brand" | "creator" }) => {
-    if (isDemoApp) {
-      setUser({ ...mockUser, ...data, id: "new-user", kycStatus: "UNVERIFIED", walletBalance: 0, walletHeld: 0 } as User)
-      return {}
-    }
     const response = await api.post("/auth/register", {
       name: data.name,
       email: data.email,
@@ -174,39 +159,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const logout = useCallback(async () => {
-    if (!isDemoApp) {
-      try { await api.post("/auth/logout") } catch (err) { console.error("[auth] logout failed", err) }
-    }
+    try { await api.post("/auth/logout") } catch (err) { console.error("[auth] logout failed", err) }
     setUser(null)
     setAccessToken(null)
     localStorage.removeItem("tehilla_access_token")
   }, [])
 
-  // Request a password-reset email. Demo mode short-circuits to a no-op so the
-  // confirmation screen still renders without a backend.
+  // Request a password-reset email.
   const forgotPassword = useCallback(async (email: string) => {
-    if (isDemoApp) return
     const response = await api.post("/auth/forgot-password", { email })
     unwrap(response)
   }, [])
 
   // Complete a password reset using the token from the emailed link.
   const resetPassword = useCallback(async ({ token, password }: { token: string; password: string }) => {
-    if (isDemoApp) return
     const response = await api.post("/auth/reset-password", { token, password })
     unwrap(response)
   }, [])
 
   // Confirm an email address via the token from the verification link.
   const verifyEmail = useCallback(async (token: string) => {
-    if (isDemoApp) return
     const response = await api.post("/auth/verify-email", { token })
     unwrap(response)
   }, [])
 
   // Re-send the verification email by address (public endpoint, no auth needed).
   const resendVerificationEmail = useCallback(async (email: string) => {
-    if (isDemoApp) return
     const response = await api.post("/auth/resend-verification-email", { email })
     unwrap(response)
   }, [])

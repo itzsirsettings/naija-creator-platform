@@ -10,11 +10,9 @@ import CreatorProfileModal from "@/components/CreatorProfileModal"
 import OfferModal from "@/components/OfferModal"
 import BrandCard from "@/components/BrandCard"
 import { useAuth } from "@/context/AuthContext"
-import { isDemoApp } from "@/services/api"
 import { fetchCreators, type Creator } from "@/services/creators"
 import { fetchBrands, type Brand } from "@/services/brands"
 import { createOffer } from "@/services/offers"
-import { mockCreators } from "@/data/mockData"
 
 const niches = ["All Niches", "Fashion & Lifestyle", "Tech & Gaming", "Food & Culture", "Fitness & Wellness", "Music & Entertainment", "Beauty", "Travel"]
 const platforms = ["All Platforms", "Instagram Reels", "TikTok Video", "YouTube Short", "X Thread", "Instagram Stories"]
@@ -38,7 +36,7 @@ export default function Discover() {
 function CreatorDiscovery() {
   const { user } = useAuth()
   const [creators, setCreators] = useState<Creator[]>([])
-  const [isLoading, setIsLoading] = useState(!isDemoApp)
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState("")
   const [niche, setNiche] = useState("All Niches")
@@ -49,10 +47,6 @@ function CreatorDiscovery() {
   const [profileCreator, setProfileCreator] = useState<any>(null)
 
   const loadCreators = useCallback(async () => {
-    if (isDemoApp) {
-      setCreators(mockCreators as unknown as Creator[])
-      return
-    }
     setIsLoading(true)
     setError(null)
     try {
@@ -160,16 +154,11 @@ function CreatorDiscovery() {
 // ─── Creator view: browse brands ("see who's hiring") ────────────────────────
 function BrandDiscovery() {
   const [brands, setBrands] = useState<Brand[]>([])
-  const [isLoading, setIsLoading] = useState(!isDemoApp)
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState("")
 
   const loadBrands = useCallback(async () => {
-    if (isDemoApp) {
-      setBrands([])
-      setIsLoading(false)
-      return
-    }
     setIsLoading(true)
     setError(null)
     try {

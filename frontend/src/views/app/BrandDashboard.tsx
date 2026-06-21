@@ -4,9 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 import { Users, Wallet, ArrowRight, Loader2, Plus } from "lucide-react"
 import { Link } from "@/lib/router"
 import { useAuth } from "@/context/AuthContext"
-import { isDemoApp } from "@/services/api"
 import { fetchBrandOffers, type Offer } from "@/services/offers"
-import { mockBrandDashboard } from "@/data/mockData"
 import { formatNaira } from "@/utils/format"
 import {
   StatTile,
@@ -20,10 +18,10 @@ import {
 export default function BrandDashboard() {
   const { user } = useAuth()
   const [offers, setOffers] = useState<Offer[]>([])
-  const [isLoading, setIsLoading] = useState(!isDemoApp)
+  const [isLoading, setIsLoading] = useState(true)
 
   const loadData = useCallback(async () => {
-    if (!user?.brandId || isDemoApp) {
+    if (!user?.brandId) {
       setIsLoading(false)
       return
     }
@@ -41,22 +39,20 @@ export default function BrandDashboard() {
   useEffect(() => { loadData() }, [loadData])
 
   // Derive stats from real data
-  const active = isDemoApp ? mockBrandDashboard.activeCampaigns : offers.filter((o) => ["PENDING", "ACCEPTED", "FUNDED", "SUBMITTED"].includes(o.status)).length
-  const completed = isDemoApp ? mockBrandDashboard.completedCampaigns : offers.filter((o) => o.status === "COMPLETED").length
-  const pending = isDemoApp ? mockBrandDashboard.pendingApprovals : offers.filter((o) => ["SUBMITTED", "APPROVED"].includes(o.status)).length
-  const totalSpent = isDemoApp ? mockBrandDashboard.totalSpent : offers.filter((o) => ["FUNDED", "SUBMITTED", "APPROVED", "COMPLETED"].includes(o.status)).reduce((sum, o) => sum + o.amountKobo, 0) / 100
+  const active = offers.filter((o) => ["PENDING", "ACCEPTED", "FUNDED", "SUBMITTED"].includes(o.status)).length
+  const completed = offers.filter((o) => o.status === "COMPLETED").length
+  const pending = offers.filter((o) => ["SUBMITTED", "APPROVED"].includes(o.status)).length
+  const totalSpent = offers.filter((o) => ["FUNDED", "SUBMITTED", "APPROVED", "COMPLETED"].includes(o.status)).reduce((sum, o) => sum + o.amountKobo, 0) / 100
   const totalCampaigns = completed + active + pending || 1
   const completionPct = Math.round((completed / totalCampaigns) * 100)
 
-  const recentOffers = isDemoApp
-    ? mockBrandDashboard.recentOffers
-    : offers.slice(0, 5).map((o) => ({
-        id: o.id,
-        creatorName: o.creator?.name ?? "Creator",
-        amount: o.amountKobo / 100,
-        status: o.status,
-        date: new Date(o.createdAt).toLocaleDateString("en-NG", { month: "short", day: "numeric" }),
-      }))
+  const recentOffers = offers.slice(0, 5).map((o) => ({
+    id: o.id,
+    creatorName: o.creator?.name ?? "Creator",
+    amount: o.amountKobo / 100,
+    status: o.status,
+    date: new Date(o.createdAt).toLocaleDateString("en-NG", { month: "short", day: "numeric" }),
+  }))
 
   if (isLoading) {
     return (
