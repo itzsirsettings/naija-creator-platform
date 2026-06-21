@@ -9,10 +9,13 @@ import CreatorCard from "@/components/CreatorCard"
 import CreatorProfileModal from "@/components/CreatorProfileModal"
 import OfferModal from "@/components/OfferModal"
 import BrandCard from "@/components/BrandCard"
+import ApplyModal from "@/components/ApplyModal"
 import { useAuth } from "@/context/AuthContext"
+import { useNavigate } from "@/lib/router"
 import { fetchCreators, type Creator } from "@/services/creators"
 import { fetchBrands, type Brand } from "@/services/brands"
 import { createOffer } from "@/services/offers"
+import { applyToBrand } from "@/services/applications"
 
 const niches = ["All Niches", "Fashion & Lifestyle", "Tech & Gaming", "Food & Culture", "Fitness & Wellness", "Music & Entertainment", "Beauty", "Travel"]
 const platforms = ["All Platforms", "Instagram Reels", "TikTok Video", "YouTube Short", "X Thread", "Instagram Stories"]
@@ -153,10 +156,39 @@ function CreatorDiscovery() {
 
 // ─── Creator view: browse brands ("see who's hiring") ────────────────────────
 function BrandDiscovery() {
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const [brands, setBrands] = useState<Brand[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState("")
+  const [applyBrand, setApplyBrand] = useState<any>(null)
+
+  const handleApplyClick = (brand: any) => {
+    if (!user?.premiumActive) {
+      toast("Upgrade to Premium to apply to brands")
+      navigate("/premium")
+      return
+    }
+    setApplyBrand(brand)
+  }
+
+  const submitApplication = async (message: string) => {
+    if (!applyBrand) return
+    try {
+      await applyToBrand(applyBrand.id, message)
+      toast.success(`Application sent to ${applyBrand.name}`)
+    } catch (err: any) {
+      const msg = err?.response?.data?.error || "Could not send application"
+      if (err?.response?.status === 402) {
+        toast(msg)
+        navigate("/premium")
+      } else {
+        toast.error(msg)
+      }
+      throw new Error(msg)
+    }
+  }
 
   const loadBrands = useCallback(async () => {
     setIsLoading(true)
@@ -194,11 +226,20 @@ function BrandDiscovery() {
         <ErrorState message={error} onRetry={loadBrands} />
       ) : brands.length ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {brands.map((brand) => <BrandCard key={brand.id} brand={brand} />)}
+          {brands.map((brand) => <BrandCard key={brand.id} brand={brand} onApply={handleApplyClick} />)}
         </div>
       ) : (
         <EmptyState title="No brands yet" hint="Brands will appear here as they join the platform." />
       )}
+
+      {applyBrand ? (
+        <ApplyModal
+          title={`Apply to ${applyBrand.name}`}
+          description="Tell this brand why you'd be a great fit. They'll review your application and can respond with an offer."
+          onClose={() => setApplyBrand(null)}
+          onSubmit={submitApplication}
+        />
+      ) : null}
     </div>
   )
 }

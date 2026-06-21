@@ -366,6 +366,7 @@ export const getMe = async (userId: string) => {
           followers: true, engagement: true, baseRate: true, platforms: true,
           avatar: true, location: true, isVerified: true, balanceKobo: true, heldKobo: true,
           bankAccountLast4: true, bankBankName: true, bankVerifiedAt: true,
+          premiumTier: true, premiumUntil: true,
         },
       },
       brand: {

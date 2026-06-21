@@ -16,6 +16,8 @@ interface User {
   kycStatus: string
   walletBalance: number
   walletHeld: number
+  premiumTier: "NONE" | "STANDARD" | "POPULAR" | "PREMIUM"
+  premiumActive: boolean
 }
 
 interface AuthContextValue {
@@ -39,7 +41,10 @@ interface RawUser {
   role: string
   name?: string
   kycStatus?: string
-  creator?: { id?: string; name?: string; avatar?: string; balanceKobo?: number; heldKobo?: number } | null
+  creator?: {
+    id?: string; name?: string; avatar?: string; balanceKobo?: number; heldKobo?: number
+    premiumTier?: string; premiumUntil?: string | null
+  } | null
   brand?: { id?: string; name?: string; logo?: string } | null
 }
 
@@ -63,6 +68,11 @@ function normalizeUser(raw: RawUser): User {
     typeof raw.creator?.balanceKobo === "number" ? raw.creator.balanceKobo / 100 : 0
   const walletHeld =
     typeof raw.creator?.heldKobo === "number" ? raw.creator.heldKobo / 100 : 0
+  const premiumTier = (raw.creator?.premiumTier as User["premiumTier"]) || "NONE"
+  const premiumActive =
+    premiumTier !== "NONE" &&
+    !!raw.creator?.premiumUntil &&
+    new Date(raw.creator.premiumUntil).getTime() > Date.now()
   return {
     id: raw.id,
     name,
@@ -75,6 +85,8 @@ function normalizeUser(raw: RawUser): User {
     kycStatus: raw.kycStatus || "NONE",
     walletBalance,
     walletHeld,
+    premiumTier,
+    premiumActive,
   }
 }
 

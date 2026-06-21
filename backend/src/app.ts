@@ -20,6 +20,9 @@ import offerRoutes from './routes/offer.routes';
 import paymentRoutes from './routes/payment.routes';
 import supportRoutes from './routes/support.routes';
 import adminRoutes from './routes/admin.routes';
+import applicationRoutes from './routes/application.routes';
+import campaignRoutes from './routes/campaign.routes';
+import premiumRoutes from './routes/premium.routes';
 
 const buildApp = async () => {
   const fastify = Fastify({
@@ -173,6 +176,9 @@ const buildApp = async () => {
   await fastify.register(paymentRoutes, { prefix: '/api/payments' });
   await fastify.register(supportRoutes, { prefix: '/api/support' });
   await fastify.register(adminRoutes, { prefix: '/api/admin' });
+  await fastify.register(applicationRoutes, { prefix: '/api/applications' });
+  await fastify.register(campaignRoutes, { prefix: '/api/campaigns' });
+  await fastify.register(premiumRoutes, { prefix: '/api/premium' });
 
   return fastify;
 };

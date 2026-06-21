@@ -1,12 +1,16 @@
-import { Building2, Globe } from "lucide-react"
+import { Building2, Globe, Send } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { initials } from "@/utils/format"
 
-export default function BrandCard({ brand }: { brand: any }) {
+export default function BrandCard({
+  brand, onApply,
+}: {
+  brand: any
+  onApply?: (brand: any) => void
+}) {
   const name = brand.name || "Unnamed brand"
   const industry = brand.industry || "Brand"
   const rawSite: string | null = brand.website || null
-  // Brands may save a bare domain; normalise to an absolute URL for the link.
   const website = rawSite
     ? (/^https?:\/\//i.test(rawSite) ? rawSite : `https://${rawSite}`)
     : null
@@ -26,20 +30,30 @@ export default function BrandCard({ brand }: { brand: any }) {
         </div>
       </div>
 
-      {website ? (
-        <a
-          href={website}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card py-2 text-xs font-semibold text-foreground shadow-sm transition-colors hover:bg-muted"
-        >
-          <Globe className="size-3.5 stroke-2" /> Visit Website
-        </a>
-      ) : (
-        <span className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border py-2 text-xs font-medium text-muted-foreground">
-          No website yet
-        </span>
-      )}
+      <div className="flex flex-col gap-2">
+        {onApply ? (
+          <button
+            onClick={() => onApply(brand)}
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#1A24B8] py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#0A0F7A]"
+          >
+            <Send className="size-3.5 stroke-2" /> Apply to work
+          </button>
+        ) : null}
+        {website ? (
+          <a
+            href={website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card py-2 text-xs font-semibold text-foreground shadow-sm transition-colors hover:bg-muted"
+          >
+            <Globe className="size-3.5 stroke-2" /> Visit Website
+          </a>
+        ) : !onApply ? (
+          <span className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border py-2 text-xs font-medium text-muted-foreground">
+            No website yet
+          </span>
+        ) : null}
+      </div>
     </div>
   )
 }

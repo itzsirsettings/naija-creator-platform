@@ -70,15 +70,19 @@ model Creator {
   verifiedBy   String?
   balanceKobo  Int      @default(0)
   heldKobo     Int      @default(0)
+  premiumTier  PremiumTier @default(NONE)
+  premiumUntil DateTime?
   avatar       String?
   location     String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  offersReceived Offer[]       @relation("CreatorOffers")
-  transactions   Transaction[]
-  ledgerEntries  LedgerEntry[]
-  payouts        Payout[]
+  offersReceived       Offer[]               @relation("CreatorOffers")
+  transactions         Transaction[]
+  ledgerEntries        LedgerEntry[]
+  payouts              Payout[]
+  applications         Application[]
+  campaignApplications CampaignApplication[]
 
   @@index([niche])
   @@index([followers])
@@ -101,7 +105,9 @@ model Brand {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  offersSent Offer[] @relation("BrandOffers")
+  offersSent   Offer[]       @relation("BrandOffers")
+  applications Application[]
+  campaigns    Campaign[]
 
   @@index([industry])
   @@index([createdAt])
@@ -363,4 +369,78 @@ enum KycStatus {
   PENDING
   VERIFIED
   REJECTED
+}
+
+// ─── Premium subscription (creators) ────────────────────────────────────────
+enum PremiumTier {
+  NONE
+  STANDARD
+  POPULAR
+  PREMIUM
+}
+
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum CampaignStatus {
+  OPEN
+  CLOSED
+}
+
+// Creator expresses interest in working with a brand (Standard+ premium).
+model Application {
+  id        String            @id @default(uuid())
+  creatorId String
+  creator   Creator           @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  brandId   String
+  brand     Brand             @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  message   String?
+  status    ApplicationStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@unique([creatorId, brandId])
+  @@index([brandId, createdAt])
+  @@index([creatorId, createdAt])
+  @@index([status, createdAt])
+}
+
+// A brand-posted open campaign creators can apply to.
+model Campaign {
+  id          String         @id @default(uuid())
+  brandId     String
+  brand       Brand          @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  budgetKobo  Int
+  platform    String
+  deadline    DateTime?
+  status      CampaignStatus @default(OPEN)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  applications CampaignApplication[]
+
+  @@index([brandId, createdAt])
+  @@index([status, createdAt])
+}
+
+// Creator applies to a specific campaign (Popular/Premium tiers).
+model CampaignApplication {
+  id         String            @id @default(uuid())
+  campaignId String
+  campaign   Campaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  creatorId  String
+  creator    Creator           @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  message    String?
+  status     ApplicationStatus @default(PENDING)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@unique([campaignId, creatorId])
+  @@index([campaignId, createdAt])
+  @@index([creatorId, createdAt])
 }

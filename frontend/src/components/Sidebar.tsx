@@ -1,7 +1,8 @@
 "use client"
 
 import {
-  BarChart3, ChevronsUpDown, Handshake, LayoutDashboard, LogOut, Search, Settings, Wallet,
+  BarChart3, ChevronsUpDown, Crown, FileText, Handshake, LayoutDashboard, LogOut,
+  Megaphone, Search, Settings, Wallet,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { Link, useNavigate } from "@/lib/router"
@@ -17,14 +18,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/context/AuthContext"
 import { initials } from "@/utils/format"
 
-const navItems = [
-  { label: "Home", to: "/home", icon: LayoutDashboard },
-  { label: "Dashboard", to: "/dashboard", icon: BarChart3 },
-  { label: "Discover", to: "/discover", icon: Search },
-  { label: "Offers", to: "/offers", icon: Handshake },
-  { label: "Payments", to: "/payments", icon: Wallet },
-]
-
 const activeClass =
   "data-[active=true]:bg-[#1A24B8]/10 data-[active=true]:text-[#1A24B8] data-[active=true]:font-medium"
 
@@ -34,6 +27,18 @@ export function AppSidebar() {
   const navigate = useNavigate()
 
   const displayName = user?.brandName || user?.name || "Guest"
+  const isBrand = user?.role === "brand"
+
+  const navItems = [
+    { label: "Home", to: "/home", icon: LayoutDashboard },
+    { label: "Dashboard", to: "/dashboard", icon: BarChart3 },
+    { label: "Discover", to: "/discover", icon: Search },
+    { label: "Campaigns", to: "/campaigns", icon: Megaphone },
+    { label: "Offers", to: "/offers", icon: Handshake },
+    { label: isBrand ? "Applications" : "My Applications", to: "/applications", icon: FileText },
+    { label: "Payments", to: "/payments", icon: Wallet },
+    ...(isBrand ? [] : [{ label: "Premium", to: "/premium", icon: Crown }]),
+  ]
 
   const handleLogout = async () => {
     await logout()

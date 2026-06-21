@@ -158,6 +158,50 @@ export const supportSchemas = {
   }),
 };
 
+export const applicationSchemas = {
+  create: z.object({
+    brandId: z.string().uuid(),
+    message: z.string().trim().max(1000).optional(),
+  }),
+  list: z.object({
+    status: z.enum(['PENDING', 'ACCEPTED', 'DECLINED']).optional(),
+    limit: z.coerce.number().int().min(1).max(50).default(20),
+    cursor: z.string().trim().max(256).optional(),
+  }),
+  updateStatus: z.object({
+    status: z.enum(['ACCEPTED', 'DECLINED']),
+  }),
+};
+
+export const campaignSchemas = {
+  create: z.object({
+    title: z.string().trim().min(3).max(120),
+    description: z.string().trim().min(10).max(2000),
+    budget: z.coerce.number().int().min(1000),
+    platform: z.string().trim().min(2).max(60),
+    deadline: z.string().datetime().optional(),
+  }),
+  list: z.object({
+    status: z.enum(['OPEN', 'CLOSED']).optional(),
+    search: z.string().trim().max(120).optional(),
+    limit: z.coerce.number().int().min(1).max(50).default(20),
+    cursor: z.string().trim().max(256).optional(),
+  }),
+  apply: z.object({
+    message: z.string().trim().max(1000).optional(),
+  }),
+};
+
+export const premiumSchemas = {
+  upgrade: z.object({
+    tier: z.enum(['STANDARD', 'POPULAR', 'PREMIUM']),
+  }),
+  grant: z.object({
+    tier: z.enum(['NONE', 'STANDARD', 'POPULAR', 'PREMIUM']),
+    days: z.coerce.number().int().min(0).max(366).default(30),
+  }),
+};
+
 // Inferred types
 export type RegisterInput = z.infer<typeof authSchemas.register>;
 export type LoginInput = z.infer<typeof authSchemas.login>;
