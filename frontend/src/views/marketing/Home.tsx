@@ -58,7 +58,7 @@ const faqs = [
   },
   {
     question: "Can brands run multiple campaigns?",
-    answer: "Absolutely. Brands can create multiple campaigns, work with several creators simultaneously, and manage everything from a single dashboard. The Growth and Enterprise plans offer advanced campaign management tools.",
+    answer: "Absolutely. Brands can create multiple campaigns, work with several creators simultaneously, and manage everything from a single dashboard. The Popular and Premium plans offer advanced campaign management tools.",
   },
   {
     question: "Is my data safe?",

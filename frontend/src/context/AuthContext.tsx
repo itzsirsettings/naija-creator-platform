@@ -25,6 +25,7 @@ interface AuthContextValue {
   isAuthenticated: boolean
   isLoading: boolean
   setUser: (user: User | null) => void
+  refreshUser: () => Promise<void>
   login: (email: string, password: string) => Promise<void>
   register: (data: { name: string; email: string; password: string; role: "brand" | "creator" }) => Promise<{ emailVerificationRequired?: boolean }>
   logout: () => void
@@ -177,6 +178,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("tehilla_access_token")
   }, [])
 
+  const refreshUser = useCallback(async () => {
+    try {
+      setUser(await fetchMe())
+    } catch {
+      // keep stale user if refresh fails
+    }
+  }, [])
+
   // Request a password-reset email.
   const forgotPassword = useCallback(async (email: string) => {
     const response = await api.post("/auth/forgot-password", { email })
@@ -206,6 +215,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: !!user,
     isLoading,
     setUser,
+    refreshUser,
     login,
     register,
     logout,
@@ -213,7 +223,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     resetPassword,
     verifyEmail,
     resendVerificationEmail,
-  }), [user, isLoading, login, register, logout, forgotPassword, resetPassword, verifyEmail, resendVerificationEmail])
+  }), [user, isLoading, refreshUser, login, register, logout, forgotPassword, resetPassword, verifyEmail, resendVerificationEmail])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

@@ -1,11 +1,13 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { TrendingUp, BarChart3, CheckCircle2, DollarSign, Handshake, Loader2 } from "lucide-react"
+import { TrendingUp, BarChart3, CheckCircle2, Crown, DollarSign, Handshake, Lock, Loader2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import StatCard from "@/components/StatCard"
+import { Link } from "@/lib/router"
 import { useAuth } from "@/context/AuthContext"
+import { usePremium } from "@/hooks/usePremium"
 import { fetchBrandOffers, fetchCreatorOffers, type Offer } from "@/services/offers"
 import { fetchTransactions, type Transaction } from "@/services/payments"
 import { formatNaira } from "@/utils/format"
@@ -25,6 +27,7 @@ const STATUS_COLOR: Record<string, string> = {
 
 export default function Analytics() {
   const { user } = useAuth()
+  const ent = usePremium()
   const isBrand = user?.role === "brand"
 
   const [offers, setOffers] = useState<Offer[]>([])
@@ -111,6 +114,20 @@ export default function Analytics() {
         </p>
       </div>
 
+      {/* Upgrade prompt for creators without any active premium plan */}
+      {!isBrand && !ent.active && (
+        <div className="flex items-start gap-3 rounded-xl border border-amber-300/60 bg-amber-50 p-4 text-sm dark:border-amber-700/40 dark:bg-amber-950/20">
+          <Crown className="mt-0.5 size-5 shrink-0 text-amber-500" />
+          <div>
+            <p className="font-semibold text-amber-800 dark:text-amber-300">Analytics Dashboard requires a Standard plan or higher</p>
+            <p className="mt-0.5 text-amber-700 dark:text-amber-400">Upgrade to access your earnings, offer performance, and campaign analytics.</p>
+            <Link to="/app/premium" className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-900 underline dark:text-amber-300">
+              View plans
+            </Link>
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {overviewStats.map((stat) => (
           <StatCard key={stat.label} label={stat.label} value={stat.value} icon={stat.icon} />
@@ -182,6 +199,52 @@ export default function Analytics() {
             </CardContent>
           </Card>
         </div>
+      )}
+
+      {/* Locked Advanced Analytics for non-Popular creators */}
+      {!isBrand && ent.active && ent.analyticsLevel === "basic" && (
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
+            <div className="flex size-12 items-center justify-center rounded-full bg-[#1A24B8]/10">
+              <Lock className="size-6 text-[#1A24B8]" />
+            </div>
+            <div>
+              <p className="font-heading text-sm font-semibold">Advanced Analytics</p>
+              <p className="mt-1 max-w-xs text-xs text-muted-foreground">
+                Proposal win rates, creator performance reports, and campaign ROI breakdowns. Available on the Popular plan.
+              </p>
+            </div>
+            <Link
+              to="/app/premium"
+              className="mt-1 inline-flex items-center gap-1 rounded-lg bg-[#1A24B8] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0A0F7A] transition-colors"
+            >
+              Upgrade to Popular
+            </Link>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Locked Enterprise Analytics for non-Premium creators */}
+      {!isBrand && ent.active && ent.analyticsLevel === "advanced" && (
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
+            <div className="flex size-12 items-center justify-center rounded-full bg-amber-500/10">
+              <Lock className="size-6 text-amber-500" />
+            </div>
+            <div>
+              <p className="font-heading text-sm font-semibold">Enterprise Analytics</p>
+              <p className="mt-1 max-w-xs text-xs text-muted-foreground">
+                White-label reports, multi-campaign aggregates, and strategic growth insights. Available on the Premium plan.
+              </p>
+            </div>
+            <Link
+              to="/app/premium"
+              className="mt-1 inline-flex items-center gap-1 rounded-lg border border-amber-500/60 px-4 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-50 transition-colors"
+            >
+              Upgrade to Premium
+            </Link>
+          </CardContent>
+        </Card>
       )}
     </div>
   )

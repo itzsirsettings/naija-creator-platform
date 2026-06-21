@@ -1,6 +1,6 @@
 import type { PremiumTier } from '@prisma/client';
 import * as creatorRepo from '../repositories/creator.repository';
-import { PREMIUM_TIERS, isPremiumActive, type PaidTier } from '../lib/premium';
+import { PREMIUM_TIERS, isPremiumActive, getEntitlements, type PaidTier } from '../lib/premium';
 import { AppError } from '../errors/AppError';
 
 export const getStatus = async (userId: string) => {
@@ -10,22 +10,25 @@ export const getStatus = async (userId: string) => {
     tier: creator.premiumTier,
     until: creator.premiumUntil,
     active: isPremiumActive(creator.premiumTier, creator.premiumUntil),
+    entitlements: getEntitlements(creator.premiumTier, creator.premiumUntil),
     tiers: Object.values(PREMIUM_TIERS),
   };
 };
 
-// Payment is wired later. For now this validates the choice and returns a stub
-// so the upgrade UI works end-to-end without charging a card.
+// Grants 30-day access immediately. Paystack subscription replaces this flow once wired.
 export const requestUpgrade = async (userId: string, tier: PaidTier) => {
   const creator = await creatorRepo.findCreatorByUserId(userId);
   if (!creator) throw AppError.forbidden('Only creators can upgrade');
+  const until = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  await creatorRepo.updateCreatorPremium(creator.id, tier, until);
   const info = PREMIUM_TIERS[tier];
   return {
-    status: 'payment_pending',
-    message: 'Payment integration is coming soon — your selection has been recorded.',
+    status: 'activated',
+    message: `Welcome to ${info.name}! Your plan is now active for 30 days.`,
     tier: info.tier,
     priceKobo: info.priceKobo,
     priceNaira: info.priceNaira,
+    until: until.toISOString(),
   };
 };
 

@@ -1,22 +1,27 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { Check, Crown, Loader2 } from "lucide-react"
+import { ArrowUpRight, Check, Crown, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { useAuth } from "@/context/AuthContext"
 import { fetchPremiumStatus, requestUpgrade, type PremiumStatus } from "@/services/premium"
+import { PLANS } from "@/lib/tiers"
 import { formatNaira } from "@/utils/format"
 
-const ACCENT: Record<string, string> = {
-  STANDARD: "border-border",
-  POPULAR: "border-[#1A24B8] ring-1 ring-[#1A24B8]",
-  PREMIUM: "border-amber-500/60",
-}
+const ANNUAL_DISCOUNT = 0.15
+const TIER_RANK: Record<string, number> = { NONE: 0, STANDARD: 1, POPULAR: 2, PREMIUM: 3 }
+
+const monthlyEquiv = (monthly: number, annual: boolean): number =>
+  annual ? Math.round(monthly * (1 - ANNUAL_DISCOUNT)) : monthly
+
+const annualTotal = (monthly: number): number =>
+  Math.round(monthly * 12 * (1 - ANNUAL_DISCOUNT))
 
 export default function Premium() {
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
   const [status, setStatus] = useState<PremiumStatus | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isAnnual, setIsAnnual] = useState(true)
   const [busyTier, setBusyTier] = useState<string | null>(null)
 
   const load = useCallback(async () => {
@@ -24,7 +29,7 @@ export default function Premium() {
     try {
       setStatus(await fetchPremiumStatus())
     } catch {
-      // ignore — show catalogue with no active status
+      // zero-state — show catalogue with no active plan
     } finally {
       setIsLoading(false)
     }
@@ -36,9 +41,11 @@ export default function Premium() {
     setBusyTier(tier)
     try {
       const res = await requestUpgrade(tier)
-      toast(res.message)
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error || "Could not start the upgrade")
+      toast.success(res.message)
+      await Promise.all([load(), refreshUser()])
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { error?: string } } }
+      toast.error(e?.response?.data?.error || "Could not activate the plan")
     } finally {
       setBusyTier(null)
     }
@@ -54,65 +61,227 @@ export default function Premium() {
 
   const currentTier = status?.tier ?? "NONE"
   const active = status?.active ?? false
-  const tiers = status?.tiers ?? []
+  const currentRank = TIER_RANK[currentTier] ?? 0
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <style>{`
+        @keyframes premium-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .premium-float { animation: premium-float 4s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) { .premium-float { animation: none; } }
+      `}</style>
+
+      {/* Page header */}
       <div>
         <h1 className="flex items-center gap-2 font-heading text-2xl font-bold tracking-tight">
-          <Crown className="size-6 text-amber-500" /> Premium
+          <Crown className="size-6 text-amber-500" /> Premium Plans
         </h1>
-        <p className="text-muted-foreground">
-          Unlock the ability to apply to brands and campaigns directly.
+        <p className="mt-1 text-muted-foreground">
+          Unlock tools, visibility, and trust features to win more deals and earn more revenue.
         </p>
       </div>
 
-      {active ? (
-        <div className="rounded-xl border border-[#1A24B8]/30 bg-[#1A24B8]/5 p-4 text-sm">
-          <span className="font-semibold text-[#1A24B8]">You're on {currentTier.toLowerCase()}.</span>{" "}
-          {status?.until ? (
-            <span className="text-muted-foreground">
-              Active until {new Date(status.until).toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric" })}.
+      {/* Active plan banner */}
+      {active && (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-[#1A24B8]/30 bg-[#1A24B8]/5 p-4 text-sm">
+          <span>
+            <span className="font-semibold text-[#1A24B8]">
+              You&apos;re on the{" "}
+              {currentTier.charAt(0) + currentTier.slice(1).toLowerCase()} plan.
             </span>
-          ) : null}
+            {status?.until && (
+              <span className="ml-2 text-muted-foreground">
+                Active until{" "}
+                {new Date(status.until).toLocaleDateString("en-NG", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
+                .
+              </span>
+            )}
+          </span>
+          <span className="shrink-0 rounded-full bg-[#1A24B8] px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+            Active
+          </span>
         </div>
-      ) : null}
+      )}
 
+      {/* Billing toggle */}
+      <div className="flex justify-center">
+        <div className="inline-flex items-center gap-3 rounded-full border border-border bg-muted/30 p-1.5">
+          <button
+            onClick={() => setIsAnnual(false)}
+            className={`rounded-full px-5 py-2 text-xs font-semibold transition-all ${
+              !isAnnual
+                ? "bg-foreground text-background shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setIsAnnual(true)}
+            className={`flex items-center gap-2 rounded-full px-5 py-2 text-xs font-semibold transition-all ${
+              isAnnual
+                ? "bg-foreground text-background shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Annually
+            <span className="rounded-full bg-[#0098f2]/20 px-2 py-0.5 text-[9px] font-bold text-[#0098f2]">
+              Save 15%
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* Plan cards */}
       {isLoading ? (
         <div className="flex flex-col items-center gap-2 py-16 text-center">
           <Loader2 className="size-8 animate-spin text-muted-foreground" />
           <p className="text-sm text-muted-foreground">Loading plans…</p>
         </div>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-3">
-          {tiers.map((t) => {
-            const isCurrent = currentTier === t.tier && active
-            return (
-              <div key={t.tier} className={`flex flex-col rounded-2xl border bg-card p-5 shadow-sm ${ACCENT[t.tier] ?? "border-border"}`}>
-                <div className="flex items-center justify-between">
-                  <h3 className="font-heading text-lg font-semibold">{t.name}</h3>
-                  {t.tier === "POPULAR" ? (
-                    <span className="rounded-full bg-[#1A24B8] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">Popular</span>
-                  ) : null}
-                </div>
-                <div className="mt-3 font-heading text-3xl font-bold tabular-nums">
-                  {formatNaira(t.priceNaira)}
-                  <span className="text-sm font-medium text-muted-foreground"> /mo</span>
-                </div>
-                <ul className="mt-4 flex-1 space-y-2 text-sm">
-                  {t.perks.map((p) => (
-                    <li key={p} className="flex items-start gap-2">
-                      <Check className="mt-0.5 size-4 shrink-0 text-[#1A24B8]" /> <span>{p}</span>
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  onClick={() => upgrade(t.tier)}
-                  disabled={isCurrent || busyTier === t.tier}
-                  className="mt-5 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#1A24B8] py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#0A0F7A] disabled:cursor-not-allowed disabled:opacity-50"
+        <div className="grid gap-6 lg:grid-cols-3 items-stretch">
+          {PLANS.map((plan) => {
+            const perMonth = monthlyEquiv(plan.monthlyPriceNaira, isAnnual)
+            const yearly = annualTotal(plan.monthlyPriceNaira)
+            const isCurrent = currentTier === plan.tier && active
+            const planRank = TIER_RANK[plan.tier] ?? 0
+            const isDowngrade = active && planRank < currentRank
+            const isBusy = busyTier === plan.tier
+
+            const ctaLabel = isCurrent
+              ? "Current Plan"
+              : isBusy
+              ? "Activating…"
+              : isDowngrade
+              ? "Downgrade"
+              : active && planRank > currentRank
+              ? `Upgrade to ${plan.name}`
+              : plan.cta
+
+            if (plan.featured) {
+              return (
+                <div
+                  key={plan.tier}
+                  className="premium-float relative flex flex-col justify-between rounded-2xl p-8 text-white z-10"
+                  style={{
+                    background: "linear-gradient(135deg, #0F172A, #1E293B)",
+                    border: "2px solid #8B5CF6",
+                    boxShadow:
+                      "0 0 20px rgba(139,92,246,0.5), 0 0 40px rgba(139,92,246,0.4), 0 0 80px rgba(139,92,246,0.3)",
+                  }}
                 >
-                  {isCurrent ? "Current plan" : busyTier === t.tier ? "Processing…" : `Upgrade to ${t.name}`}
-                </button>
+                  {/* Badge */}
+                  <div
+                    className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-lg"
+                    style={{ background: "linear-gradient(135deg, #EC4899, #8B5CF6)" }}
+                  >
+                    🔥 Most Popular
+                  </div>
+
+                  <div>
+                    <div className="border-b border-white/10 pb-6 text-center">
+                      <h3 className="font-heading text-[18px] font-semibold text-white">{plan.name}</h3>
+                      <div className="mt-4 flex items-baseline justify-center">
+                        <span className="font-heading text-[40px] font-bold tabular-nums text-white">
+                          {formatNaira(perMonth)}
+                        </span>
+                        <span className="ml-1 text-sm font-medium text-purple-200">/month</span>
+                      </div>
+                      <div className="mt-1 h-4 text-[11px] text-purple-200/80">
+                        {isAnnual ? `Billed ${formatNaira(yearly)} yearly` : ""}
+                      </div>
+                      <p className="mt-3 min-h-[40px] text-sm leading-relaxed text-slate-300">
+                        {plan.description}
+                      </p>
+                    </div>
+                    <ul className="mt-8 space-y-4">
+                      {plan.features.map((f) => (
+                        <li key={f} className="flex items-start gap-3 text-sm text-slate-200">
+                          <Check className="mt-0.5 size-4 shrink-0 text-[#8B5CF6]" />
+                          <span className="leading-tight">{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="mt-8 border-t border-white/10 pt-6">
+                    <button
+                      onClick={() => !isCurrent && !isDowngrade && upgrade(plan.tier)}
+                      disabled={isCurrent || isDowngrade || isBusy}
+                      className="flex w-full items-center justify-center rounded-full py-3 text-[13px] font-semibold text-white transition-all hover:scale-[1.04] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                      style={{
+                        background: "linear-gradient(135deg, #8B5CF6, #EC4899)",
+                        boxShadow: "0 0 15px rgba(236,72,153,0.5), 0 0 35px rgba(139,92,246,0.5)",
+                      }}
+                    >
+                      {ctaLabel}
+                      {!isCurrent && !isDowngrade && <ArrowUpRight className="ml-2 size-4" />}
+                    </button>
+                  </div>
+                </div>
+              )
+            }
+
+            // Standard and Premium cards
+            const isAmber = plan.tier === "PREMIUM"
+            return (
+              <div
+                key={plan.tier}
+                className={`flex flex-col justify-between rounded-2xl border bg-card p-8 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md ${
+                  isCurrent
+                    ? "ring-2 ring-[#1A24B8] border-[#1A24B8]/40"
+                    : isAmber
+                    ? "border-amber-500/40"
+                    : "border-border"
+                }`}
+              >
+                <div>
+                  <div className="border-b border-border pb-6 text-center">
+                    <h3 className="font-heading text-[18px] font-semibold">{plan.name}</h3>
+                    <div className="mt-4 flex items-baseline justify-center">
+                      <span className="font-heading text-[40px] font-bold tabular-nums">
+                        {formatNaira(perMonth)}
+                      </span>
+                      <span className="ml-1 text-sm font-medium text-muted-foreground">/month</span>
+                    </div>
+                    <div className="mt-1 h-4 text-[11px] text-muted-foreground">
+                      {isAnnual ? `Billed ${formatNaira(yearly)} yearly` : ""}
+                    </div>
+                    <p className="mt-3 min-h-[40px] text-sm leading-relaxed text-muted-foreground">
+                      {plan.description}
+                    </p>
+                  </div>
+                  <ul className="mt-8 space-y-4">
+                    {plan.features.map((f) => (
+                      <li key={f} className="flex items-start gap-3 text-sm">
+                        <Check
+                          className={`mt-0.5 size-4 shrink-0 ${
+                            isAmber ? "text-amber-500" : "text-[#0098f2]"
+                          }`}
+                        />
+                        <span className="leading-tight">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-8 border-t border-border pt-6">
+                  <button
+                    onClick={() => !isCurrent && !isDowngrade && upgrade(plan.tier)}
+                    disabled={isCurrent || isDowngrade || isBusy}
+                    className={`flex w-full items-center justify-center rounded-full border py-3 text-[13px] font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
+                      isAmber
+                        ? "border-amber-500/60 text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                        : "border-border bg-foreground text-background hover:opacity-90"
+                    }`}
+                  >
+                    {ctaLabel}
+                    {!isCurrent && !isDowngrade && <ArrowUpRight className="ml-2 size-4" />}
+                  </button>
+                </div>
               </div>
             )
           })}
@@ -120,7 +289,11 @@ export default function Premium() {
       )}
 
       <p className="text-center text-xs text-muted-foreground">
-        Card payments are coming soon. Your selection is recorded and our team will activate your plan.
+        Prices in Nigerian Naira (₦).{" "}
+        {isAnnual
+          ? "Annual plans are billed yearly at a 15% discount."
+          : "Switch to annual billing to save 15%."}{" "}
+        Plans activate for 30 days — full payment integration coming soon.
       </p>
     </div>
   )

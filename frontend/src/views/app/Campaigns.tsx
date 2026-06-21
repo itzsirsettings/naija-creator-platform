@@ -1,14 +1,14 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { Inbox, Loader2, Megaphone, Plus, Users } from "lucide-react"
+import { ArrowUpRight, Crown, Inbox, Lock, Loader2, Megaphone, Plus, Users } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import ApplyModal from "@/components/ApplyModal"
 import { useAuth } from "@/context/AuthContext"
-import { useNavigate } from "@/lib/router"
+import { Link, useNavigate } from "@/lib/router"
 import {
   fetchCampaigns, fetchMyCampaigns, createCampaign, closeCampaign,
   applyToCampaign, fetchCampaignApplications,
@@ -186,6 +186,23 @@ function CreatorCampaigns() {
         <p className="text-muted-foreground">Open brand campaigns you can apply to.</p>
       </div>
 
+      {/* Locked banner for creators without Popular/Premium */}
+      {!canApply && (
+        <div className="flex items-start gap-3 rounded-xl border border-[#1A24B8]/30 bg-[#1A24B8]/5 p-4 text-sm">
+          <Crown className="mt-0.5 size-5 shrink-0 text-[#1A24B8]" />
+          <div className="flex-1">
+            <p className="font-semibold text-[#1A24B8]">Popular plan required to apply to campaigns</p>
+            <p className="mt-0.5 text-muted-foreground">Upgrade to Popular or Premium to send applications directly to brand campaigns.</p>
+          </div>
+          <Link
+            to="/app/premium"
+            className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-[#1A24B8] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#0A0F7A] transition-colors"
+          >
+            Upgrade <ArrowUpRight className="size-3" />
+          </Link>
+        </div>
+      )}
+
       {isLoading ? (
         <Loading label="Loading campaigns…" />
       ) : campaigns.length ? (
@@ -200,7 +217,15 @@ function CreatorCampaigns() {
                 <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{c.description}</p>
                 <p className="mt-2 text-xs font-medium text-foreground">{c.platform} · {formatNaira(c.budgetKobo / 100)}</p>
               </div>
-              <button onClick={() => handleApply(c)} className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#1A24B8] py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#0A0F7A]">
+              <button
+                onClick={() => handleApply(c)}
+                className={`inline-flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold shadow-sm transition-colors ${
+                  canApply
+                    ? "bg-[#1A24B8] text-white hover:bg-[#0A0F7A]"
+                    : "border border-border bg-muted text-muted-foreground cursor-not-allowed"
+                }`}
+              >
+                {!canApply && <Lock className="size-3" />}
                 Apply to campaign
               </button>
             </div>
