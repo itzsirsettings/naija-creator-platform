@@ -55,8 +55,8 @@ export function AppSidebar() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
-                    <span className="truncate text-sm font-semibold text-foreground">{displayName}</span>
-                    <span className="truncate text-[11px] capitalize text-muted-foreground">{user?.role || "guest"}</span>
+                    <span className="break-words text-sm font-semibold text-foreground">{displayName}</span>
+                    <span className="break-words text-[11px] capitalize text-muted-foreground">{user?.role || "guest"}</span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden" />
                 </SidebarMenuButton>
@@ -107,7 +107,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild isActive={isActive} tooltip={item.label} className={activeClass}>
                     <Link to={item.to}>
                       <Icon className="shrink-0" />
-                      <span className="truncate group-data-[collapsible=icon]:hidden">{item.label}</span>
+                      <span className="whitespace-nowrap group-data-[collapsible=icon]:hidden">{item.label}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -125,7 +125,7 @@ export function AppSidebar() {
               <SidebarMenuButton asChild isActive={pathname === "/settings"} tooltip="Settings" className={activeClass}>
                 <Link to="/settings">
                   <Settings className="shrink-0" />
-                  <span className="truncate group-data-[collapsible=icon]:hidden">Settings</span>
+                  <span className="whitespace-nowrap group-data-[collapsible=icon]:hidden">Settings</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

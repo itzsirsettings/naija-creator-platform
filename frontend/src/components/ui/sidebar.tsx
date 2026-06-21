@@ -27,9 +27,10 @@ import { PanelLeftIcon } from "lucide-react"
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "13rem"
-// Mobile drawer: ~40% of the original 18rem (reduced ~60%), responsive so it
-// never exceeds 60% of the viewport on very small screens.
-const SIDEBAR_WIDTH_MOBILE = "min(60vw, 7rem)"
+// Mobile drawer sizes to its content (max-content) so labels never get cut
+// off — slim for short text, wider for longer text. Bounded by !min-w / !max-w
+// on the SheetContent so it stays usable and never overflows the screen.
+const SIDEBAR_WIDTH_MOBILE = "max-content"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
@@ -188,7 +189,7 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="!w-[var(--sidebar-width)] !max-w-[var(--sidebar-width)] border-r border-white/30 bg-white/70 p-0 text-sidebar-foreground backdrop-blur-xl dark:border-white/10 dark:bg-neutral-900/75 [&>button]:hidden"
+          className="!w-[var(--sidebar-width)] !min-w-[9.5rem] !max-w-[85vw] border-r border-white/30 bg-white/70 p-0 text-sidebar-foreground backdrop-blur-xl dark:border-white/10 dark:bg-neutral-900/75 [&>button]:hidden"
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
