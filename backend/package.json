@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/app.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/app.js",
+    "start": "npx prisma migrate deploy --schema src/prisma/schema.prisma && node dist/app.js",
     "worker:payments": "tsx src/workers/payment.worker.ts",
     "db:migrate": "npx prisma migrate dev --schema src/prisma/schema.prisma",
     "db:migrate:deploy": "npx prisma migrate deploy --schema src/prisma/schema.prisma",
