@@ -1,8 +1,18 @@
-import type { OfferStatus } from '@prisma/client';
+import { randomBytes } from 'node:crypto';
+import type { OfferStatus, OfferDealType } from '@prisma/client';
 import * as offerRepo from '../repositories/offer.repository';
 import * as escrowService from './escrow.service';
 import { toKobo } from '../utils/money';
 import { AppError } from '../errors/AppError';
+
+// Short, URL-safe, unambiguous affiliate code (e.g. TEH-7F3K9Q).
+const generateAffiliateCode = (): string => {
+  const alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  const bytes = randomBytes(6);
+  let code = '';
+  for (let i = 0; i < 6; i += 1) code += alphabet[bytes[i]! % alphabet.length];
+  return `TEH-${code}`;
+};
 
 const VALID_TRANSITIONS: Record<OfferStatus, OfferStatus[]> = {
   PENDING:    ['ACCEPTED', 'REJECTED', 'CANCELLED'],
@@ -44,9 +54,13 @@ export interface CreateOfferInput {
   amount: number;
   platform: string;
   deadline: Date;
+  dealType?: OfferDealType;
+  commissionRate?: number;
+  usageRights?: string;
 }
 
 export const createOffer = async (input: CreateOfferInput) => {
+  const isAffiliate = input.dealType === 'AFFILIATE';
   return offerRepo.createOffer({
     brandId: input.brandId,
     creatorId: input.creatorId,
@@ -55,8 +69,15 @@ export const createOffer = async (input: CreateOfferInput) => {
     amountKobo: toKobo(input.amount),
     platform: input.platform,
     deadline: input.deadline,
+    dealType: input.dealType ?? 'FIXED',
+    commissionRate: isAffiliate ? (input.commissionRate ?? null) : null,
+    affiliateCode: isAffiliate ? generateAffiliateCode() : null,
+    usageRights: input.usageRights ?? 'ORGANIC_ONLY',
   });
 };
+
+export const getCreatorAffiliateOffers = (creatorId: string) =>
+  offerRepo.listCreatorAffiliateOffers(creatorId);
 
 export const getCreatorOffers = (creatorId: string) =>
   offerRepo.listCreatorOffers(creatorId);

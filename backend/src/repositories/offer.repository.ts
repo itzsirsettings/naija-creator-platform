@@ -1,4 +1,4 @@
-import type { OfferStatus } from '@prisma/client';
+import type { OfferStatus, OfferDealType } from '@prisma/client';
 import prisma from '../lib/prisma';
 
 export interface CreateOfferParams {
@@ -9,6 +9,10 @@ export interface CreateOfferParams {
   amountKobo: number;
   platform: string;
   deadline: Date;
+  dealType?: OfferDealType;
+  commissionRate?: number | null;
+  affiliateCode?: string | null;
+  usageRights?: string;
 }
 
 export const createOffer = (params: CreateOfferParams) =>
@@ -41,6 +45,20 @@ export const listBrandOffers = (brandId: string) =>
     include: offerRelations,
     orderBy: { createdAt: 'desc' },
   });
+
+// Affiliate deals for a creator, with attribution event counts (Popular+ / Premium).
+export const listCreatorAffiliateOffers = (creatorId: string) =>
+  prisma.offer.findMany({
+    where: { creatorId, dealType: 'AFFILIATE' },
+    include: {
+      ...offerRelations,
+      _count: { select: { affiliateEvents: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+export const findOfferByAffiliateCode = (code: string) =>
+  prisma.offer.findUnique({ where: { affiliateCode: code } });
 
 export interface UpdateOfferStatusParams {
   status: OfferStatus;

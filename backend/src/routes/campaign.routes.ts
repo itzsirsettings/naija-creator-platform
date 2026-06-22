@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import * as campaignService from '../services/campaign.service';
+import * as brandAnalyticsService from '../services/brandAnalytics.service';
 import { authenticate, requireRole } from '../plugins/authenticate';
 import { campaignSchemas } from '../schemas';
 
@@ -22,6 +23,12 @@ export default async function campaignRoutes(fastify: FastifyInstance) {
     const query = campaignSchemas.list.parse(request.query);
     const result = await campaignService.listMyCampaigns(request.user!.id, query);
     return reply.send({ success: true, ...result, error: null });
+  });
+
+  // Brand (Scale): campaign performance analytics.
+  fastify.get('/performance', { preHandler: [authenticate, requireRole('BRAND')] }, async (request, reply) => {
+    const data = await brandAnalyticsService.getBrandPerformance(request.user!.id);
+    return reply.send(ok(data));
   });
 
   // Brand: post a campaign.
@@ -52,5 +59,12 @@ export default async function campaignRoutes(fastify: FastifyInstance) {
     const query = campaignSchemas.list.parse(request.query);
     const result = await campaignService.listCampaignApplications(request.user!.id, id, query.limit, query.cursor);
     return reply.send({ success: true, ...result, error: null });
+  });
+
+  // Brand (Growth+): AI-suggested creators matched to a campaign.
+  fastify.get('/:id/suggestions', { preHandler: [authenticate, requireRole('BRAND')] }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const creators = await campaignService.getSuggestedCreators(request.user!.id, id);
+    return reply.send(ok({ creators }));
   });
 }

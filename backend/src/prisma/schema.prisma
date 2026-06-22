@@ -74,6 +74,8 @@ model Creator {
   premiumUntil DateTime?
   avatar       String?
   location     String?
+  // ── Content usage rights policy (Premium) ──
+  usageRightsPolicy String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -83,6 +85,8 @@ model Creator {
   payouts              Payout[]
   applications         Application[]
   campaignApplications CampaignApplication[]
+  proposalTemplates    ProposalTemplate[]
+  teamMembers          TeamMember[]
 
   @@index([niche])
   @@index([followers])
@@ -102,16 +106,35 @@ model Brand {
   kycSubmittedAt    DateTime?
   kycReviewedAt     DateTime?
   kycReviewNote     String?
+  // ── Brand subscription (mirrors creator premium) ──
+  premiumTier       PremiumTier @default(NONE)
+  premiumUntil      DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  offersSent   Offer[]       @relation("BrandOffers")
-  applications Application[]
-  campaigns    Campaign[]
+  offersSent    Offer[]        @relation("BrandOffers")
+  applications  Application[]
+  campaigns     Campaign[]
+  managedBrands ManagedBrand[]
 
   @@index([industry])
   @@index([createdAt])
   @@index([kycStatus])
+}
+
+// ─── Agency: brand profiles managed under one Premium brand account ───────────
+model ManagedBrand {
+  id            String   @id @default(uuid())
+  agencyBrandId String
+  agencyBrand   Brand    @relation(fields: [agencyBrandId], references: [id], onDelete: Cascade)
+  name          String
+  industry      String
+  website       String?
+  logo          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([agencyBrandId, createdAt])
 }
 
 model Offer {
@@ -130,14 +153,22 @@ model Offer {
   deliverableNote  String?
   submittedAt      DateTime?
   approvedAt       DateTime?
+  // ── Affiliate / commission deals (Popular) ──
+  dealType         OfferDealType @default(FIXED)
+  commissionRate   Int?          // whole-number percent, only for AFFILIATE deals
+  affiliateCode    String?       @unique
+  // ── Content usage rights (Premium) ──
+  usageRights      String        @default("ORGANIC_ONLY")
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
 
-  transaction Transaction?
+  transaction     Transaction?
+  affiliateEvents AffiliateEvent[]
 
   @@index([brandId, createdAt])
   @@index([creatorId, createdAt])
   @@index([status, createdAt])
+  @@index([dealType])
 }
 
 enum OfferStatus {
@@ -151,6 +182,16 @@ enum OfferStatus {
   COMPLETED
   CANCELLED
   REFUNDED
+}
+
+enum OfferDealType {
+  FIXED
+  AFFILIATE
+}
+
+enum AffiliateEventType {
+  CLICK
+  CONVERSION
 }
 
 model Transaction {
@@ -443,4 +484,45 @@ model CampaignApplication {
   @@unique([campaignId, creatorId])
   @@index([campaignId, createdAt])
   @@index([creatorId, createdAt])
+}
+
+// ─── Affiliate attribution events (Premium analytics) ────────────────────────
+// A click or conversion attributed to an affiliate offer's tracked code.
+model AffiliateEvent {
+  id         String             @id @default(uuid())
+  offerId    String
+  offer      Offer              @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  type       AffiliateEventType
+  amountKobo Int                @default(0) // sale value for CONVERSION events
+  createdAt  DateTime           @default(now())
+
+  @@index([offerId, type])
+  @@index([createdAt])
+}
+
+// ─── Saved proposal templates (Premium) ──────────────────────────────────────
+model ProposalTemplate {
+  id        String   @id @default(uuid())
+  creatorId String
+  creator   Creator  @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([creatorId, createdAt])
+}
+
+// ─── Team members for a creator account (Premium) ────────────────────────────
+model TeamMember {
+  id             String   @id @default(uuid())
+  ownerCreatorId String
+  creator        Creator  @relation(fields: [ownerCreatorId], references: [id], onDelete: Cascade)
+  name           String
+  email          String
+  role           String   @default("Member")
+  createdAt      DateTime @default(now())
+
+  @@unique([ownerCreatorId, email])
+  @@index([ownerCreatorId])
 }

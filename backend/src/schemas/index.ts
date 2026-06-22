@@ -81,6 +81,7 @@ export const creatorSchemas = {
     platforms: z.array(z.string().trim().max(48)).max(12).optional(),
     avatar: z.string().trim().url().optional(),
     location: z.string().trim().max(120).optional(),
+    usageRightsPolicy: z.string().trim().max(500).optional(),
   }),
 
   bank: z.object({
@@ -106,6 +107,8 @@ export const brandSchemas = {
   }),
 };
 
+export const USAGE_RIGHTS = ['ORGANIC_ONLY', 'PAID_ADS_30D', 'PAID_ADS_90D', 'PERPETUAL'] as const;
+
 export const offerSchemas = {
   create: z.object({
     creatorId: id,
@@ -114,6 +117,12 @@ export const offerSchemas = {
     amount,
     platform: shortText,
     deadline: z.coerce.date(),
+    dealType: z.enum(['FIXED', 'AFFILIATE']).default('FIXED'),
+    commissionRate: z.coerce.number().int().min(1).max(100).optional(),
+    usageRights: z.enum(USAGE_RIGHTS).default('ORGANIC_ONLY'),
+  }).refine((v) => v.dealType !== 'AFFILIATE' || typeof v.commissionRate === 'number', {
+    message: 'commissionRate is required for affiliate deals',
+    path: ['commissionRate'],
   }),
 
   submit: z.object({
@@ -195,6 +204,16 @@ export const campaignSchemas = {
 export const premiumSchemas = {
   upgrade: z.object({
     tier: z.enum(['STANDARD', 'POPULAR', 'PREMIUM']),
+  }),
+  upgradePay: z.object({
+    tier: z.enum(['STANDARD', 'POPULAR', 'PREMIUM']),
+    billingPeriod: z.enum(['monthly', 'annual']).default('monthly'),
+    successUrl: z.string().url().optional(),
+  }),
+  upgradeVerify: z.object({
+    reference: z.string().trim().min(1),
+    tier: z.enum(['STANDARD', 'POPULAR', 'PREMIUM']),
+    billingPeriod: z.enum(['monthly', 'annual']).default('monthly'),
   }),
   grant: z.object({
     tier: z.enum(['NONE', 'STANDARD', 'POPULAR', 'PREMIUM']),

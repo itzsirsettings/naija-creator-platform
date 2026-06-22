@@ -370,7 +370,10 @@ export const getMe = async (userId: string) => {
         },
       },
       brand: {
-        select: { id: true, name: true, industry: true, website: true, logo: true },
+        select: {
+          id: true, name: true, industry: true, website: true, logo: true,
+          premiumTier: true, premiumUntil: true,
+        },
       },
     },
   });

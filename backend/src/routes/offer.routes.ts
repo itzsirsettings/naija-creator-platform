@@ -27,8 +27,21 @@ export default async function offerRoutes(fastify: FastifyInstance) {
       amount: body.amount,
       platform: body.platform,
       deadline: body.deadline,
+      dealType: body.dealType,
+      commissionRate: body.commissionRate,
+      usageRights: body.usageRights,
     });
     return reply.status(201).send(ok({ offer }));
+  });
+
+  // GET /api/offers/affiliate — creator's affiliate deals + codes (Popular+)
+  fastify.get('/affiliate', {
+    preHandler: [authenticate, requireRole('CREATOR')],
+  }, async (request, reply) => {
+    const creator = await creatorRepo.findCreatorByUserId(request.user!.id);
+    if (!creator) throw AppError.notFound('Creator profile not found');
+    const offers = await offerService.getCreatorAffiliateOffers(creator.id);
+    return reply.send(ok({ offers }));
   });
 
   // GET /api/offers/creator/:id

@@ -45,7 +45,7 @@ export const listCreators = async (params: ListCreatorsParams) => {
     select: {
       id: true, name: true, handle: true, niche: true, bio: true,
       followers: true, engagement: true, baseRate: true, platforms: true,
-      avatar: true, location: true, createdAt: true,
+      avatar: true, location: true, usageRightsPolicy: true, createdAt: true,
     },
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
   });
@@ -78,6 +78,7 @@ export interface UpdateCreatorParams {
   platforms?: string[];
   avatar?: string;
   location?: string;
+  usageRightsPolicy?: string;
 }
 
 export const updateCreator = (id: string, data: UpdateCreatorParams) =>

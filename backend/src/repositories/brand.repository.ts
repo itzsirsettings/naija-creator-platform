@@ -1,6 +1,9 @@
-import type { Prisma } from '@prisma/client';
+import type { Prisma, PremiumTier } from '@prisma/client';
 import prisma from '../lib/prisma';
 import { buildCursorWhere, clampLimit, pageResponse } from '../utils/pagination';
+
+export const updateBrandPremium = (id: string, tier: PremiumTier, premiumUntil: Date | null) =>
+  prisma.brand.update({ where: { id }, data: { premiumTier: tier, premiumUntil } });
 
 export interface ListBrandsParams {
   industry?: string;

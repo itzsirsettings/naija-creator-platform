@@ -2,6 +2,7 @@ import * as creatorRepo from '../repositories/creator.repository';
 import * as cache from '../lib/cache';
 import { addMoneyFields } from '../utils/money';
 import { paymentProvider } from './payment.service';
+import { getEntitlements } from '../lib/premium';
 import { AppError } from '../errors/AppError';
 
 export const listCreators = async (params: creatorRepo.ListCreatorsParams) => {
@@ -35,6 +36,18 @@ export const updateCreator = async (
   const creator = await creatorRepo.findCreatorById(id);
   if (!creator) throw AppError.notFound('Creator not found');
   if (creator.userId !== userId) throw AppError.forbidden('Not authorized');
+
+  // Usage-rights policy is a Premium control — strip it for lower tiers.
+  if (data.usageRightsPolicy !== undefined) {
+    const ent = getEntitlements(creator.premiumTier, creator.premiumUntil);
+    if (!ent.usageRightsControl) {
+      throw new AppError(
+        'Setting a usage-rights policy requires a Premium subscription',
+        402,
+        'PREMIUM_REQUIRED',
+      );
+    }
+  }
 
   const normalizedHandle = data.handle
     ? data.handle.startsWith('@')

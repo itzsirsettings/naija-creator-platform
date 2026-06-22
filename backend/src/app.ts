@@ -23,6 +23,10 @@ import adminRoutes from './routes/admin.routes';
 import applicationRoutes from './routes/application.routes';
 import campaignRoutes from './routes/campaign.routes';
 import premiumRoutes from './routes/premium.routes';
+import affiliateRoutes from './routes/affiliate.routes';
+import proposalTemplateRoutes from './routes/proposalTemplate.routes';
+import teamRoutes from './routes/team.routes';
+import managedBrandRoutes from './routes/managedBrand.routes';
 
 const buildApp = async () => {
   const fastify = Fastify({
@@ -179,6 +183,10 @@ const buildApp = async () => {
   await fastify.register(applicationRoutes, { prefix: '/api/applications' });
   await fastify.register(campaignRoutes, { prefix: '/api/campaigns' });
   await fastify.register(premiumRoutes, { prefix: '/api/premium' });
+  await fastify.register(affiliateRoutes, { prefix: '/api/affiliate' });
+  await fastify.register(proposalTemplateRoutes, { prefix: '/api/proposal-templates' });
+  await fastify.register(teamRoutes, { prefix: '/api/team' });
+  await fastify.register(managedBrandRoutes, { prefix: '/api/managed-brands' });
 
   return fastify;
 };
