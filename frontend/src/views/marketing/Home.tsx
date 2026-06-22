@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from "react";
 import { Link } from "@/lib/router";
+import LazyVideo from "@/components/LazyVideo";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Check,
@@ -219,12 +220,9 @@ export default function Home() {
                 </h3>
               </div>
               <div className="overflow-hidden rounded-2xl border border-[#e8e8e8] bg-[#f7f7f7] aspect-[4/3]">
-                <video
+                <LazyVideo
                   src="/videos/feature-match.mp4"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
+                  poster="/discover.png"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -246,12 +244,9 @@ export default function Home() {
                 </h3>
               </div>
               <div className="overflow-hidden rounded-2xl border border-[#e8e8e8] bg-[#f7f7f7] aspect-[4/3]">
-                <video
+                <LazyVideo
                   src="/videos/feature-campaign.mp4"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
+                  poster="/Analysis.webp"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -273,12 +268,9 @@ export default function Home() {
                 </h3>
               </div>
               <div className="overflow-hidden rounded-2xl border border-[#e8e8e8] bg-[#f7f7f7] aspect-[4/3]">
-                <video
+                <LazyVideo
                   src="/videos/feature-content.mp4"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
+                  poster="/Escrow.webp"
                   className="w-full h-full object-cover"
                 />
               </div>
