@@ -17,6 +17,7 @@ import {
   initiatePayment,
   type Offer,
 } from "@/services/offers"
+import { fetchCreatorById } from "@/services/creators"
 import { Link } from "@/lib/router"
 
 export default function Offers() {
@@ -26,6 +27,7 @@ export default function Offers() {
   const [error, setError] = useState<string | null>(null)
   const [submitTarget, setSubmitTarget] = useState<any>(null)
   const [busyId, setBusyId] = useState<string | null>(null)
+  const [myBank, setMyBank] = useState<{ bankName: string | null; bankLast4: string | null } | null>(null)
 
   const isBrand = user?.role === "brand"
 
@@ -37,10 +39,17 @@ export default function Offers() {
     setIsLoading(true)
     setError(null)
     try {
-      const data = isBrand
-        ? await fetchBrandOffers(user.brandId!)
-        : await fetchCreatorOffers(user.creatorId!)
-      setOffers(data)
+      const [data] = await Promise.all([
+        isBrand ? fetchBrandOffers(user.brandId!) : fetchCreatorOffers(user.creatorId!),
+        !isBrand && user.creatorId
+          ? fetchCreatorById(user.creatorId).then((c: any) => {
+              if (c.bankAccountLast4) {
+                setMyBank({ bankName: c.bankBankName ?? null, bankLast4: c.bankAccountLast4 })
+              }
+            }).catch(() => {})
+          : Promise.resolve(),
+      ])
+      setOffers(data as Offer[])
     } catch {
       setError("Failed to load offers. Please try again.")
     } finally {
@@ -62,6 +71,12 @@ export default function Offers() {
     creatorName: o.creator?.name ?? "Creator",
     deliverableUrl: o.deliverableUrl,
     deliverableNote: o.deliverableNote,
+    dealType: o.dealType,
+    commissionRate: o.commissionRate,
+    affiliateCode: o.affiliateCode,
+    usageRights: o.usageRights,
+    bankName: myBank?.bankName ?? null,
+    bankLast4: myBank?.bankLast4 ?? null,
   })
 
   const handleAction = async (action: () => Promise<Offer>, id: string, successMsg: string) => {
@@ -79,7 +94,7 @@ export default function Offers() {
 
   const handleAccept = (id: string) => handleAction(() => acceptOffer(id), id, "Offer accepted")
   const handleReject = (id: string) => handleAction(() => rejectOffer(id), id, "Offer rejected")
-  const handleApprove = (id: string) => handleAction(() => approveOffer(id), id, "Deliverable approved — funds released")
+  const handleApprove = (id: string) => handleAction(() => approveOffer(id), id, "Deliverable approved. Funds released")
   const handleDispute = (id: string) => handleAction(() => disputeOffer(id), id, "Dispute filed")
 
   const handlePay = async (id: string) => {
@@ -175,20 +190,20 @@ export default function Offers() {
             <TabsTrigger value="completed">Completed</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="all" className="space-y-3 mt-4">
-            {renderOffers(normalizedOffers)}
+          <TabsContent value="all" className="mt-4">
+            <div className="max-w-xl mx-auto space-y-6">{renderOffers(normalizedOffers)}</div>
           </TabsContent>
 
-          <TabsContent value="pending" className="space-y-3 mt-4">
-            {renderOffers(normalizedOffers.filter((o) => o.status === "PENDING"))}
+          <TabsContent value="pending" className="mt-4">
+            <div className="max-w-xl mx-auto space-y-6">{renderOffers(normalizedOffers.filter((o) => o.status === "PENDING"))}</div>
           </TabsContent>
 
-          <TabsContent value="active" className="space-y-3 mt-4">
-            {renderOffers(normalizedOffers.filter((o) => ["ACCEPTED", "FUNDED", "SUBMITTED", "APPROVED"].includes(o.status)))}
+          <TabsContent value="active" className="mt-4">
+            <div className="max-w-xl mx-auto space-y-6">{renderOffers(normalizedOffers.filter((o) => ["ACCEPTED", "FUNDED", "SUBMITTED", "APPROVED"].includes(o.status)))}</div>
           </TabsContent>
 
-          <TabsContent value="completed" className="space-y-3 mt-4">
-            {renderOffers(normalizedOffers.filter((o) => ["COMPLETED", "REJECTED", "CANCELLED", "REFUNDED"].includes(o.status)))}
+          <TabsContent value="completed" className="mt-4">
+            <div className="max-w-xl mx-auto space-y-6">{renderOffers(normalizedOffers.filter((o) => ["COMPLETED", "REJECTED", "CANCELLED", "REFUNDED"].includes(o.status)))}</div>
           </TabsContent>
         </Tabs>
       )}

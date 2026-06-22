@@ -1,11 +1,20 @@
-"use client"
+﻿"use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { ArrowUpRight, Check, Crown, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { useAuth } from "@/context/AuthContext"
-import { fetchPremiumStatus, requestUpgrade, type PremiumStatus } from "@/services/premium"
-import { PLANS } from "@/lib/tiers"
+import {
+  fetchPremiumStatus,
+  fetchBrandPremiumStatus,
+  initiateSubscriptionPayment,
+  initiateBrandSubscriptionPayment,
+  verifySubscriptionPayment,
+  verifyBrandSubscriptionPayment,
+  type PremiumStatus,
+  type BillingPeriod,
+} from "@/services/premium"
+import { PLANS, BRAND_PLANS } from "@/lib/tiers"
 import { formatNaira } from "@/utils/format"
 
 const ANNUAL_DISCOUNT = 0.15
@@ -19,42 +28,70 @@ const annualTotal = (monthly: number): number =>
 
 export default function Premium() {
   const { user, refreshUser } = useAuth()
+  const isBrand = user?.role === "brand"
+  const plans = isBrand ? BRAND_PLANS : PLANS
   const [status, setStatus] = useState<PremiumStatus | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isAnnual, setIsAnnual] = useState(true)
   const [busyTier, setBusyTier] = useState<string | null>(null)
+  const verifiedRef = useRef(false)
 
   const load = useCallback(async () => {
     setIsLoading(true)
     try {
-      setStatus(await fetchPremiumStatus())
+      setStatus(await (isBrand ? fetchBrandPremiumStatus() : fetchPremiumStatus()))
     } catch {
-      // zero-state — show catalogue with no active plan
+      // zero-state - show catalogue with no active plan
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [isBrand])
 
   useEffect(() => { load() }, [load])
+
+  // Handle Paystack callback: ?reference=<ref>&trxref=<ref>&tier=<tier>&billing=<period>
+  useEffect(() => {
+    if (verifiedRef.current) return
+    const params = new URLSearchParams(window.location.search)
+    const reference = params.get("reference") ?? params.get("trxref")
+    const tier = params.get("tier") as "STANDARD" | "POPULAR" | "PREMIUM" | null
+    const billing = (params.get("billing") ?? "monthly") as BillingPeriod
+    if (!reference || !tier) return
+    verifiedRef.current = true
+    window.history.replaceState({}, "", window.location.pathname)
+    const fn = isBrand ? verifyBrandSubscriptionPayment : verifySubscriptionPayment
+    fn(reference, tier, billing)
+      .then(async (res) => {
+        toast.success(res.message)
+        await Promise.all([load(), refreshUser()])
+      })
+      .catch((err: unknown) => {
+        const e = err as { response?: { data?: { error?: string } } }
+        toast.error(e?.response?.data?.error || "Could not confirm your payment")
+      })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isBrand])
 
   const upgrade = async (tier: "STANDARD" | "POPULAR" | "PREMIUM") => {
     setBusyTier(tier)
     try {
-      const res = await requestUpgrade(tier)
-      toast.success(res.message)
-      await Promise.all([load(), refreshUser()])
+      const billingPeriod: BillingPeriod = isAnnual ? "annual" : "monthly"
+      const successUrl = `${window.location.origin}/app/premium?tier=${tier}&billing=${billingPeriod}`
+      const fn = isBrand ? initiateBrandSubscriptionPayment : initiateSubscriptionPayment
+      const res = await fn(tier, billingPeriod, successUrl)
+      // Redirect to Paystack — Paystack will replace REFERENCE in the callback URL
+      window.location.href = res.authorizationUrl
     } catch (err: unknown) {
       const e = err as { response?: { data?: { error?: string } } }
-      toast.error(e?.response?.data?.error || "Could not activate the plan")
-    } finally {
+      toast.error(e?.response?.data?.error || "Could not start the checkout")
       setBusyTier(null)
     }
   }
 
-  if (user && user.role !== "creator") {
+  if (user && user.role !== "creator" && user.role !== "brand") {
     return (
       <div className="py-16 text-center text-sm text-muted-foreground">
-        Premium subscriptions are for creators.
+        Subscriptions are for creators and brands.
       </div>
     )
   }
@@ -74,10 +111,12 @@ export default function Premium() {
       {/* Page header */}
       <div>
         <h1 className="flex items-center gap-2 font-heading text-2xl font-bold tracking-tight">
-          <Crown className="size-6 text-amber-500" /> Premium Plans
+          <Crown className="size-6 text-amber-500" /> {isBrand ? "Brand Plans" : "Premium Plans"}
         </h1>
         <p className="mt-1 text-muted-foreground">
-          Unlock tools, visibility, and trust features to win more deals and earn more revenue.
+          {isBrand
+            ? "Unlock AI creator matching, performance analytics, and agency tools to get more from every campaign."
+            : "Unlock tools, visibility, and trust features to win more deals and earn more revenue."}
         </p>
       </div>
 
@@ -109,11 +148,18 @@ export default function Premium() {
 
       {/* Outcome stat chips */}
       <div className="flex flex-wrap items-center justify-center gap-3">
-        {[
-          { icon: "📈", text: "Popular creators win 3× more campaigns" },
-          { icon: "⚡", text: "48% faster payouts" },
-          { icon: "💰", text: "₦12M+ in total creator payouts" },
-        ].map((s) => (
+        {(isBrand
+          ? [
+              { icon: "🎯", text: "AI matching fills campaigns 3× faster" },
+              { icon: "📊", text: "Track ROAS on every deal" },
+              { icon: "🏢", text: "Run multiple brands from one login" },
+            ]
+          : [
+              { icon: "📈", text: "Popular creators win 3× more campaigns" },
+              { icon: "⚡", text: "48% faster payouts" },
+              { icon: "💰", text: "₦12M+ in total creator payouts" },
+            ]
+        ).map((s) => (
           <span key={s.text} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-4 py-2 text-xs font-medium">
             <span>{s.icon}</span> {s.text}
           </span>
@@ -157,7 +203,7 @@ export default function Premium() {
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-3 items-stretch">
-          {PLANS.map((plan) => {
+          {plans.map((plan) => {
             const perMonth = monthlyEquiv(plan.monthlyPriceNaira, isAnnual)
             const yearly = annualTotal(plan.monthlyPriceNaira)
             const isCurrent = currentTier === plan.tier && active
@@ -306,7 +352,7 @@ export default function Premium() {
         {isAnnual
           ? "Annual plans are billed yearly at a 15% discount."
           : "Switch to annual billing to save 15%."}{" "}
-        Plans activate for 30 days — full payment integration coming soon.
+        Plans activate for 30 days; full payment integration coming soon.
       </p>
     </div>
   )

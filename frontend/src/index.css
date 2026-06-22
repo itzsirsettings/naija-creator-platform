@@ -2,6 +2,36 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 
+/* Project Fonts — Montserrat (headings) & Ubuntu Sans (body) */
+@font-face {
+  font-family: "Montserrat";
+  src: url("/fonts/Montserrat.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Montserrat";
+  src: url("/fonts/Montserrat-Italic.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Ubuntu Sans";
+  src: url("/fonts/UbuntuSans.ttf") format("truetype");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Ubuntu Sans";
+  src: url("/fonts/UbuntuSans-Italic.ttf") format("truetype");
+  font-weight: 100 800;
+  font-style: italic;
+  font-display: swap;
+}
+
 /* Acctual Custom Font Faces */
 @font-face {
   font-family: "Selecta";
@@ -118,8 +148,8 @@
     --accent-red: #ff6363;
     --accent-orange: #aa2d00;
 
-    --font-heading: 'Inter', system-ui, sans-serif;
-    --font-body: 'Inter', system-ui, sans-serif;
+    --font-heading: 'Montserrat', system-ui, sans-serif;
+    --font-body: 'Ubuntu Sans', system-ui, sans-serif;
     --font-mono: 'SF Mono', 'JetBrains Mono', monospace;
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
@@ -204,13 +234,13 @@
        The authed app fills the viewport with token-driven surfaces (AppShell),
        so it still renders dark without the body needing to flip. */
     @apply bg-white text-[#0f0f0f];
-    font-family: 'Open Runde', sans-serif;
+    font-family: 'Ubuntu Sans', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Open Runde', sans-serif;
+    font-family: 'Montserrat', system-ui, sans-serif;
     font-weight: 600;
     letter-spacing: -0.02em;
   }
@@ -255,7 +285,11 @@
   }
 
   .font-runde {
-    font-family: 'Open Runde', sans-serif;
+    font-family: 'Montserrat', system-ui, sans-serif;
+  }
+
+  .font-ubuntu {
+    font-family: 'Ubuntu Sans', system-ui, sans-serif;
   }
 
   .font-selecta {
@@ -283,6 +317,24 @@
   to {
     --tehilla-angle: 360deg;
   }
+}
+
+@keyframes feature-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+
+.animate-feature-float {
+  animation: feature-float 4s ease-in-out infinite;
+}
+.animate-feature-float-d1 {
+  animation: feature-float 4s ease-in-out 0.5s infinite;
+}
+.animate-feature-float-d2 {
+  animation: feature-float 4s ease-in-out 1s infinite;
+}
+.animate-feature-float-d3 {
+  animation: feature-float 4s ease-in-out 1.5s infinite;
 }
 
 .tehilla-gradient-border {

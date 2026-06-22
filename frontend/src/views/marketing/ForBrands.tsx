@@ -54,7 +54,7 @@ export default function ForBrands() {
             Find Your <span className="text-[#0098f2]">Perfect Creator</span> Match
           </h1>
           <p className="mt-6 text-[16.4px] sm:text-body-lg text-[#666] leading-relaxed max-w-2xl mx-auto">
-            Discover vetted Nigerian creators, manage campaigns effortlessly, and pay with confidence — all from one platform.
+            Discover vetted Nigerian creators, manage campaigns effortlessly, and pay with confidence, all from one platform.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link

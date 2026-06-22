@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -28,7 +28,7 @@ const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "13rem"
 // Mobile drawer sizes to its content (max-content) so labels never get cut
-// off — slim for short text, wider for longer text. Bounded by !min-w / !max-w
+// off - slim for short text, wider for longer text. Bounded by !min-w / !max-w
 // on the SheetContent so it stays usable and never overflows the screen.
 const SIDEBAR_WIDTH_MOBILE = "max-content"
 const SIDEBAR_WIDTH_ICON = "3rem"

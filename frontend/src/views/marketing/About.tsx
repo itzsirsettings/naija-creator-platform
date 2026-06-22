@@ -66,7 +66,7 @@ export default function About() {
             We saw creators spending more time chasing payments than creating content, and brands struggling to find the right partners.
           </p>
           <p className="mt-4 text-[13.7px] text-[#666] leading-relaxed max-w-2xl mx-auto">
-            Our platform makes brand sponsorship as simple as it should be — discover, offer, deliver, and get paid.
+            Our platform makes brand sponsorship as simple as it should be: discover, offer, deliver, and get paid.
             We handle the paperwork, payments, and trust so you can focus on what you do best.
           </p>
         </div>
