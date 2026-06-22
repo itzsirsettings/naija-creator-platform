@@ -18,6 +18,8 @@ interface User {
   walletHeld: number
   premiumTier: "NONE" | "STANDARD" | "POPULAR" | "PREMIUM"
   premiumActive: boolean
+  bankLast4?: string | null
+  bankName?: string | null
 }
 
 interface AuthContextValue {
@@ -45,6 +47,7 @@ interface RawUser {
   creator?: {
     id?: string; name?: string; avatar?: string; balanceKobo?: number; heldKobo?: number
     premiumTier?: string; premiumUntil?: string | null
+    bankAccountLast4?: string | null; bankBankName?: string | null
   } | null
   brand?: {
     id?: string; name?: string; logo?: string
@@ -93,6 +96,8 @@ function normalizeUser(raw: RawUser): User {
     walletHeld,
     premiumTier,
     premiumActive,
+    bankLast4: raw.creator?.bankAccountLast4 ?? null,
+    bankName: raw.creator?.bankBankName ?? null,
   }
 }
 

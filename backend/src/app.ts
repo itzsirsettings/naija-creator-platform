@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
+import fastifyCompress from '@fastify/compress';
 import fastifyJWT from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import fastifyCors from '@fastify/cors';
@@ -36,6 +37,11 @@ const buildApp = async () => {
   });
 
   // ─── Plugins ──────────────────────────────────────────────────────────────
+
+  await fastify.register(fastifyCompress, {
+    global: true,
+    encodings: ['br', 'gzip', 'deflate'],
+  });
 
   await fastify.register(fastifyHelmet, {
     crossOriginResourcePolicy: false,

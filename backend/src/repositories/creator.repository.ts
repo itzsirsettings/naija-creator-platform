@@ -60,6 +60,8 @@ export const findCreatorById = (id: string) =>
       offersReceived: {
         where: { status: { in: ['COMPLETED'] } },
         select: { id: true, amountKobo: true, status: true, platform: true },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
       },
     },
   });

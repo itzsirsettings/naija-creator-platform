@@ -27,6 +27,8 @@ export function useCampaignNotifs() {
 
   const refresh = useCallback(async () => {
     if (!user || user.role !== "creator") return
+    // skip when tab is hidden — saves network on inactive tabs
+    if (typeof document !== "undefined" && document.visibilityState === "hidden") return
     try {
       const campaigns = await fetchCampaigns({ limit: 20 })
       const lastSeen = getLastSeen()
@@ -41,8 +43,8 @@ export function useCampaignNotifs() {
 
   useEffect(() => {
     refresh()
-    // re-check every 5 minutes while tab is open
-    const id = setInterval(refresh, 5 * 60 * 1000)
+    // re-check every 10 minutes; skip when tab is hidden (see guard in refresh)
+    const id = setInterval(refresh, 10 * 60 * 1000)
     return () => clearInterval(id)
   }, [refresh])
 

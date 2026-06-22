@@ -60,7 +60,7 @@ function CreatorDiscovery() {
         niche: niche !== "All Niches" ? niche : undefined,
         location: location !== "All Locations" ? location : undefined,
         minFollowers: minFollowers || undefined,
-        limit: 50,
+        limit: 24,
       })
       setCreators(result.creators)
     } catch {
@@ -71,11 +71,14 @@ function CreatorDiscovery() {
   }, [query, niche, location, minFollowers])
 
   useEffect(() => {
-    const timeout = setTimeout(loadCreators, 300)
+    // 500ms debounce: reduces API calls while user types or adjusts filters
+    const timeout = setTimeout(loadCreators, 500)
     return () => clearTimeout(timeout)
   }, [loadCreators])
 
   const filteredCreators = useMemo(() => {
+    // Filter by platform client-side (platform data is already in the fetched list;
+    // adding it as a backend param would bypass the public cache key for every platform).
     let list = creators.filter((c) => c.id !== user?.creatorId)
     if (platform !== "All Platforms") {
       list = list.filter((c) => c.platforms?.includes(platform))

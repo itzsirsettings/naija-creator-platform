@@ -15,6 +15,8 @@ export default async function campaignRoutes(fastify: FastifyInstance) {
       { ...query, status: query.status ?? 'OPEN' },
       request.user!.id,
     );
+    // private: per-user gate; 60s browser cache avoids duplicate fetches on tab switch
+    reply.header('Cache-Control', 'private, max-age=60, stale-while-revalidate=30');
     return reply.send({ success: true, ...result, error: null });
   });
 

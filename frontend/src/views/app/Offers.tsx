@@ -17,7 +17,6 @@ import {
   initiatePayment,
   type Offer,
 } from "@/services/offers"
-import { fetchCreatorById } from "@/services/creators"
 import { Link } from "@/lib/router"
 
 export default function Offers() {
@@ -31,6 +30,13 @@ export default function Offers() {
 
   const isBrand = user?.role === "brand"
 
+  // Populate bank info from the auth context (already fetched during login — no extra call needed)
+  useEffect(() => {
+    if (user?.bankLast4) {
+      setMyBank({ bankName: user.bankName ?? null, bankLast4: user.bankLast4 })
+    }
+  }, [user?.bankLast4, user?.bankName])
+
   const loadOffers = useCallback(async () => {
     if (!user) {
       setIsLoading(false)
@@ -39,16 +45,7 @@ export default function Offers() {
     setIsLoading(true)
     setError(null)
     try {
-      const [data] = await Promise.all([
-        isBrand ? fetchBrandOffers(user.brandId!) : fetchCreatorOffers(user.creatorId!),
-        !isBrand && user.creatorId
-          ? fetchCreatorById(user.creatorId).then((c: any) => {
-              if (c.bankAccountLast4) {
-                setMyBank({ bankName: c.bankBankName ?? null, bankLast4: c.bankAccountLast4 })
-              }
-            }).catch(() => {})
-          : Promise.resolve(),
-      ])
+      const data = await (isBrand ? fetchBrandOffers(user.brandId!) : fetchCreatorOffers(user.creatorId!))
       setOffers(data as Offer[])
     } catch {
       setError("Failed to load offers. Please try again.")

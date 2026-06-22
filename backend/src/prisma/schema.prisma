@@ -91,6 +91,8 @@ model Creator {
   @@index([niche])
   @@index([followers])
   @@index([createdAt])
+  @@index([premiumTier])
+  @@index([isVerified])
 }
 
 model Brand {
@@ -169,6 +171,7 @@ model Offer {
   @@index([creatorId, createdAt])
   @@index([status, createdAt])
   @@index([dealType])
+  @@index([affiliateCode])
 }
 
 enum OfferStatus {
@@ -467,6 +470,7 @@ model Campaign {
 
   @@index([brandId, createdAt])
   @@index([status, createdAt])
+  @@index([createdAt])
 }
 
 // Creator applies to a specific campaign (Popular/Premium tiers).

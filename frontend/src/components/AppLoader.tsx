@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-const MIN_DISPLAY_MS = 500
+const MIN_DISPLAY_MS = 0
 
 export function AppLoader({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false)
