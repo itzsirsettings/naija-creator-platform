@@ -11,11 +11,13 @@ import OfferModal from "@/components/OfferModal"
 import BrandCard from "@/components/BrandCard"
 import ApplyModal from "@/components/ApplyModal"
 import { useAuth } from "@/context/AuthContext"
+import { usePremium } from "@/hooks/usePremium"
 import { useNavigate } from "@/lib/router"
 import { fetchCreators, type Creator } from "@/services/creators"
 import { fetchBrands, type Brand } from "@/services/brands"
 import { createOffer } from "@/services/offers"
 import { applyToBrand } from "@/services/applications"
+import { fetchTemplates, type ProposalTemplate } from "@/services/proposalTemplates"
 
 const niches = ["All Niches", "Fashion & Lifestyle", "Tech & Gaming", "Food & Culture", "Fitness & Wellness", "Music & Entertainment", "Beauty", "Travel"]
 const platforms = ["All Platforms", "Instagram Reels", "TikTok Video", "YouTube Short", "X Thread", "Instagram Stories"]
@@ -90,6 +92,9 @@ function CreatorDiscovery() {
         amount: Number(data.amount),
         platform: data.platform,
         deadline: data.deadline,
+        dealType: data.dealType,
+        commissionRate: data.commissionRate,
+        usageRights: data.usageRights,
       })
       toast.success("Offer sent successfully")
       return offer
@@ -157,12 +162,19 @@ function CreatorDiscovery() {
 // ─── Creator view: browse brands ("see who's hiring") ────────────────────────
 function BrandDiscovery() {
   const { user } = useAuth()
+  const ent = usePremium()
   const navigate = useNavigate()
   const [brands, setBrands] = useState<Brand[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState("")
   const [applyBrand, setApplyBrand] = useState<any>(null)
+  const [templates, setTemplates] = useState<ProposalTemplate[]>([])
+
+  useEffect(() => {
+    if (!ent.proposalTemplateManager) return
+    fetchTemplates().then(setTemplates).catch(() => { /* ignore */ })
+  }, [ent.proposalTemplateManager])
 
   const handleApplyClick = (brand: any) => {
     if (!user?.premiumActive) {
@@ -238,6 +250,7 @@ function BrandDiscovery() {
           description="Tell this brand why you'd be a great fit. They'll review your application and can respond with an offer."
           onClose={() => setApplyBrand(null)}
           onSubmit={submitApplication}
+          templates={templates}
         />
       ) : null}
     </div>

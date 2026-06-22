@@ -1,5 +1,5 @@
-// Single source of truth for plan tiers + feature entitlements on the frontend.
-// Mirrors backend/src/lib/premium.ts — keep the two in sync. The backend remains
+﻿// Single source of truth for plan tiers + feature entitlements on the frontend.
+// Mirrors backend/src/lib/premium.ts - keep the two in sync. The backend remains
 // authoritative for enforcement; this module drives display (marketing pricing
 // cards, comparison table, in-app Premium page) and client-side gating.
 
@@ -41,9 +41,15 @@ export const FEATURES: FeatureDef[] = [
   { key: "fasterPayouts", label: "Faster Payout Requests", minTier: "POPULAR", status: "rolling-out" },
   { key: "prioritySupport", label: "Priority Support", minTier: "POPULAR", status: "live" },
   { key: "applyToCampaigns", label: "Apply to Posted Campaigns", minTier: "POPULAR", status: "live" },
+  { key: "smartMatching", label: "Smart Campaign Matching", minTier: "POPULAR", status: "live" },
+  { key: "affiliateDeals", label: "Affiliate & Commission Deals", minTier: "POPULAR", status: "live" },
   // Premium
-  { key: "unlimitedTeam", label: "Unlimited Team Members", minTier: "PREMIUM", status: "rolling-out" },
-  { key: "dedicatedManager", label: "Dedicated Account Manager — weekly strategy call", minTier: "PREMIUM", status: "rolling-out" },
+  { key: "unlimitedTeam", label: "Unlimited Team Members", minTier: "PREMIUM", status: "live" },
+  { key: "teamManagement", label: "Team Member Management", minTier: "PREMIUM", status: "live" },
+  { key: "salesAttribution", label: "Sales Attribution Analytics", minTier: "PREMIUM", status: "live" },
+  { key: "usageRightsControl", label: "Content Usage Rights Controls", minTier: "PREMIUM", status: "live" },
+  { key: "proposalTemplateManager", label: "Proposal Template Manager", minTier: "PREMIUM", status: "live" },
+  { key: "dedicatedManager", label: "Dedicated Account Manager (weekly strategy call)", minTier: "PREMIUM", status: "rolling-out" },
   { key: "aiInsights", label: "AI Campaign Insights", minTier: "PREMIUM", status: "rolling-out" },
   { key: "advancedEscrowControls", label: "Advanced Escrow Controls", minTier: "PREMIUM", status: "rolling-out" },
   { key: "earlyAccess", label: "24h Early Access to New Campaigns", minTier: "POPULAR", status: "live" },
@@ -53,8 +59,8 @@ export const FEATURES: FeatureDef[] = [
   { key: "enterpriseAnalytics", label: "Enterprise Analytics", minTier: "PREMIUM", status: "rolling-out" },
   { key: "whiteLabelReports", label: "White Label Reports", minTier: "PREMIUM", status: "rolling-out" },
   { key: "priorityPayouts", label: "Priority Payouts", minTier: "PREMIUM", status: "rolling-out" },
-  { key: "vipSupport", label: "VIP Support — dedicated Slack + 24h SLA", minTier: "PREMIUM", status: "live" },
-  { key: "growthConsultation", label: "Strategic Growth Consultation — weekly strategy call", minTier: "PREMIUM", status: "rolling-out" },
+  { key: "vipSupport", label: "VIP Support: dedicated Slack + 24h SLA", minTier: "PREMIUM", status: "live" },
+  { key: "growthConsultation", label: "Strategic Growth Consultation (weekly strategy call)", minTier: "PREMIUM", status: "rolling-out" },
 ]
 
 export interface PlanDef {
@@ -183,6 +189,8 @@ export interface Entitlements {
   proposalTemplates: boolean
   teamCollaboration: boolean
   performanceReports: boolean
+  smartMatching: boolean
+  affiliateDeals: boolean
   dedicatedManager: boolean
   aiInsights: boolean
   advancedEscrowControls: boolean
@@ -192,6 +200,10 @@ export interface Entitlements {
   premiumVerification: boolean
   whiteLabelReports: boolean
   growthConsultation: boolean
+  salesAttribution: boolean
+  usageRightsControl: boolean
+  proposalTemplateManager: boolean
+  teamManagement: boolean
 }
 
 export const emptyEntitlements = (tier: Tier = "NONE"): Entitlements => ({
@@ -210,6 +222,8 @@ export const emptyEntitlements = (tier: Tier = "NONE"): Entitlements => ({
   proposalTemplates: false,
   teamCollaboration: false,
   performanceReports: false,
+  smartMatching: false,
+  affiliateDeals: false,
   dedicatedManager: false,
   aiInsights: false,
   advancedEscrowControls: false,
@@ -219,6 +233,10 @@ export const emptyEntitlements = (tier: Tier = "NONE"): Entitlements => ({
   premiumVerification: false,
   whiteLabelReports: false,
   growthConsultation: false,
+  salesAttribution: false,
+  usageRightsControl: false,
+  proposalTemplateManager: false,
+  teamManagement: false,
 })
 
 export const computeEntitlements = (tier: Tier, active: boolean): Entitlements => {
@@ -242,6 +260,8 @@ export const computeEntitlements = (tier: Tier, active: boolean): Entitlements =
     proposalTemplates: isPopularPlus,
     teamCollaboration: isPopularPlus,
     performanceReports: isPopularPlus,
+    smartMatching: isPopularPlus,
+    affiliateDeals: isPopularPlus,
     dedicatedManager: isPremium,
     aiInsights: isPremium,
     advancedEscrowControls: isPremium,
@@ -251,5 +271,129 @@ export const computeEntitlements = (tier: Tier, active: boolean): Entitlements =
     premiumVerification: isPremium,
     whiteLabelReports: isPremium,
     growthConsultation: isPremium,
+    salesAttribution: isPremium,
+    usageRightsControl: isPremium,
+    proposalTemplateManager: isPremium,
+    teamManagement: isPremium,
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BRAND subscriptions - mirrors backend/src/lib/premium.ts brand machinery.
+// ═══════════════════════════════════════════════════════════════════════════
+
+export const BRAND_FEATURES: FeatureDef[] = [
+  // Standard (Starter)
+  { key: "postCampaigns", label: "Post Campaigns", minTier: "STANDARD", status: "live" },
+  { key: "sendOffers", label: "Send Creator Offers", minTier: "STANDARD", status: "live" },
+  { key: "escrowProtection", label: "Escrow Protection", minTier: "STANDARD", status: "live" },
+  { key: "basicCampaignAnalytics", label: "Basic Campaign Analytics", minTier: "STANDARD", status: "live" },
+  { key: "standardSupport", label: "Standard Support", minTier: "STANDARD", status: "live" },
+  // Popular (Growth)
+  { key: "creatorMatching", label: "AI Creator Matching", minTier: "POPULAR", status: "live" },
+  { key: "suggestedCreators", label: "Suggested Creators per Campaign", minTier: "POPULAR", status: "live" },
+  { key: "unlimitedCampaigns", label: "Unlimited Active Campaigns", minTier: "POPULAR", status: "live" },
+  { key: "advancedCampaignAnalytics", label: "Advanced Campaign Analytics", minTier: "POPULAR", status: "live" },
+  { key: "priorityListing", label: "Priority Campaign Placement", minTier: "POPULAR", status: "rolling-out" },
+  { key: "brandPrioritySupport", label: "Priority Support", minTier: "POPULAR", status: "live" },
+  // Premium (Scale)
+  { key: "campaignPerformance", label: "Campaign Performance & ROAS Analytics", minTier: "PREMIUM", status: "live" },
+  { key: "agencyWorkspace", label: "Multi-Brand Agency Workspace", minTier: "PREMIUM", status: "live" },
+  { key: "bulkOutreach", label: "Bulk Creator Outreach", minTier: "PREMIUM", status: "rolling-out" },
+  { key: "brandDedicatedManager", label: "Dedicated Account Manager", minTier: "PREMIUM", status: "rolling-out" },
+  { key: "brandApiAccess", label: "API Access", minTier: "PREMIUM", status: "rolling-out" },
+  { key: "brandVipSupport", label: "VIP Support - dedicated Slack + 24h SLA", minTier: "PREMIUM", status: "live" },
+]
+
+const brandOwnFeatures = (tier: PaidTier): string[] =>
+  BRAND_FEATURES.filter((f) => f.minTier === tier).map((f) => f.label)
+
+const brandFeatureListFor = (tier: PaidTier): string[] => {
+  if (tier === "STANDARD") return brandOwnFeatures("STANDARD")
+  if (tier === "POPULAR") return ["Everything in Starter", ...brandOwnFeatures("POPULAR")]
+  return ["Everything in Growth", ...brandOwnFeatures("PREMIUM")]
+}
+
+export const BRAND_PLANS: PlanDef[] = [
+  {
+    tier: "STANDARD",
+    name: "Starter",
+    monthlyPriceNaira: 25_000,
+    description: "For brands running their first creator campaigns.",
+    cta: "Get Started",
+    featured: false,
+    features: brandFeatureListFor("STANDARD"),
+  },
+  {
+    tier: "POPULAR",
+    name: "Growth",
+    monthlyPriceNaira: 60_000,
+    description: "AI matching and analytics for scaling brands.",
+    cta: "Start Growing",
+    featured: true,
+    features: brandFeatureListFor("POPULAR"),
+  },
+  {
+    tier: "PREMIUM",
+    name: "Scale",
+    monthlyPriceNaira: 150_000,
+    description: "Performance analytics and multi-brand agency tools.",
+    cta: "Get Started",
+    featured: false,
+    features: brandFeatureListFor("PREMIUM"),
+  },
+]
+
+export interface BrandEntitlements {
+  tier: Tier
+  active: boolean
+  campaignsLimit: number | null
+  managedBrandSeats: number
+  analyticsLevel: "basic" | "advanced" | "enterprise"
+  supportLevel: "standard" | "priority" | "vip"
+  creatorMatching: boolean
+  advancedCampaignAnalytics: boolean
+  campaignPerformance: boolean
+  agencyWorkspace: boolean
+  bulkOutreach: boolean
+  dedicatedManager: boolean
+  apiAccess: boolean
+}
+
+export const emptyBrandEntitlements = (tier: Tier = "NONE"): BrandEntitlements => ({
+  tier,
+  active: false,
+  campaignsLimit: 2,
+  managedBrandSeats: 0,
+  analyticsLevel: "basic",
+  supportLevel: "standard",
+  creatorMatching: false,
+  advancedCampaignAnalytics: false,
+  campaignPerformance: false,
+  agencyWorkspace: false,
+  bulkOutreach: false,
+  dedicatedManager: false,
+  apiAccess: false,
+})
+
+export const computeBrandEntitlements = (tier: Tier, active: boolean): BrandEntitlements => {
+  if (!active || tier === "NONE") return emptyBrandEntitlements(tier)
+  const rank = rankOf(tier)
+  const isPopularPlus = rank >= TIER_RANK.POPULAR
+  const isPremium = rank >= TIER_RANK.PREMIUM
+  return {
+    tier,
+    active: true,
+    campaignsLimit: isPopularPlus ? null : 10,
+    managedBrandSeats: isPremium ? 25 : 0,
+    analyticsLevel: isPremium ? "enterprise" : isPopularPlus ? "advanced" : "basic",
+    supportLevel: isPremium ? "vip" : isPopularPlus ? "priority" : "standard",
+    creatorMatching: isPopularPlus,
+    advancedCampaignAnalytics: isPopularPlus,
+    campaignPerformance: isPremium,
+    agencyWorkspace: isPremium,
+    bulkOutreach: isPremium,
+    dedicatedManager: isPremium,
+    apiAccess: isPremium,
   }
 }

@@ -1,9 +1,9 @@
-"use client"
+﻿"use client"
 
 import { ArrowUpRight, TrendingUp, type LucideIcon } from "lucide-react"
 
 /* ------------------------------------------------------------------ */
-/*  Stat tile — clean surface, single pink accent for the featured KPI */
+/*  Stat tile - clean surface, single pink accent for the featured KPI */
 /* ------------------------------------------------------------------ */
 
 interface StatTileProps {
@@ -80,7 +80,7 @@ export function PanelHeading({
 }
 
 /* ------------------------------------------------------------------ */
-/*  Weekly bar chart — "Earnings Analytics"                           */
+/*  Weekly bar chart - "Earnings Analytics"                           */
 /* ------------------------------------------------------------------ */
 
 export interface WeeklyBar {
@@ -120,7 +120,7 @@ export function WeeklyBars({ data }: { data: WeeklyBar[] }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Progress donut — "Campaign Progress"                              */
+/*  Progress donut - "Campaign Progress"                              */
 /* ------------------------------------------------------------------ */
 
 export interface DonutSegment {
@@ -189,7 +189,7 @@ export function ProgressDonut({
 }
 
 /* ------------------------------------------------------------------ */
-/*  Status pill — soft tinted badges, no hard borders                 */
+/*  Status pill - soft tinted badges, no hard borders                 */
 /* ------------------------------------------------------------------ */
 
 const STATUS_STYLES: Record<string, string> = {

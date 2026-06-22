@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-const MIN_DISPLAY_MS = 1800
+const MIN_DISPLAY_MS = 500
 
 export function AppLoader({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false)
@@ -28,7 +28,7 @@ export function AppLoader({ children }: { children: React.ReactNode }) {
         <img
           src="/Tehilla_logo_loading.gif"
           alt="Loading Tehilla…"
-          style={{ width: 180, height: "auto" }}
+          className="w-[56px] sm:w-[72px] md:w-[90px] h-auto"
           priority-hint="high"
         />
       </div>

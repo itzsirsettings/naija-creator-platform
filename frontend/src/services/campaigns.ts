@@ -1,4 +1,4 @@
-import api, { unwrap } from "./api"
+﻿import api, { unwrap } from "./api"
 
 export interface Campaign {
   id: string
@@ -11,6 +11,8 @@ export interface Campaign {
   createdAt: string
   brand?: { id: string; name: string; industry: string; logo: string | null }
   _count?: { applications: number }
+  /** Present only for Popular+ creators - heuristic 0–100 fit score. */
+  matchScore?: number
 }
 
 export interface CampaignApplication {
@@ -60,4 +62,42 @@ export async function applyToCampaign(id: string, message?: string): Promise<Cam
 export async function fetchCampaignApplications(id: string): Promise<CampaignApplication[]> {
   const res = await api.get(`/campaigns/${id}/applications`)
   return unwrap<{ applications: CampaignApplication[] }>(res).applications ?? []
+}
+
+// ─── Brand (Growth+): AI-suggested creators for a campaign ───────────────────
+export interface SuggestedCreator {
+  id: string
+  name: string
+  handle: string
+  niche: string
+  followers: number
+  engagement: number
+  baseRate: number
+  platforms: string[]
+  avatar: string | null
+  location: string | null
+  matchScore: number
+}
+
+export async function fetchSuggestedCreators(campaignId: string): Promise<SuggestedCreator[]> {
+  const res = await api.get(`/campaigns/${campaignId}/suggestions`)
+  return unwrap<{ creators: SuggestedCreator[] }>(res).creators ?? []
+}
+
+// ─── Brand (Scale): campaign performance analytics ───────────────────────────
+export interface BrandPerformance {
+  offersSent: number
+  deliverablesSubmitted: number
+  completed: number
+  activeDeals: number
+  totalSpendKobo: number
+  inEscrowKobo: number
+  approvalRate: number
+  campaigns: { total: number; open: number; totalApplications: number }
+  funnel: { sent: number; funded: number; completed: number }
+}
+
+export async function fetchBrandPerformance(): Promise<BrandPerformance> {
+  const res = await api.get("/campaigns/performance")
+  return unwrap<BrandPerformance>(res)
 }

@@ -259,8 +259,8 @@ function AdminOffersPanel() {
                 return (
                   <TableRow key={offer.id}>
                     <TableCell className="font-medium">{offer.title}</TableCell>
-                    <TableCell className="text-muted-foreground">{offer.brand?.name ?? "—"}</TableCell>
-                    <TableCell className="text-muted-foreground">{offer.creator?.name ?? "—"}</TableCell>
+                    <TableCell className="text-muted-foreground">{offer.brand?.name ?? "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{offer.creator?.name ?? "-"}</TableCell>
                     <TableCell className="text-right tabular-nums">{formatNaira(amountNaira)}</TableCell>
                     <TableCell>
                       <Badge variant={OFFER_BADGE[offer.status] ?? "outline"}>{offer.status}</Badge>

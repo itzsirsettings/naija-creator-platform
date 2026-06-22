@@ -1,11 +1,13 @@
-"use client"
+﻿"use client"
 
 import {
-  BarChart3, ChevronsUpDown, Crown, FileText, Handshake, LayoutDashboard, LogOut,
-  Megaphone, Search, Settings, Wallet,
+  BarChart3, Building2, ChevronsUpDown, Crown, FileText, Handshake, LayoutDashboard, Link2, LogOut,
+  Megaphone, Search, Settings, Users, Wallet,
 } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { Link, useNavigate } from "@/lib/router"
+import { usePremium } from "@/hooks/usePremium"
+import { useBrandPremium } from "@/hooks/useBrandPremium"
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupLabel,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarSeparator,
@@ -25,6 +27,8 @@ export function AppSidebar() {
   const { user, logout } = useAuth()
   const pathname = usePathname() ?? ""
   const navigate = useNavigate()
+  const ent = usePremium()
+  const brandEnt = useBrandPremium()
 
   const displayName = user?.brandName || user?.name || "Guest"
   const isBrand = user?.role === "brand"
@@ -36,8 +40,14 @@ export function AppSidebar() {
     { label: "Campaigns", to: "/campaigns", icon: Megaphone },
     { label: "Offers", to: "/offers", icon: Handshake },
     { label: isBrand ? "Applications" : "My Applications", to: "/applications", icon: FileText },
+    // Creator premium tools - surfaced once unlocked by the active plan.
+    ...(!isBrand && ent.affiliateDeals ? [{ label: "Affiliate", to: "/affiliate", icon: Link2 }] : []),
+    ...(!isBrand && ent.proposalTemplateManager ? [{ label: "Templates", to: "/templates", icon: FileText }] : []),
+    ...(!isBrand && ent.teamManagement ? [{ label: "Team", to: "/team", icon: Users }] : []),
+    // Brand premium tools.
+    ...(isBrand && brandEnt.agencyWorkspace ? [{ label: "Agency", to: "/agency", icon: Building2 }] : []),
     { label: "Payments", to: "/payments", icon: Wallet },
-    ...(isBrand ? [] : [{ label: "Premium", to: "/premium", icon: Crown }]),
+    { label: isBrand ? "Brand Plans" : "Premium", to: "/premium", icon: Crown },
   ]
 
   const handleLogout = async () => {

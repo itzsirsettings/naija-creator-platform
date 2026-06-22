@@ -109,12 +109,15 @@ module.exports = {
         xs: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
       },
       fontFamily: {
-        heading: ['Geist Variable', 'Inter', 'system-ui', 'sans-serif'],
-        body: ['Geist Variable', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Ubuntu Sans', 'system-ui', 'sans-serif'],
+        heading: ['Montserrat', 'system-ui', 'sans-serif'],
+        body: ['Ubuntu Sans', 'system-ui', 'sans-serif'],
         mono: ['SF Mono', 'JetBrains Mono', 'monospace'],
+        montserrat: ['Montserrat', 'system-ui', 'sans-serif'],
+        ubuntu: ['Ubuntu Sans', 'system-ui', 'sans-serif'],
         selecta: ['Selecta', 'sans-serif'],
         sfpro: ['SF Pro Display', 'sans-serif'],
-        runde: ['Open Runde', 'sans-serif'],
+        runde: ['Montserrat', 'system-ui', 'sans-serif'],
         digital: ['Digital Numbers', 'sans-serif'],
       },
       keyframes: {

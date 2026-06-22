@@ -1,5 +1,8 @@
 import api, { unwrap } from "./api"
 
+export type DealType = "FIXED" | "AFFILIATE"
+export type UsageRights = "ORGANIC_ONLY" | "PAID_ADS_30D" | "PAID_ADS_90D" | "PERPETUAL"
+
 export interface Offer {
   id: string
   title: string
@@ -15,8 +18,20 @@ export interface Offer {
   createdAt: string
   brandId: string
   creatorId: string
+  dealType?: DealType
+  commissionRate?: number | null
+  affiliateCode?: string | null
+  usageRights?: UsageRights
   brand?: { id: string; name: string; logo?: string | null }
   creator?: { id: string; name: string; handle?: string; avatar?: string | null; niche?: string }
+  _count?: { affiliateEvents: number }
+}
+
+export const USAGE_RIGHTS_LABELS: Record<UsageRights, string> = {
+  ORGANIC_ONLY: "Organic use only",
+  PAID_ADS_30D: "Paid ads (30 days)",
+  PAID_ADS_90D: "Paid ads (90 days)",
+  PERPETUAL: "Perpetual rights",
 }
 
 export async function fetchCreatorOffers(creatorId: string): Promise<Offer[]> {
@@ -36,11 +51,19 @@ export interface CreateOfferInput {
   amount: number
   platform: string
   deadline: string
+  dealType?: DealType
+  commissionRate?: number
+  usageRights?: UsageRights
 }
 
 export async function createOffer(data: CreateOfferInput): Promise<Offer> {
   const res = await api.post("/offers", data)
   return unwrap<{ offer: Offer }>(res).offer
+}
+
+export async function fetchAffiliateOffers(): Promise<Offer[]> {
+  const res = await api.get("/offers/affiliate")
+  return unwrap<{ offers: Offer[] }>(res).offers ?? []
 }
 
 export async function acceptOffer(offerId: string): Promise<Offer> {

@@ -6,9 +6,9 @@ import Providers from "./providers"
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tehilla.work"),
-  title: "Tehilla — Creator Commerce",
+  title: "Tehilla : Creator Commerce",
   description:
-    "Tehilla — creator commerce for Nigerian creators and the brands that pay them. Clean offers, escrowed funds, direct bank payouts.",
+    "Tehilla : creator commerce for Nigerian creators and the brands that pay them. Clean offers, escrowed funds, direct bank payouts.",
   keywords: [
     "Nigerian creators",
     "creator economy",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Tehilla",
-    title: "Tehilla — Creator Commerce",
+    title: "Tehilla : Creator Commerce",
     description:
       "The sponsorship desk for Nigerian creators and the brands that pay them. Clean offers, escrowed funds, direct bank payouts.",
     url: "https://tehilla.work",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tehilla — Creator Commerce",
+    title: "Tehilla : Creator Commerce",
     description:
       "The sponsorship desk for Nigerian creators and the brands that pay them. Clean offers, escrowed funds, direct bank payouts.",
     images: ["https://tehilla.work/tehilla-logo.png"],

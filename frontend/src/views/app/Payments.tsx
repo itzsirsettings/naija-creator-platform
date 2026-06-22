@@ -16,7 +16,7 @@ function toDisplayTx(tx: Transaction) {
     type: isCredit,
     amount: tx.netKobo / 100,
     label: tx.offer?.title ?? "Transaction",
-    counterparty: tx.offer?.brand?.name ?? "—",
+    counterparty: tx.offer?.brand?.name ?? "-",
     date: tx.createdAt,
     status: tx.status === "paid" ? "Completed" : tx.status.charAt(0).toUpperCase() + tx.status.slice(1),
   }
@@ -74,7 +74,7 @@ export default function Payments() {
             {user.walletHeld > 0 && (
               <p className="mt-1.5 text-xs text-muted-foreground">
                 <span className="font-medium tabular-nums text-amber-600">{formatNaira(user.walletHeld)}</span>
-                {" "}in escrow — releases when the brand approves your work
+                {" "}in escrow; releases when the brand approves your work
               </p>
             )}
           </div>

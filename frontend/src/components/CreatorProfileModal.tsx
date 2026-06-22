@@ -1,4 +1,4 @@
-import { MapPin, Send, Star } from "lucide-react"
+import { FileLock2, MapPin, Send, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -47,7 +47,7 @@ export default function CreatorProfileModal({
             { label: "Followers", value: formatCompactNumber(creator.followers || 0) },
             { label: "Engagement", value: `${creator.engagement || 0}%` },
             { label: "Base rate", value: formatNaira(creator.baseRate || 0) },
-            { label: "Rating", value: creator.rating || "—", icon: true },
+            { label: "Rating", value: creator.rating || "-", icon: true },
           ].map((stat) => (
             <div key={stat.label} className="rounded-lg bg-muted p-2">
               <div className="text-sm font-bold">{stat.value}</div>
@@ -63,6 +63,15 @@ export default function CreatorProfileModal({
             {platforms.map((platform: string) => (
               <span key={platform} className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">{platform}</span>
             ))}
+          </div>
+        ) : null}
+
+        {creator.usageRightsPolicy ? (
+          <div className="rounded-lg border border-[#8B5CF6]/30 bg-[#8B5CF6]/5 p-3">
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold text-[#8B5CF6]">
+              <FileLock2 className="size-3" /> Content usage rights policy
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">{creator.usageRightsPolicy}</p>
           </div>
         ) : null}
 

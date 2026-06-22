@@ -12,6 +12,7 @@ export interface Creator {
   platforms: string[]
   avatar: string | null
   location: string
+  usageRightsPolicy?: string | null
   createdAt: string
 }
 
@@ -45,4 +46,58 @@ export async function fetchCreators(params: ListCreatorsParams = {}): Promise<Cr
 export async function fetchCreatorById(id: string): Promise<Creator> {
   const res = await api.get(`/creators/${id}`)
   return unwrap<{ creator: Creator }>(res).creator
+}
+
+export type UpdateCreatorInput = Partial<{
+  name: string
+  handle: string
+  niche: string
+  bio: string
+  followers: number
+  engagement: number
+  baseRate: number
+  platforms: string[]
+  avatar: string
+  location: string
+  usageRightsPolicy: string
+}>
+
+export async function updateCreator(id: string, data: UpdateCreatorInput): Promise<Creator> {
+  const res = await api.put(`/creators/${id}`, data)
+  return unwrap<{ creator: Creator }>(res).creator
+}
+
+export interface Bank {
+  name: string
+  code: string
+  slug?: string
+}
+
+export async function fetchBanks(): Promise<Bank[]> {
+  const res = await api.get("/payments/banks", { params: { country: "nigeria" } })
+  return unwrap<{ banks: Bank[] }>(res).banks ?? []
+}
+
+export interface AddBankAccountInput {
+  accountNumber: string
+  bankCode: string
+  bankName?: string
+}
+
+export interface BankAccountResult {
+  message: string
+  bankLast4: string | null
+  bankName: string | null
+  bankVerifiedAt: string | null
+  accountName: string | null
+}
+
+export async function addBankAccount(creatorId: string, data: AddBankAccountInput): Promise<BankAccountResult> {
+  const res = await api.post(`/creators/${creatorId}/bank`, data)
+  return unwrap<BankAccountResult>(res)
+}
+
+export async function verifyBankAccount(accountNumber: string, bankCode: string): Promise<{ accountName: string }> {
+  const res = await api.get("/payments/verify-account", { params: { accountNumber, bankCode } })
+  return unwrap<{ accountName: string }>(res)
 }

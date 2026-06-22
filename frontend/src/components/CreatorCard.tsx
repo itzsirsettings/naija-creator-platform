@@ -1,4 +1,4 @@
-import { Eye, MapPin, Send } from "lucide-react"
+﻿import { Eye, MapPin, Send } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Badge from "@/components/Badge"
 import { formatCompactNumber, formatNaira, initials } from "@/utils/format"
@@ -11,7 +11,7 @@ export default function CreatorCard({
   onViewProfile?: (c: any) => void
   canSendOffer?: boolean
 }) {
-  // Real (freshly-registered) creators may have empty fields — guard every one
+  // Real (freshly-registered) creators may have empty fields - guard every one
   // so a sparse profile renders cleanly instead of breaking the grid.
   const platforms: string[] = Array.isArray(creator.platforms) ? creator.platforms : []
   const niche = creator.niche || "New creator"

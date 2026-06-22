@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useState } from "react"
 import { Building2, Wallet, ArrowRight, CalendarClock, Loader2, Plus } from "lucide-react"
@@ -36,7 +36,7 @@ export default function CreatorDashboard() {
       setOffers(offerData)
       setTransactions(txData)
     } catch {
-      // Silently degrade — dashboard shows zeros
+      // Silently degrade - dashboard shows zeros
     } finally {
       setIsLoading(false)
     }

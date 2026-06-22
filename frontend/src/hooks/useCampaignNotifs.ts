@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+﻿import { useCallback, useEffect, useState } from "react"
 import { fetchCampaigns } from "@/services/campaigns"
 import { useAuth } from "@/context/AuthContext"
 
@@ -17,7 +17,7 @@ export function markCampaignsSeen() {
   try {
     localStorage.setItem(LS_KEY, String(Date.now()))
   } catch {
-    // localStorage unavailable — ignore
+    // localStorage unavailable - ignore
   }
 }
 
@@ -35,7 +35,7 @@ export function useCampaignNotifs() {
       )
       setNewCount(fresh.length)
     } catch {
-      // non-blocking — badge stays at 0
+      // non-blocking - badge stays at 0
     }
   }, [user])
 

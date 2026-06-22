@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useCallback, useEffect, useState } from "react"
 import { ArrowRight, ArrowUpRight, BarChart3, Handshake, Loader2, Search, Sparkles, Wallet } from "lucide-react"
@@ -138,7 +138,7 @@ export default function Home() {
 
   return (
     <div className="space-y-6">
-      {/* Hero — the single bold, premium moment of the app */}
+      {/* Hero - the single bold, premium moment of the app */}
       <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1A24B8] to-[#0A0F7A] p-6 text-white shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -top-16 -right-10 size-56 rounded-full bg-white/15 blur-3xl" aria-hidden="true" />
         <div className="pointer-events-none absolute -bottom-24 right-32 size-44 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
@@ -171,10 +171,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* KPI snapshot — consistent with the dashboard widgets */}
+      {/* KPI snapshot - consistent with the dashboard widgets */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => (
-          <StatTile key={s.label} label={s.label} value={isLoading ? "—" : s.value} delta={s.delta} />
+          <StatTile key={s.label} label={s.label} value={isLoading ? "-" : s.value} delta={s.delta} />
         ))}
       </div>
 

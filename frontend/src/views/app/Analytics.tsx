@@ -8,8 +8,10 @@ import StatCard from "@/components/StatCard"
 import { Link } from "@/lib/router"
 import { useAuth } from "@/context/AuthContext"
 import { usePremium } from "@/hooks/usePremium"
+import { useBrandPremium } from "@/hooks/useBrandPremium"
 import { fetchBrandOffers, fetchCreatorOffers, type Offer } from "@/services/offers"
 import { fetchTransactions, type Transaction } from "@/services/payments"
+import { fetchBrandPerformance, type BrandPerformance } from "@/services/campaigns"
 import { formatNaira } from "@/utils/format"
 
 const STATUS_ORDER = ["PENDING", "ACCEPTED", "FUNDED", "SUBMITTED", "APPROVED", "COMPLETED", "REJECTED", "REFUNDED", "DISPUTED"]
@@ -28,10 +30,12 @@ const STATUS_COLOR: Record<string, string> = {
 export default function Analytics() {
   const { user } = useAuth()
   const ent = usePremium()
+  const brandEnt = useBrandPremium()
   const isBrand = user?.role === "brand"
 
   const [offers, setOffers] = useState<Offer[]>([])
   const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [performance, setPerformance] = useState<BrandPerformance | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   const loadData = useCallback(async () => {
@@ -59,6 +63,12 @@ export default function Analytics() {
   }, [user, isBrand])
 
   useEffect(() => { loadData() }, [loadData])
+
+  // Brand (Scale): campaign performance analytics.
+  useEffect(() => {
+    if (!isBrand || !brandEnt.campaignPerformance) return
+    fetchBrandPerformance().then(setPerformance).catch(() => { /* zero-state */ })
+  }, [isBrand, brandEnt.campaignPerformance])
 
   const metrics = useMemo(() => {
     const completed = offers.filter((o) => o.status === "COMPLETED")
@@ -133,6 +143,74 @@ export default function Analytics() {
           <StatCard key={stat.label} label={stat.label} value={stat.value} icon={stat.icon} />
         ))}
       </div>
+
+      {/* Brand (Scale): campaign performance analytics */}
+      {isBrand && brandEnt.campaignPerformance && performance ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-heading">Campaign Performance</CardTitle>
+            <CardDescription>Spend, deliverables, and your offer-to-completion funnel</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {[
+                { label: "Total spend", value: formatNaira(performance.totalSpendKobo / 100) },
+                { label: "In escrow", value: formatNaira(performance.inEscrowKobo / 100) },
+                { label: "Deliverables", value: String(performance.deliverablesSubmitted) },
+                { label: "Approval rate", value: `${performance.approvalRate}%` },
+              ].map((m) => (
+                <div key={m.label} className="rounded-lg border border-border bg-muted/40 p-3">
+                  <p className="text-xs text-muted-foreground">{m.label}</p>
+                  <p className="mt-1 font-heading text-lg font-semibold tabular-nums">{m.value}</p>
+                </div>
+              ))}
+            </div>
+            <div className="space-y-2">
+              {([
+                { label: "Offers sent", value: performance.funnel.sent },
+                { label: "Funded", value: performance.funnel.funded },
+                { label: "Completed", value: performance.funnel.completed },
+              ]).map((step) => {
+                const pct = performance.funnel.sent ? Math.round((step.value / performance.funnel.sent) * 100) : 0
+                return (
+                  <div key={step.label} className="space-y-1">
+                    <div className="flex items-center justify-between text-sm">
+                      <span>{step.label}</span>
+                      <span className="text-muted-foreground tabular-nums">{step.value}</span>
+                    </div>
+                    <div className="h-2.5 w-full rounded-full bg-muted">
+                      <div className="h-full rounded-full bg-[#1A24B8]" style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {performance.campaigns.total} campaign{performance.campaigns.total === 1 ? "" : "s"} · {performance.campaigns.totalApplications} application{performance.campaigns.totalApplications === 1 ? "" : "s"} received
+            </p>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {/* Brand: locked performance prompt for non-Scale plans */}
+      {isBrand && !brandEnt.campaignPerformance ? (
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
+            <div className="flex size-12 items-center justify-center rounded-full bg-amber-500/10">
+              <Lock className="size-6 text-amber-500" />
+            </div>
+            <div>
+              <p className="font-heading text-sm font-semibold">Campaign Performance & ROAS Analytics</p>
+              <p className="mt-1 max-w-xs text-xs text-muted-foreground">
+                See spend, deliverables, approval rates, and your offer funnel. Available on the Scale plan.
+              </p>
+            </div>
+            <Link to="/app/premium" className="rounded-lg border border-amber-500/60 px-4 py-2 text-xs font-semibold text-amber-700 hover:bg-amber-50">
+              Upgrade to Scale
+            </Link>
+          </CardContent>
+        </Card>
+      ) : null}
 
       {!hasData ? (
         <Card>

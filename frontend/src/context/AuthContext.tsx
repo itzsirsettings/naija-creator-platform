@@ -46,7 +46,10 @@ interface RawUser {
     id?: string; name?: string; avatar?: string; balanceKobo?: number; heldKobo?: number
     premiumTier?: string; premiumUntil?: string | null
   } | null
-  brand?: { id?: string; name?: string; logo?: string } | null
+  brand?: {
+    id?: string; name?: string; logo?: string
+    premiumTier?: string; premiumUntil?: string | null
+  } | null
 }
 
 // The API wraps every response as { success, data, error }. Unwrap to the payload.
@@ -69,11 +72,13 @@ function normalizeUser(raw: RawUser): User {
     typeof raw.creator?.balanceKobo === "number" ? raw.creator.balanceKobo / 100 : 0
   const walletHeld =
     typeof raw.creator?.heldKobo === "number" ? raw.creator.heldKobo / 100 : 0
-  const premiumTier = (raw.creator?.premiumTier as User["premiumTier"]) || "NONE"
+  // Premium lives on the creator profile for creators and the brand profile for brands.
+  const premiumSource = safeRole === "brand" ? raw.brand : raw.creator
+  const premiumTier = (premiumSource?.premiumTier as User["premiumTier"]) || "NONE"
   const premiumActive =
     premiumTier !== "NONE" &&
-    !!raw.creator?.premiumUntil &&
-    new Date(raw.creator.premiumUntil).getTime() > Date.now()
+    !!premiumSource?.premiumUntil &&
+    new Date(premiumSource.premiumUntil).getTime() > Date.now()
   return {
     id: raw.id,
     name,
