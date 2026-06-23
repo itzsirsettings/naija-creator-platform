@@ -179,7 +179,7 @@ export default function Analytics() {
                       <span className="text-muted-foreground tabular-nums">{step.value}</span>
                     </div>
                     <div className="h-2.5 w-full rounded-full bg-muted">
-                      <div className="h-full rounded-full bg-[#1A24B8]" style={{ width: `${pct}%` }} />
+                      <div className="h-full rounded-full bg-[#2f6bff]" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 )
@@ -283,8 +283,8 @@ export default function Analytics() {
       {!isBrand && ent.active && ent.analyticsLevel === "basic" && (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
-            <div className="flex size-12 items-center justify-center rounded-full bg-[#1A24B8]/10">
-              <Lock className="size-6 text-[#1A24B8]" />
+            <div className="flex size-12 items-center justify-center rounded-full bg-[#2f6bff]/10">
+              <Lock className="size-6 text-[#2f6bff]" />
             </div>
             <div>
               <p className="font-heading text-sm font-semibold">Advanced Analytics</p>
@@ -294,7 +294,7 @@ export default function Analytics() {
             </div>
             <Link
               to="/app/premium"
-              className="mt-1 inline-flex items-center gap-1 rounded-lg bg-[#1A24B8] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0A0F7A] transition-colors"
+              className="mt-1 inline-flex items-center gap-1 rounded-lg bg-[#2f6bff] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1e40af] transition-colors"
             >
               Upgrade to Popular
             </Link>

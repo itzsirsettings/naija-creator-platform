@@ -20,7 +20,7 @@ export default function BrandCard({
       <div className="flex items-start gap-3">
         <Avatar className="size-12 rounded-lg border border-border">
           {brand.logo && /^https?:\/\//i.test(brand.logo) ? <AvatarImage src={brand.logo} alt="" /> : null}
-          <AvatarFallback className="rounded-lg bg-[#1A24B8]/10 font-semibold text-[#1A24B8]">{initials(name)}</AvatarFallback>
+          <AvatarFallback className="rounded-lg bg-[#2f6bff]/10 font-semibold text-[#2f6bff]">{initials(name)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-heading text-sm font-semibold text-foreground">{name}</h3>
@@ -34,7 +34,7 @@ export default function BrandCard({
         {onApply ? (
           <button
             onClick={() => onApply(brand)}
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#1A24B8] py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#0A0F7A]"
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#2f6bff] py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#1e40af]"
           >
             <Send className="size-3.5 stroke-2" /> Apply to work
           </button>

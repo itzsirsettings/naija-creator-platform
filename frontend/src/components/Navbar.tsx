@@ -17,7 +17,7 @@ import { toast } from "sonner"
 const kycBadge: Record<string, { label: string; Icon: typeof ShieldCheck; className: string }> = {
   NONE: { label: "ID not submitted", Icon: ShieldX, className: "bg-red-50 text-red-700 border-red-500" },
   PENDING: { label: "ID under review", Icon: ShieldX, className: "bg-amber-50 text-amber-700 border-amber-500" },
-  VERIFIED: { label: "ID verified", Icon: ShieldCheck, className: "bg-[#1A24B8]/10 text-[#1A24B8] border-[#1A24B8]" },
+  VERIFIED: { label: "ID verified", Icon: ShieldCheck, className: "bg-[#2f6bff]/10 text-[#2f6bff] border-[#2f6bff]" },
   REJECTED: { label: "ID needs update", Icon: ShieldX, className: "bg-red-100 text-red-800 border-red-600" },
 }
 
@@ -62,7 +62,7 @@ export default function Navbar() {
           {newCount > 0 && (
             <span
               aria-hidden="true"
-              className="absolute -top-1 -right-1 flex items-center justify-center min-w-[14px] h-[14px] rounded-full border border-white bg-[#1A24B8] text-[8px] font-bold text-white px-0.5"
+              className="absolute -top-1 -right-1 flex items-center justify-center min-w-[14px] h-[14px] rounded-full border border-white bg-[#2f6bff] text-[8px] font-bold text-white px-0.5"
             >
               {newCount > 9 ? "9+" : newCount}
             </span>
@@ -90,7 +90,7 @@ export default function Navbar() {
             <button className="flex items-center gap-2 rounded-lg border border-border bg-card px-2 py-1 text-xs font-medium text-foreground shadow-sm transition-colors hover:bg-muted">
               <Avatar className="size-6 border border-border">
                 {user?.avatar && /^https?:\/\//i.test(user.avatar) ? <AvatarImage src={user.avatar} alt="" /> : null}
-                <AvatarFallback className="text-[10px] bg-[#1A24B8]/10 text-[#1A24B8] font-black">{user ? initials(user.name) : "?"}</AvatarFallback>
+                <AvatarFallback className="text-[10px] bg-[#2f6bff]/10 text-[#2f6bff] font-black">{user ? initials(user.name) : "?"}</AvatarFallback>
               </Avatar>
               <span className="hidden sm:inline max-w-[100px] truncate">{user?.brandName || user?.name || "Guest"}</span>
               <ChevronDown className="size-3" />
@@ -104,7 +104,7 @@ export default function Navbar() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => toast("Profile settings coming soon.")} className="font-medium text-xs text-foreground focus:bg-[#1A24B8]/10 focus:text-[#1A24B8]">
+            <DropdownMenuItem onClick={() => toast("Profile settings coming soon.")} className="font-medium text-xs text-foreground focus:bg-[#2f6bff]/10 focus:text-[#2f6bff]">
               Profile Settings
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => { logout(); toast("Signed out.") }} className="font-semibold text-xs text-red-600 focus:bg-red-50 focus:text-red-700">

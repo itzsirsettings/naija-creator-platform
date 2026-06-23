@@ -172,9 +172,9 @@ export default function Premium() {
 
       {/* Active plan banner */}
       {active && (
-        <div className="flex flex-col gap-3 rounded-xl border border-[#1A24B8]/30 bg-[#1A24B8]/5 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-xl border border-[#2f6bff]/30 bg-[#2f6bff]/5 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
           <span>
-            <span className="font-semibold text-[#1A24B8]">
+            <span className="font-semibold text-[#2f6bff]">
               You&apos;re on the{" "}
               {currentTier.charAt(0) + currentTier.slice(1).toLowerCase()} plan.
             </span>
@@ -194,7 +194,7 @@ export default function Premium() {
                 Cancels at period end
               </span>
             ) : (
-              <span className="rounded-full bg-[#1A24B8] px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+              <span className="rounded-full bg-[#2f6bff] px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
                 Active
               </span>
             )}
@@ -357,7 +357,7 @@ export default function Premium() {
                 key={plan.tier}
                 className={`flex flex-col justify-between rounded-2xl border bg-card p-8 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md ${
                   isCurrent
-                    ? "ring-2 ring-[#1A24B8] border-[#1A24B8]/40"
+                    ? "ring-2 ring-[#2f6bff] border-[#2f6bff]/40"
                     : isAmber
                     ? "border-amber-500/40"
                     : "border-border"

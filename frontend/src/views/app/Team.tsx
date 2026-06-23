@@ -125,7 +125,7 @@ export default function Team() {
           {members.map((m) => (
             <div key={m.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-3 shadow-sm">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#1A24B8]/10 text-[11px] font-bold text-[#1A24B8]">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#2f6bff]/10 text-[11px] font-bold text-[#2f6bff]">
                   {initials(m.name)}
                 </div>
                 <div className="min-w-0">
@@ -157,7 +157,7 @@ function Header() {
   return (
     <div>
       <h1 className="flex items-center gap-2 font-heading text-2xl font-bold tracking-tight">
-        <Users className="size-6 text-[#1A24B8]" /> Team
+        <Users className="size-6 text-[#2f6bff]" /> Team
       </h1>
       <p className="text-muted-foreground">Invite people to help manage your creator account.</p>
     </div>

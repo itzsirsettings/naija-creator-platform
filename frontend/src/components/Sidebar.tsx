@@ -21,7 +21,7 @@ import { useAuth } from "@/context/AuthContext"
 import { initials } from "@/utils/format"
 
 const activeClass =
-  "data-[active=true]:bg-[#1A24B8]/10 data-[active=true]:text-[#1A24B8] data-[active=true]:font-medium"
+  "rounded-xl data-[active=true]:bg-[#2f6bff] data-[active=true]:text-white data-[active=true]:font-semibold data-[active=true]:shadow-[0_8px_20px_-6px_rgba(47,107,255,0.7)] data-[active=true]:hover:bg-[#2563eb] data-[active=true]:hover:text-white"
 
 export function AppSidebar() {
   const { user, logout } = useAuth()
@@ -56,7 +56,7 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border bg-background">
+    <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -65,7 +65,7 @@ export function AppSidebar() {
                 <SidebarMenuButton size="lg" tooltip={displayName} className="group-data-[collapsible=icon]:justify-center">
                   <Avatar className="size-8 shrink-0 rounded-lg border border-border">
                     {user?.avatar && /^https?:\/\//i.test(user.avatar) ? <AvatarImage src={user.avatar} alt="" /> : null}
-                    <AvatarFallback className="rounded-lg bg-[#1A24B8]/10 text-[11px] font-semibold text-[#1A24B8]">
+                    <AvatarFallback className="rounded-lg bg-[#2f6bff]/10 text-[11px] font-semibold text-[#2f6bff]">
                       {user ? initials(user.name) : "?"}
                     </AvatarFallback>
                   </Avatar>
@@ -86,7 +86,7 @@ export function AppSidebar() {
                   <div className="flex items-center gap-3 px-3 py-2.5">
                     <Avatar className="size-9 shrink-0 rounded-lg border border-border">
                       {user?.avatar && /^https?:\/\//i.test(user.avatar) ? <AvatarImage src={user.avatar} alt="" /> : null}
-                      <AvatarFallback className="rounded-lg bg-[#1A24B8]/10 text-[11px] font-semibold text-[#1A24B8]">
+                      <AvatarFallback className="rounded-lg bg-[#2f6bff]/10 text-[11px] font-semibold text-[#2f6bff]">
                         {user ? initials(user.name) : "?"}
                       </AvatarFallback>
                     </Avatar>

@@ -68,7 +68,7 @@ export default function Payments() {
             <CardTitle className="font-heading text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
               Available Balance
             </CardTitle>
-            <div className="mt-2 text-4xl font-semibold font-heading tabular-nums text-[#1A24B8]">
+            <div className="mt-2 text-4xl font-semibold font-heading tabular-nums text-[#2f6bff]">
               {formatNaira(user.walletBalance)}
             </div>
             {user.walletHeld > 0 && (
@@ -78,13 +78,13 @@ export default function Payments() {
               </p>
             )}
           </div>
-          <div className="flex size-12 items-center justify-center rounded-lg bg-[#1A24B8]/10 text-[#1A24B8]">
+          <div className="flex size-12 items-center justify-center rounded-lg bg-[#2f6bff]/10 text-[#2f6bff]">
             <Wallet className="size-6 stroke-[2]" />
           </div>
         </CardHeader>
         <CardContent className="p-0">
           <div className="flex gap-3 text-xs font-medium">
-            <div className="flex items-center gap-1.5 rounded-md bg-[#1A24B8]/10 px-2 py-0.5 text-[#1A24B8]">
+            <div className="flex items-center gap-1.5 rounded-md bg-[#2f6bff]/10 px-2 py-0.5 text-[#2f6bff]">
               <ArrowDownLeft className="size-3.5 stroke-2" />
               <span className="tabular-nums">{formatNaira(credits.reduce((s, t) => s + t.amount, 0))} credits</span>
             </div>

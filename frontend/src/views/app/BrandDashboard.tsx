@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { Users, Wallet, ArrowRight, Loader2, Plus } from "lucide-react"
+import { Wallet, Loader2, Plus, Megaphone, Clock, CheckCircle2 } from "lucide-react"
 import { Link } from "@/lib/router"
 import { useAuth } from "@/context/AuthContext"
 import { fetchBrandOffers, type Offer } from "@/services/offers"
@@ -76,7 +76,7 @@ export default function BrandDashboard() {
         <div className="flex items-center gap-2.5">
           <Link
             to="/discover"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#1A24B8] px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#0A0F7A]"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[#2f6bff] px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#1e40af]"
           >
             <Plus className="size-4 stroke-[3]" /> Find Creators
           </Link>
@@ -91,10 +91,10 @@ export default function BrandDashboard() {
 
       {/* Stats */}
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile variant="filled" label="Active Campaigns" value={active} delta="Current campaigns" />
-        <StatTile label="Total Spent" value={formatNaira(totalSpent)} delta="All-time spend" />
-        <StatTile label="Pending Review" value={pending} delta="Awaiting your action" />
-        <StatTile label="Completed" value={completed} delta="Successfully delivered" />
+        <StatTile variant="filled" icon={Megaphone} label="Active Campaigns" value={active} delta="live" />
+        <StatTile icon={Wallet} tint="bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400" label="Total Spent" value={formatNaira(totalSpent)} />
+        <StatTile icon={Clock} tint="bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400" label="Pending Review" value={pending} delta={pending > 0 ? "action" : "clear"} positive={pending === 0} />
+        <StatTile icon={CheckCircle2} tint="bg-[#2f6bff]/10 text-[#2f6bff]" label="Completed" value={completed} />
       </div>
 
       {/* Row 2 */}
@@ -103,7 +103,7 @@ export default function BrandDashboard() {
           <PanelHeading
             title="Creator Collaboration"
             action={
-              <Link to="/discover" className="text-[11px] font-semibold uppercase tracking-wide text-[#1A24B8] hover:underline">
+              <Link to="/discover" className="text-[11px] font-semibold uppercase tracking-wide text-[#2f6bff] hover:underline">
                 Find more
               </Link>
             }
@@ -115,7 +115,7 @@ export default function BrandDashboard() {
                   key={o.id}
                   className="flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-muted"
                 >
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#1A24B8] text-[12px] font-semibold text-white">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#2f6bff] text-[12px] font-semibold text-white">
                     {o.creatorName.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -137,17 +137,17 @@ export default function BrandDashboard() {
             centerValue={`${completionPct}%`}
             centerLabel="Completed"
             segments={[
-              { label: "Completed", value: completed, color: "#1A24B8" },
-              { label: "Active", value: active, color: "#0A0F7A" },
+              { label: "Completed", value: completed, color: "#2f6bff" },
+              { label: "Active", value: active, color: "#1e40af" },
               { label: "Pending", value: pending, color: "#C8CCE6" },
             ]}
           />
         </Panel>
 
         {/* Budget card */}
-        <div className="lg:col-span-3 flex flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-sm">
+        <div className="lg:col-span-3 flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-sm">
           <div>
-            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-[#1A24B8]">
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-[#2f6bff]">
               <Wallet className="size-4" /> Campaign Budget
             </div>
             <div className="mt-5 font-heading text-[32px] font-semibold tracking-tight tabular-nums text-foreground">
@@ -160,7 +160,7 @@ export default function BrandDashboard() {
           <div className="mt-6 flex gap-2.5">
             <Link
               to="/discover"
-              className="flex-1 rounded-lg bg-[#1A24B8] py-2.5 text-center text-[12.5px] font-semibold text-white shadow-sm transition-colors hover:bg-[#0A0F7A]"
+              className="flex-1 rounded-lg bg-[#2f6bff] py-2.5 text-center text-[12.5px] font-semibold text-white shadow-sm transition-colors hover:bg-[#1e40af]"
             >
               New campaign
             </Link>

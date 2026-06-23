@@ -27,7 +27,7 @@ function DiagramCard({ icon: Icon, title, sub, className = "" }: FlowCard & { cl
       className={`tehilla-gradient-border bg-white p-4 sm:p-5 shadow-[0_12px_40px_rgba(15,23,42,0.06)] ${className}`}
     >
       <div className="flex items-center gap-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#1A24B8]/10 text-[#1A24B8]">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#2f6bff]/10 text-[#2f6bff]">
           <Icon className="size-5" />
         </span>
         <span className="font-runde text-[15px] font-semibold leading-tight text-[#0f0f0f]">
@@ -78,9 +78,9 @@ export default function HowItWorksDiagram() {
         </p>
         <Link
           to="/for-creators"
-          className="mt-7 inline-flex items-center gap-2.5 font-runde text-[14.6px] font-medium text-[#0f0f0f] transition-colors hover:text-[#1A24B8]"
+          className="mt-7 inline-flex items-center gap-2.5 font-runde text-[14.6px] font-medium text-[#0f0f0f] transition-colors hover:text-[#2f6bff]"
         >
-          <span className="flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-[#22d3ee] via-[#5d9c06] to-[#1A24B8]">
+          <span className="flex size-7 items-center justify-center rounded-full bg-gradient-to-br from-[#22d3ee] via-[#5d9c06] to-[#2f6bff]">
             <ArrowRight className="size-3.5 -rotate-45 text-white" />
           </span>
           Learn more
@@ -113,9 +113,9 @@ export default function HowItWorksDiagram() {
           <line x1="150" y1="330" x2="850" y2="330" stroke="#ececec" strokeWidth="1.5" />
 
           {/* Brand -> left card (purple) */}
-          <path d="M160,122 C160,215 95,235 95,328" stroke="#1A24B8" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="1 8" />
+          <path d="M160,122 C160,215 95,235 95,328" stroke="#2f6bff" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="1 8" />
           {/* Creator -> right card (purple) */}
-          <path d="M840,122 C840,215 905,235 905,328" stroke="#1A24B8" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="1 8" />
+          <path d="M840,122 C840,215 905,235 905,328" stroke="#2f6bff" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="1 8" />
 
           {/* left card -> logo (green, flowing) */}
           <path d="M396,322 C425,322 432,320 452,320" stroke="#5d9c06" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="1 8" markerEnd="url(#arrow-green)" />
@@ -182,7 +182,7 @@ function VConnector() {
     <div
       className="mx-auto my-4 h-7 w-px"
       style={{
-        backgroundImage: "linear-gradient(to bottom, #1A24B8 0 40%, transparent 40%)",
+        backgroundImage: "linear-gradient(to bottom, #2f6bff 0 40%, transparent 40%)",
         backgroundSize: "1px 7px",
         backgroundRepeat: "repeat-y",
       }}

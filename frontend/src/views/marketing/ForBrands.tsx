@@ -15,7 +15,7 @@ const features = [
     icon: BarChart3,
     title: "Campaign Management",
     description: "Send briefs, track deliverables, and manage multiple creator partnerships from a single dashboard.",
-    color: "#1A24B8",
+    color: "#2f6bff",
   },
   {
     icon: Shield,
@@ -27,7 +27,7 @@ const features = [
     icon: Users,
     title: "Analytics & Reporting",
     description: "Measure campaign performance, track ROI, and get actionable insights for your next partnership.",
-    color: "#1A24B8",
+    color: "#2f6bff",
   },
 ]
 
@@ -103,7 +103,7 @@ export default function ForBrands() {
       {/* TESTIMONIALS */}
       <Section bg="bg-[#fafafa]">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="font-runde text-[11.8px] font-medium text-[#1A24B8] uppercase tracking-wider">
+          <span className="font-runde text-[11.8px] font-medium text-[#2f6bff] uppercase tracking-wider">
             Testimonials
           </span>
           <h2 className="mt-4 font-runde text-hero-sm font-semibold text-[#0f0f0f] leading-tight tracking-tight">

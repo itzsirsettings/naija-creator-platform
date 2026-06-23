@@ -129,7 +129,7 @@ export default function Agency() {
           {brands.map((b) => (
             <div key={b.id} className="flex items-start justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#1A24B8]/10 text-xs font-bold text-[#1A24B8]">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#2f6bff]/10 text-xs font-bold text-[#2f6bff]">
                   {initials(b.name)}
                 </div>
                 <div className="min-w-0">
@@ -161,7 +161,7 @@ function Header() {
   return (
     <div>
       <h1 className="flex items-center gap-2 font-heading text-2xl font-bold tracking-tight">
-        <Building2 className="size-6 text-[#1A24B8]" /> Agency Workspace
+        <Building2 className="size-6 text-[#2f6bff]" /> Agency Workspace
       </h1>
       <p className="text-muted-foreground">Manage every brand your agency runs from one account.</p>
     </div>

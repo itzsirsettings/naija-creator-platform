@@ -142,8 +142,8 @@
     --canvas: #ffffff;
     --canvas-soft: #fafafa;
     --accent-blue: #0098f2;
-    --accent-pink: #1A24B8;
-    --accent-purple: #1A24B8;
+    --accent-pink: #2f6bff;
+    --accent-purple: #2f6bff;
     --accent-green: #5d9c06;
     --accent-red: #ff6363;
     --accent-orange: #aa2d00;
@@ -351,11 +351,11 @@
   pointer-events: none;
   background: conic-gradient(
     from var(--tehilla-angle),
-    #0A0F7A,
-    #1A24B8,
+    #1e40af,
+    #2f6bff,
     #C8CCE6,
-    #1A24B8,
-    #0A0F7A
+    #2f6bff,
+    #1e40af
   );
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,

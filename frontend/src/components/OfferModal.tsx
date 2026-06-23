@@ -107,7 +107,7 @@ export default function OfferModal({
               <button
                 type="button"
                 onClick={() => updateField("dealType", "FIXED")}
-                className={`rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${!isAffiliate ? "border-[#1A24B8] bg-[#1A24B8]/10 text-[#1A24B8]" : "border-border text-muted-foreground hover:bg-muted"}`}
+                className={`rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${!isAffiliate ? "border-[#2f6bff] bg-[#2f6bff]/10 text-[#2f6bff]" : "border-border text-muted-foreground hover:bg-muted"}`}
               >
                 Fixed fee
               </button>

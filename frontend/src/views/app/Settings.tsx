@@ -108,7 +108,7 @@ export default function Settings() {
           {/* Bank Account Section */}
           <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
             <div className="flex items-center gap-2">
-              <Building2 className="size-4 text-[#1A24B8]" />
+              <Building2 className="size-4 text-[#2f6bff]" />
               <h2 className="font-heading text-sm font-semibold">Payout Bank Account</h2>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">

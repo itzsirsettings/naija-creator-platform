@@ -1,18 +1,20 @@
 "use client"
 
 import { Suspense } from "react"
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/Sidebar"
 import Navbar from "@/components/Navbar"
 import { RouteFallback } from "@/components/RouteFallback"
 import { Toaster } from "@/components/ui/sonner"
 
+// Shared app chrome — a blue gradient frame with the sidebar + content sitting in
+// a floating inset panel, matching the admin dashboard's design language.
 export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="bg-[radial-gradient(130%_130%_at_75%_-12%,#5b8def_0%,#2f5fd0_44%,#16317f_100%)]">
       <AppSidebar />
-      <main className="flex min-w-0 flex-1 flex-col bg-background">
-        <header className="flex h-14 items-center gap-2 border-b border-border bg-card px-4 sm:gap-4 sm:px-6">
+      <SidebarInset className="bg-[#f4f7fb] dark:bg-background">
+        <header className="flex h-14 items-center gap-2 border-b border-border/60 bg-transparent px-4 sm:gap-4 sm:px-6">
           <SidebarTrigger className="border border-border bg-card rounded-lg shadow-sm hover:bg-muted size-8 shrink-0" />
           <Navbar />
         </header>
@@ -21,7 +23,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             {children}
           </Suspense>
         </div>
-      </main>
+      </SidebarInset>
       <Toaster />
     </SidebarProvider>
   )

@@ -1,49 +1,60 @@
 ﻿"use client"
 
-import { ArrowUpRight, TrendingUp, type LucideIcon } from "lucide-react"
+import { type LucideIcon } from "lucide-react"
 
 /* ------------------------------------------------------------------ */
-/*  Stat tile - clean surface, single pink accent for the featured KPI */
+/*  Stat card - colored icon chip + value + delta badge (admin style)  */
+/*  Shared by the admin, creator, and brand dashboards.                */
 /* ------------------------------------------------------------------ */
 
 interface StatTileProps {
   label: string
   value: string | number
   delta?: string
+  icon?: LucideIcon
+  /** Icon-chip color classes, e.g. "bg-emerald-100 text-emerald-600". */
+  tint?: string
   variant?: "filled" | "plain"
+  /** Controls the delta badge color. */
+  positive?: boolean
 }
 
-export function StatTile({ label, value, delta, variant = "plain" }: StatTileProps) {
+export function StatTile({
+  label, value, delta, icon: Icon, tint = "bg-[#2f6bff]/10 text-[#2f6bff]", variant = "plain", positive = true,
+}: StatTileProps) {
   const filled = variant === "filled"
   return (
     <div
-      className={`group relative overflow-hidden rounded-xl border p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
-        filled
-          ? "border-transparent bg-[#1A24B8] text-white"
-          : "border-border bg-card text-card-foreground"
+      className={`rounded-2xl border p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
+        filled ? "border-transparent bg-[#2f6bff] text-white" : "border-border bg-card text-card-foreground"
       }`}
     >
-      <div className="flex items-start justify-between">
-        <span className={`text-[13.5px] font-medium tracking-tight ${filled ? "text-white/85" : "text-muted-foreground"}`}>
-          {label}
-        </span>
-        <span
-          className={`flex size-7 items-center justify-center rounded-full transition-colors ${
-            filled
-              ? "bg-white/15 text-white"
-              : "bg-muted text-muted-foreground group-hover:bg-[#1A24B8]/10 group-hover:text-[#1A24B8]"
-          }`}
-        >
-          <ArrowUpRight className="size-3.5" />
-        </span>
+      <div className="flex items-center gap-2.5">
+        {Icon ? (
+          <span className={`flex size-8 shrink-0 items-center justify-center rounded-full ${filled ? "bg-white/15 text-white" : tint}`}>
+            <Icon className="size-4" />
+          </span>
+        ) : null}
+        <span className={`text-xs font-medium ${filled ? "text-white/85" : "text-muted-foreground"}`}>{label}</span>
       </div>
-      <div className="mt-6 font-heading text-[40px] font-semibold leading-none tracking-tight tabular-nums">{value}</div>
-      {delta ? (
-        <div className={`mt-4 flex items-center gap-1.5 text-[12px] ${filled ? "text-white/85" : "text-muted-foreground"}`}>
-          <TrendingUp className="size-3.5" />
-          <span>{delta}</span>
-        </div>
-      ) : null}
+      <div className="mt-3 flex items-end justify-between gap-2">
+        <span className={`font-heading text-2xl font-bold leading-none tracking-tight tabular-nums ${filled ? "text-white" : "text-foreground"}`}>
+          {value}
+        </span>
+        {delta ? (
+          <span
+            className={`shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${
+              filled
+                ? "bg-white/15 text-white"
+                : positive
+                ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"
+                : "bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400"
+            }`}
+          >
+            {delta}
+          </span>
+        ) : null}
+      </div>
     </div>
   )
 }
@@ -60,7 +71,7 @@ export function Panel({
   className?: string
 }) {
   return (
-    <div className={`rounded-xl border border-border bg-card p-5 shadow-sm ${className}`}>{children}</div>
+    <div className={`rounded-2xl border border-border bg-card p-5 shadow-sm ${className}`}>{children}</div>
   )
 }
 
@@ -100,13 +111,13 @@ export function WeeklyBars({ data }: { data: WeeklyBar[] }) {
           <div key={i} className="flex h-full flex-1 flex-col items-center justify-end gap-2.5">
             <div className="relative flex w-full flex-1 items-end justify-center">
               {b.badge ? (
-                <span className="absolute -top-1 z-10 rounded-md bg-[#1A24B8] px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm">
+                <span className="absolute -top-1 z-10 rounded-md bg-[#2f6bff] px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm">
                   {b.badge}
                 </span>
               ) : null}
               <div
                 className={`w-full max-w-[34px] rounded-t-md transition-all duration-300 ${
-                  b.highlight ? "bg-[#1A24B8]" : "bg-[#1A24B8]/15"
+                  b.highlight ? "bg-[#2f6bff]" : "bg-[#2f6bff]/15"
                 }`}
                 style={{ height: `${h}%` }}
               />
@@ -193,9 +204,9 @@ export function ProgressDonut({
 /* ------------------------------------------------------------------ */
 
 const STATUS_STYLES: Record<string, string> = {
-  completed: "bg-[#1A24B8]/10 text-[#1A24B8]",
-  approved: "bg-[#1A24B8]/10 text-[#1A24B8]",
-  paid: "bg-[#1A24B8]/10 text-[#1A24B8]",
+  completed: "bg-[#2f6bff]/10 text-[#2f6bff]",
+  approved: "bg-[#2f6bff]/10 text-[#2f6bff]",
+  paid: "bg-[#2f6bff]/10 text-[#2f6bff]",
   "in progress": "bg-amber-100 text-amber-700",
   accepted: "bg-amber-100 text-amber-700",
   pending: "bg-orange-100 text-orange-700",
@@ -217,7 +228,7 @@ export function StatusPill({ status }: { status: string }) {
 /* ------------------------------------------------------------------ */
 
 const TILE_PALETTE = [
-  "bg-[#1A24B8]/10 text-[#1A24B8]",
+  "bg-[#2f6bff]/10 text-[#2f6bff]",
   "bg-sky-100 text-sky-700",
   "bg-amber-100 text-amber-700",
   "bg-purple-100 text-purple-700",

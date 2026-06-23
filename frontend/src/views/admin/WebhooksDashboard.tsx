@@ -12,7 +12,6 @@ import {
   ListChecks,
   LogOut,
   RefreshCw,
-  Search,
   Settings,
   ShieldCheck,
   Users,
@@ -130,7 +129,7 @@ export function WebhooksDashboardView({
   const chart = useMemo(() => buildChart(events), [events])
 
   return (
-    <div className="min-h-screen w-full bg-[radial-gradient(120%_120%_at_70%_-10%,#5b8def_0%,#2f5fd0_38%,#16317f_100%)] p-3 sm:p-6">
+    <div className="min-h-screen w-full bg-[radial-gradient(130%_130%_at_75%_-12%,#5b8def_0%,#2f5fd0_44%,#16317f_100%)] p-3 sm:p-6">
       <div className="mx-auto flex max-w-[1180px] overflow-hidden rounded-[26px] bg-[#f4f7fb] shadow-[0_30px_80px_-20px_rgba(11,23,84,0.55)] ring-1 ring-white/40">
         {/* ── Sidebar ──────────────────────────────────────────────── */}
         <aside className="hidden w-56 shrink-0 flex-col justify-between bg-white/90 px-5 py-6 lg:flex">
@@ -173,13 +172,9 @@ export function WebhooksDashboardView({
         <div className="min-w-0 flex-1 px-4 py-5 sm:px-7">
           {/* Topbar */}
           <header className="mb-6 flex items-center gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-              <input
-                readOnly
-                placeholder="Tap to search"
-                className="h-10 w-full rounded-full border border-slate-200 bg-white pl-9 pr-4 text-sm text-slate-600 placeholder:text-slate-400 focus:outline-none"
-              />
+            <div className="flex-1">
+              <h1 className="font-heading text-lg font-bold tracking-tight text-slate-900">Webhook Monitor</h1>
+              <p className="text-xs text-slate-400">Live Paystack delivery &amp; processing</p>
             </div>
             <button className="relative flex size-10 items-center justify-center rounded-full bg-white text-slate-500 ring-1 ring-slate-200">
               <Bell className="size-[18px]" />

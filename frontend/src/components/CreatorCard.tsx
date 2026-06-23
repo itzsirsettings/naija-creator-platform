@@ -25,7 +25,7 @@ export default function CreatorCard({
         <div className="flex items-start gap-3">
           <Avatar className="size-12 border border-border">
             {creator.avatar && /^https?:\/\//i.test(creator.avatar) ? <AvatarImage src={creator.avatar} alt="" /> : null}
-            <AvatarFallback className="bg-[#1A24B8]/10 text-[#1A24B8] font-semibold">{initials(creator.name || "?")}</AvatarFallback>
+            <AvatarFallback className="bg-[#2f6bff]/10 text-[#2f6bff] font-semibold">{initials(creator.name || "?")}</AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
@@ -66,7 +66,7 @@ export default function CreatorCard({
         {canSendOffer ? (
           <button
             onClick={() => onSendOffer(creator)}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#1A24B8] py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#0A0F7A]"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#2f6bff] py-2 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-[#1e40af]"
           >
             <Send className="size-3.5 stroke-2" /> Send Offer
           </button>

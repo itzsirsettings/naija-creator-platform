@@ -174,7 +174,7 @@ export default function Home() {
                   <Check className="size-4 text-[#5d9c06]" /> Post
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Check className="size-4 text-[#1A24B8]" /> Instant Payout
+                  <Check className="size-4 text-[#2f6bff]" /> Instant Payout
                 </span>
               </div>
             </motion.div>
@@ -378,13 +378,13 @@ export default function Home() {
             },
             {
               role: "Brand",
-              color: "#1A24B8",
+              color: "#2f6bff",
               description:
                 "Discover vetted creators, manage campaigns, and pay with confidence. Find the perfect match for your next campaign.",
             },
             {
               role: "Agency",
-              color: "#1A24B8",
+              color: "#2f6bff",
               description:
                 "Manage multiple creator partnerships for your clients from a single dashboard. Track deliverables, approvals, and payments.",
             },
@@ -437,14 +437,14 @@ export default function Home() {
             },
             {
               label: "Expensive",
-              badgeColor: "bg-[#1A24B8]/10 text-[#1A24B8]",
+              badgeColor: "bg-[#2f6bff]/10 text-[#2f6bff]",
               text: "Middlemen take 30% or more",
               detail:
                 ": agencies, managers, and platforms eat into your earnings before you see a dime.",
             },
             {
               label: "Opaque",
-              badgeColor: "bg-[#1A24B8]/10 text-[#1A24B8]",
+              badgeColor: "bg-[#2f6bff]/10 text-[#2f6bff]",
               text: "No pricing standards",
               detail:
                 ": every brand has a different rate. You never know if you're being paid fairly for your work.",
@@ -662,7 +662,7 @@ export default function Home() {
                             USDC via Polygon
                           </span>
                         </div>
-                        <span className="text-[10.9px] font-semibold text-[#1A24B8] bg-[#1A24B8]/10 px-2.5 py-1 rounded-full">
+                        <span className="text-[10.9px] font-semibold text-[#2f6bff] bg-[#2f6bff]/10 px-2.5 py-1 rounded-full">
                           1% Fee
                         </span>
                       </div>
@@ -698,7 +698,7 @@ export default function Home() {
       {/* FEATURE SHOWCASE */}
       <Section noBorderB={true} bg="bg-white" zIndex={9}>
         <div className="text-center px-6 py-16 border-b border-[#d8d8d8]/60 max-w-[1200px] mx-auto -mx-6">
-          <span className="font-runde text-[12px] font-medium text-[#1A24B8] uppercase tracking-wider">
+          <span className="font-runde text-[12px] font-medium text-[#2f6bff] uppercase tracking-wider">
             Smarter sponsorship
           </span>
           <h2 className="mt-4 font-runde text-[24px] sm:text-[30px] lg:text-[34px] font-semibold text-[#0f0f0f] leading-none tracking-tight">
@@ -715,7 +715,7 @@ export default function Home() {
               quote:
                 '"I used to send 50 DMs to get one sponsorship. Now brands come to me."',
               author: "Chioma Okafor, Fashion Creator",
-              gradient: "from-[#0098f2] to-[#1A24B8]",
+              gradient: "from-[#0098f2] to-[#2f6bff]",
               animClass: "animate-feature-float",
             },
             {
@@ -735,7 +735,7 @@ export default function Home() {
               quote:
                 '"The analytics dashboard showed me I was underselling myself by 40%. Now I negotiate with confidence."',
               author: "Zainab Bello, Beauty Creator",
-              gradient: "from-[#1A24B8] to-[#0A0F7A]",
+              gradient: "from-[#2f6bff] to-[#1e40af]",
               animClass: "animate-feature-float-d2",
             },
             {
@@ -745,7 +745,7 @@ export default function Home() {
               quote:
                 '"I had money stuck in platforms for weeks. Tehilla pays me the same day. It changed my business."',
               author: "Segun Adeyemi, Video Creator",
-              gradient: "from-[#ff6363] to-[#1A24B8]",
+              gradient: "from-[#ff6363] to-[#2f6bff]",
               animClass: "animate-feature-float-d3",
             },
           ].map((item, idx) => (
@@ -961,7 +961,7 @@ export function SecuritySection() {
     <Section bg="bg-[#fafafa]">
       <div className="grid gap-12 md:grid-cols-3 items-start">
         <div className="space-y-4">
-          <span className="font-runde text-[10px] font-medium text-[#1A24B8] uppercase tracking-wider block">
+          <span className="font-runde text-[10px] font-medium text-[#2f6bff] uppercase tracking-wider block">
             Security first
           </span>
           <h4 className="font-runde text-[18px] font-semibold text-[#0f0f0f]">
@@ -969,7 +969,7 @@ export function SecuritySection() {
           </h4>
         </div>
         <div className="rounded-2xl border border-[#d8d8d8]/60 bg-white p-8 space-y-4">
-          <div className="flex size-10 items-center justify-center rounded-full bg-[#1A24B8]/10 text-[#1A24B8]">
+          <div className="flex size-10 items-center justify-center rounded-full bg-[#2f6bff]/10 text-[#2f6bff]">
             <ShieldCheck className="size-5" />
           </div>
           <h6 className="font-runde text-[13px] font-semibold text-[#0f0f0f]">
@@ -981,7 +981,7 @@ export function SecuritySection() {
           </p>
         </div>
         <div className="rounded-2xl border border-[#d8d8d8]/60 bg-white p-8 space-y-4">
-          <div className="flex size-10 items-center justify-center rounded-full bg-[#1A24B8]/10 text-[#1A24B8]">
+          <div className="flex size-10 items-center justify-center rounded-full bg-[#2f6bff]/10 text-[#2f6bff]">
             <Lock className="size-5" />
           </div>
           <h6 className="font-runde text-[13px] font-semibold text-[#0f0f0f]">

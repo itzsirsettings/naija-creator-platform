@@ -21,13 +21,13 @@ const values = [
     icon: Lightbulb,
     title: "Innovation",
     description: "We build tools that make brand collaborations smarter, faster, and more rewarding.",
-    color: "#1A24B8",
+    color: "#2f6bff",
   },
   {
     icon: Target,
     title: "African Excellence",
     description: "Proudly built for the African market, solving real problems for local creators and brands.",
-    color: "#1A24B8",
+    color: "#2f6bff",
   },
 ]
 
@@ -75,7 +75,7 @@ export default function About() {
       {/* VALUES */}
       <Section>
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="font-runde text-[11.8px] font-medium text-[#1A24B8] uppercase tracking-wider">
+          <span className="font-runde text-[11.8px] font-medium text-[#2f6bff] uppercase tracking-wider">
             Our Values
           </span>
           <h2 className="mt-4 font-runde text-hero-sm font-semibold text-[#0f0f0f] leading-tight tracking-tight">
