@@ -4,6 +4,12 @@ export interface InitTransactionParams {
   reference: string;
   callbackUrl?: string;
   metadata?: Record<string, unknown>;
+  /**
+   * Paystack plan code (PLN_xxx). When set, the charge enrolls the customer in a
+   * recurring subscription — Paystack uses the plan's amount and auto-charges the
+   * card each interval. Ignored by providers that don't support recurring plans.
+   */
+  plan?: string;
 }
 
 export interface InitTransactionResult {

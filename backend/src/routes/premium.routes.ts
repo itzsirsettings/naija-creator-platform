@@ -37,6 +37,18 @@ export default async function premiumRoutes(fastify: FastifyInstance) {
     return reply.send(ok(result));
   });
 
+  // Creator: current recurring subscription state.
+  fastify.get('/subscription', { preHandler: [authenticate, requireRole('CREATOR')] }, async (request, reply) => {
+    const result = await premiumService.getSubscription(request.user!.id, 'CREATOR');
+    return reply.send(ok(result));
+  });
+
+  // Creator: cancel auto-renewal (access continues until period end).
+  fastify.post('/subscription/cancel', { preHandler: [authenticate, requireRole('CREATOR')] }, async (request, reply) => {
+    const result = await premiumService.cancelSubscription(request.user!.id, 'CREATOR');
+    return reply.send(ok(result));
+  });
+
   // Admin: grant/set a creator's premium tier (operates the feature until
   // the Paystack subscription is wired).
   fastify.post('/admin/grant/:creatorId', { preHandler: [authenticate, requireRole('ADMIN')] }, async (request, reply) => {
@@ -74,6 +86,18 @@ export default async function premiumRoutes(fastify: FastifyInstance) {
     const result = await premiumService.verifySubscriptionPayment(
       request.user!.id, 'BRAND', reference, tier, billingPeriod,
     );
+    return reply.send(ok(result));
+  });
+
+  // Brand: current recurring subscription state.
+  fastify.get('/brand/subscription', { preHandler: [authenticate, requireRole('BRAND')] }, async (request, reply) => {
+    const result = await premiumService.getSubscription(request.user!.id, 'BRAND');
+    return reply.send(ok(result));
+  });
+
+  // Brand: cancel auto-renewal (access continues until period end).
+  fastify.post('/brand/subscription/cancel', { preHandler: [authenticate, requireRole('BRAND')] }, async (request, reply) => {
+    const result = await premiumService.cancelSubscription(request.user!.id, 'BRAND');
     return reply.send(ok(result));
   });
 }

@@ -84,3 +84,50 @@ export async function verifyBrandSubscriptionPayment(
   const res = await api.post("/premium/brand/upgrade/verify", { reference, tier, billingPeriod })
   return unwrap<{ status: string; message: string; tier: string; until: string }>(res)
 }
+
+// ─── Recurring subscription management ────────────────────────────────────────
+
+export type SubscriptionState =
+  | "PENDING"
+  | "ACTIVE"
+  | "PAST_DUE"
+  | "CANCELLED"
+  | "EXPIRED"
+
+export interface SubscriptionInfo {
+  active: boolean
+  subscription: {
+    tier: Tier
+    interval: BillingPeriod
+    status: SubscriptionState
+    currentPeriodEnd: string | null
+    cancelAtPeriodEnd: boolean
+    hasPaymentMethod: boolean
+  } | null
+}
+
+export interface CancelSubscriptionResult {
+  status: string
+  message: string
+  currentPeriodEnd: string | null
+}
+
+export async function fetchSubscription(): Promise<SubscriptionInfo> {
+  const res = await api.get("/premium/subscription")
+  return unwrap<SubscriptionInfo>(res)
+}
+
+export async function cancelSubscription(): Promise<CancelSubscriptionResult> {
+  const res = await api.post("/premium/subscription/cancel")
+  return unwrap<CancelSubscriptionResult>(res)
+}
+
+export async function fetchBrandSubscription(): Promise<SubscriptionInfo> {
+  const res = await api.get("/premium/brand/subscription")
+  return unwrap<SubscriptionInfo>(res)
+}
+
+export async function cancelBrandSubscription(): Promise<CancelSubscriptionResult> {
+  const res = await api.post("/premium/brand/subscription/cancel")
+  return unwrap<CancelSubscriptionResult>(res)
+}

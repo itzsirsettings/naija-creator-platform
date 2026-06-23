@@ -82,12 +82,19 @@ export default async function paymentRoutes(fastify: FastifyInstance) {
       return reply.status(400).send({ success: false, error: (err as Error).message });
     }
 
-    const eventId = (event.data?.['id'] ?? event.data?.['reference']) as string | undefined;
-    if (!eventId) return reply.status(200).send({ received: true });
+    const rawEventId = (event.data?.['id'] ?? event.data?.['reference']) as string | undefined;
+    if (!rawEventId) return reply.status(200).send({ received: true });
+
+    // Dedup key must include the event TYPE: subscription lifecycle events
+    // (subscription.create / disable / not_renew) for the same subscription all
+    // carry the same `data.id`, so keying on the id alone would drop every event
+    // after the first. Prefixing with the event type keeps genuine retries (same
+    // type + same id) deduplicated while letting distinct event types through.
+    const eventId = `${event.event}:${rawEventId}`;
 
     const webhook = await paymentRepo.storeWebhookEvent(
       'PAYSTACK',
-      String(eventId),
+      eventId,
       event.event,
       event.data,
     );

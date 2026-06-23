@@ -37,6 +37,7 @@ model User {
   supportTickets          SupportTicket[]
   idempotencyKeys         IdempotencyKey[]
   auditLogs               AuditLog[]
+  subscriptions           Subscription[]
 
   @@index([kycStatus])
 }
@@ -529,4 +530,59 @@ model TeamMember {
 
   @@unique([ownerCreatorId, email])
   @@index([ownerCreatorId])
+}
+
+// ─── Paystack recurring subscriptions ────────────────────────────────────────
+// A cached Paystack Plan. Plans are created lazily (once per role/tier/interval/
+// price combination) and reused so we never create duplicate plans on Paystack.
+// `name` encodes role+tier+interval+amount, so a price change yields a NEW plan
+// (existing subscribers keep their original plan — Paystack-correct behaviour).
+model SubscriptionPlan {
+  id         String      @id @default(uuid())
+  name       String      @unique
+  planCode   String      @unique
+  role       Role
+  tier       PremiumTier
+  interval   String      // 'monthly' | 'annual'
+  amountKobo Int
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([role, tier, interval])
+}
+
+// A user's Paystack subscription. `subscriptionCode` + `emailToken` are required
+// by Paystack to disable (cancel) a subscription. `currentPeriodEnd` mirrors the
+// access window stored on Creator.premiumUntil / Brand.premiumUntil.
+model Subscription {
+  id                String             @id @default(uuid())
+  userId            String
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role              Role
+  tier              PremiumTier
+  interval          String             // 'monthly' | 'annual'
+  planCode          String
+  customerCode      String?
+  subscriptionCode  String?            @unique
+  emailToken        String?
+  paystackRef       String?            // reference of the initiating transaction
+  lastChargeRef     String?            // dedupe repeated charge.success deliveries
+  status            SubscriptionStatus @default(PENDING)
+  currentPeriodEnd  DateTime?
+  cancelAtPeriodEnd Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@index([planCode])
+  @@index([paystackRef])
+}
+
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
 }

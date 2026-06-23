@@ -43,7 +43,7 @@ export class PaystackAdapter implements PaymentProvider {
   }
 
   async initializeTransaction(params: InitTransactionParams): Promise<InitTransactionResult> {
-    const { email, amountKobo, reference, callbackUrl, metadata = {} } = params;
+    const { email, amountKobo, reference, callbackUrl, metadata = {}, plan } = params;
 
     if (!this.isConfigured()) {
       if (!this.canUseMock()) this.requireConfigured();
@@ -70,6 +70,9 @@ export class PaystackAdapter implements PaymentProvider {
             currency: 'NGN',
             callback_url: callbackUrl ?? `${config.frontendUrl}/payments`,
             metadata,
+            // When `plan` is set, Paystack enrolls the card in a recurring
+            // subscription and bills the plan amount each interval.
+            ...(plan ? { plan } : {}),
           },
           { headers: this.headers() },
         ),
@@ -235,6 +238,87 @@ export class PaystackAdapter implements PaymentProvider {
       reference: (res.data.data?.reference ?? res.data.data?.id ?? reference) as string,
       data: res.data.data as Record<string, unknown>,
     };
+  }
+
+  // ─── Recurring subscriptions (Paystack Plans + Subscriptions) ───────────────
+
+  /**
+   * Create a Paystack Plan. Called lazily (once per role/tier/interval/price) and
+   * the returned plan code is cached in the DB so we never create duplicate plans.
+   * `interval` is the Paystack interval string ('monthly' | 'annually').
+   */
+  async createPlan(params: {
+    name: string;
+    amountKobo: number;
+    interval: 'monthly' | 'annually';
+  }): Promise<{ planCode: string }> {
+    const { name, amountKobo, interval } = params;
+
+    if (!this.isConfigured()) {
+      if (!this.canUseMock()) this.requireConfigured();
+      return { planCode: `PLN_mock_${Buffer.from(name).toString('hex').slice(0, 12)}` };
+    }
+
+    const res = await callWithCircuitBreaker(
+      'paystack.plan.create',
+      () =>
+        axios.post(
+          `${PAYSTACK_BASE}/plan`,
+          { name, amount: Math.round(amountKobo), interval, currency: 'NGN' },
+          { headers: this.headers() },
+        ),
+      { provider: 'paystack', operationName: 'plan_create' },
+    );
+
+    const planCode = res.data?.data?.plan_code as string | undefined;
+    if (!res.data?.status || !planCode) {
+      throw new AppError(res.data?.message ?? 'Paystack plan creation failed', 502);
+    }
+    return { planCode };
+  }
+
+  /**
+   * Disable (cancel) a subscription. Paystack requires BOTH the subscription code
+   * and the email token returned when the subscription was created.
+   */
+  async disableSubscription(subscriptionCode: string, emailToken: string): Promise<void> {
+    if (!this.isConfigured()) {
+      if (!this.canUseMock()) this.requireConfigured();
+      return;
+    }
+
+    const res = await callWithCircuitBreaker(
+      'paystack.subscription.disable',
+      () =>
+        axios.post(
+          `${PAYSTACK_BASE}/subscription/disable`,
+          { code: subscriptionCode, token: emailToken },
+          { headers: this.headers() },
+        ),
+      { provider: 'paystack', operationName: 'subscription_disable' },
+    );
+
+    if (!res.data?.status) {
+      throw new AppError(res.data?.message ?? 'Paystack subscription disable failed', 502);
+    }
+  }
+
+  /** Fetch the live state of a subscription (used for reconciliation). */
+  async fetchSubscription(subscriptionCode: string): Promise<Record<string, unknown> | null> {
+    if (!this.isConfigured()) {
+      if (!this.canUseMock()) this.requireConfigured();
+      return null;
+    }
+
+    const res = await callWithCircuitBreaker(
+      'paystack.subscription.fetch',
+      () =>
+        axios.get(`${PAYSTACK_BASE}/subscription/${encodeURIComponent(subscriptionCode)}`, {
+          headers: this.headers(),
+        }),
+      { provider: 'paystack', operationName: 'subscription_fetch' },
+    );
+    return (res.data?.data as Record<string, unknown>) ?? null;
   }
 
   verifyWebhookSignature(rawBody: Buffer | string, signature: string): WebhookVerifyResult {

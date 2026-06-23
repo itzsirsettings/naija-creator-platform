@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import type { PremiumTier } from '@prisma/client';
 import * as creatorRepo from '../repositories/creator.repository';
 import * as brandRepo from '../repositories/brand.repository';
@@ -6,7 +5,7 @@ import {
   PREMIUM_TIERS, BRAND_PREMIUM_TIERS, isPremiumActive, getEntitlements,
   getBrandEntitlements, type PaidTier,
 } from '../lib/premium';
-import { paymentProvider } from './payment.service';
+import * as subscriptionService from './subscription.service';
 import { AppError } from '../errors/AppError';
 
 export const getStatus = async (userId: string) => {
@@ -78,72 +77,30 @@ export const requestBrandUpgrade = async (userId: string, tier: PaidTier) => {
   };
 };
 
-// ─── Paystack subscription checkout ──────────────────────────────────────────
-const ANNUAL_DISCOUNT = 0.15;
+// ─── Paystack recurring subscriptions ────────────────────────────────────────
+// The full recurring lifecycle (plan resolution, enrollment, webhook-driven
+// renewals, cancellation) lives in subscription.service. These thin wrappers
+// preserve the existing route signatures.
 
-export const initiateSubscriptionPayment = async (
+export const initiateSubscriptionPayment = (
   userId: string,
   email: string,
   role: 'CREATOR' | 'BRAND',
   tier: PaidTier,
   billingPeriod: 'monthly' | 'annual',
   successUrl?: string,
-) => {
-  const tierInfo = role === 'BRAND' ? BRAND_PREMIUM_TIERS[tier] : PREMIUM_TIERS[tier];
-  const monthlyKobo = tierInfo.priceKobo;
-  const amountKobo = billingPeriod === 'annual'
-    ? Math.round(monthlyKobo * 12 * (1 - ANNUAL_DISCOUNT))
-    : monthlyKobo;
+) => subscriptionService.startSubscription(userId, email, role, tier, billingPeriod, successUrl);
 
-  const reference = `sub_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
-
-  const result = await paymentProvider.initializeTransaction({
-    email,
-    amountKobo,
-    reference,
-    callbackUrl: successUrl,
-    metadata: { type: 'subscription', userId, role, tier, billingPeriod },
-  });
-
-  return { authorizationUrl: result.authorizationUrl, reference, amountKobo, tier };
-};
-
-export const verifySubscriptionPayment = async (
+export const verifySubscriptionPayment = (
   userId: string,
   role: 'CREATOR' | 'BRAND',
   reference: string,
   tier: PaidTier,
   billingPeriod: 'monthly' | 'annual',
-) => {
-  const result = await paymentProvider.verifyTransaction(reference);
-  if (!result.data || result.data.status !== 'success') {
-    throw AppError.badRequest('Payment not confirmed by Paystack');
-  }
+) => subscriptionService.verifySubscription(userId, role, reference, tier, billingPeriod);
 
-  const daysToAdd = billingPeriod === 'annual' ? 365 : 30;
-  const until = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000);
+export const getSubscription = (userId: string, role: 'CREATOR' | 'BRAND') =>
+  subscriptionService.getSubscription(userId, role);
 
-  if (role === 'BRAND') {
-    const brand = await brandRepo.findBrandByUserId(userId);
-    if (!brand) throw AppError.forbidden('Brand not found');
-    await brandRepo.updateBrandPremium(brand.id, tier, until);
-    const info = BRAND_PREMIUM_TIERS[tier];
-    return {
-      status: 'activated',
-      message: `Welcome to ${info.name}! Your plan is active.`,
-      tier,
-      until: until.toISOString(),
-    };
-  } else {
-    const creator = await creatorRepo.findCreatorByUserId(userId);
-    if (!creator) throw AppError.forbidden('Creator not found');
-    await creatorRepo.updateCreatorPremium(creator.id, tier, until);
-    const info = PREMIUM_TIERS[tier];
-    return {
-      status: 'activated',
-      message: `Welcome to ${info.name}! Your plan is active.`,
-      tier,
-      until: until.toISOString(),
-    };
-  }
-};
+export const cancelSubscription = (userId: string, role: 'CREATOR' | 'BRAND') =>
+  subscriptionService.cancelSubscription(userId, role);

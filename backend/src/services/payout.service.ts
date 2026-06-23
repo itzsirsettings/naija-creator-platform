@@ -3,6 +3,7 @@ import * as paymentRepo from '../repositories/payment.repository';
 import * as offerRepo from '../repositories/offer.repository';
 import * as creatorRepo from '../repositories/creator.repository';
 import { paymentProvider } from './payment.service';
+import * as subscriptionService from './subscription.service';
 import { calculateSplitKobo } from '../utils/money';
 import { recordAudit } from './audit.service';
 import { AppError } from '../errors/AppError';
@@ -184,6 +185,16 @@ export const processPaystackWebhook = async (params: ProcessWebhookEventParams) 
   const { webhookId, event, data } = params;
 
   try {
+    // Subscription billing events (initial + recurring charges, lifecycle) are
+    // handled by the subscription service. A subscription charge.success has a
+    // `plan` object / subscription metadata and no offer Transaction, so it must
+    // be routed here BEFORE the offer-payment charge.success handler below.
+    if (subscriptionService.isSubscriptionEvent(event, data)) {
+      await subscriptionService.handleWebhook(event, data);
+      await paymentRepo.markWebhook(webhookId, 'PROCESSED');
+      return;
+    }
+
     if (event === 'charge.success') {
       const reference = data['reference'] as string | undefined;
       if (!reference) return;
