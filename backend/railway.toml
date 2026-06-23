@@ -1,10 +1,10 @@
 [build]
-builder = "NIXPACKS"
+builder = "RAILPACK"
 buildCommand = "npx prisma generate --schema src/prisma/schema.prisma && npm run build"
 
 [deploy]
 startCommand = "npm start"
-releaseCommand = "npx prisma migrate deploy --schema src/prisma/schema.prisma"
+preDeployCommand = "npx prisma migrate deploy --schema src/prisma/schema.prisma"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
