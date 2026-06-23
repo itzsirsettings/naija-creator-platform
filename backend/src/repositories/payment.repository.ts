@@ -369,3 +369,22 @@ export const listWebhookEvents = (limit = 50) =>
     orderBy: { createdAt: 'desc' },
     take: limit,
   });
+
+// Lean projection for the admin monitor — excludes the (potentially large) payload.
+export const listRecentWebhookEvents = (limit = 50) =>
+  prisma.providerWebhookEvent.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    select: {
+      id: true,
+      provider: true,
+      eventType: true,
+      status: true,
+      error: true,
+      createdAt: true,
+      processedAt: true,
+    },
+  });
+
+export const countWebhookEventsByStatus = () =>
+  prisma.providerWebhookEvent.groupBy({ by: ['status'], _count: { _all: true } });

@@ -4,8 +4,10 @@ import { useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/context/AuthContext"
 import { RouteFallback } from "@/components/RouteFallback"
-import AppShell from "@/AppShell"
+import { Toaster } from "@/components/ui/sonner"
 
+// The admin section renders its own full-bleed chrome (see WebhooksDashboard),
+// so it intentionally does NOT use the app's AppShell sidebar/topbar.
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, user } = useAuth()
   const router = useRouter()
@@ -24,5 +26,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <RouteFallback label="Checking access" />
   }
 
-  return <AppShell>{children}</AppShell>
+  return (
+    <>
+      {children}
+      <Toaster />
+    </>
+  )
 }

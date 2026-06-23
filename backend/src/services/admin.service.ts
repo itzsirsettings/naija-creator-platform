@@ -119,6 +119,28 @@ export const listAuditLog = () => adminRepo.listAuditLog();
 
 export const listWebhooks = () => paymentRepo.listWebhookEvents();
 
+// Recent webhook events + a status summary, for the admin delivery monitor.
+export const getRecentWebhooks = async (limit = 50) => {
+  const [events, grouped] = await Promise.all([
+    paymentRepo.listRecentWebhookEvents(limit),
+    paymentRepo.countWebhookEventsByStatus(),
+  ]);
+
+  const counts = grouped.reduce<Record<string, number>>((acc, row) => {
+    acc[row.status] = row._count._all;
+    return acc;
+  }, {});
+
+  const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
+  const processed = counts['PROCESSED'] ?? 0;
+  const failed = counts['FAILED'] ?? 0;
+  const duplicate = counts['DUPLICATE'] ?? 0;
+  const pending = (counts['RECEIVED'] ?? 0) + (counts['PROCESSING'] ?? 0);
+  const successRate = total > 0 ? Math.round((processed / total) * 100) : 0;
+
+  return { events, summary: { total, processed, failed, duplicate, pending, successRate } };
+};
+
 export const reviewKyc = async (
   targetUserId: string,
   status: KycStatus,

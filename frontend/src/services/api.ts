@@ -54,4 +54,36 @@ export const disputeOffer = (offerId: string) => api.put(`/offers/${offerId}/dis
 export const refundOffer = (offerId: string) => api.put(`/offers/${offerId}/refund`)
 export const completeOffer = (offerId: string) => api.put(`/offers/${offerId}/complete`)
 
+// ─── Admin: webhook delivery monitor ───────────────────────────────────────
+export type WebhookStatus = "RECEIVED" | "PROCESSING" | "PROCESSED" | "FAILED" | "DUPLICATE"
+
+export interface WebhookEvent {
+  id: string
+  provider: string
+  eventType: string
+  status: WebhookStatus
+  error: string | null
+  createdAt: string
+  processedAt: string | null
+}
+
+export interface WebhookSummary {
+  total: number
+  processed: number
+  failed: number
+  duplicate: number
+  pending: number
+  successRate: number
+}
+
+export interface RecentWebhooks {
+  events: WebhookEvent[]
+  summary: WebhookSummary
+}
+
+export async function adminListRecentWebhooks(limit = 50): Promise<RecentWebhooks> {
+  const res = await api.get("/admin/webhooks/recent", { params: { limit } })
+  return unwrap<RecentWebhooks>(res)
+}
+
 export default api

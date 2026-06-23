@@ -95,6 +95,14 @@ export default async function adminRoutes(fastify: FastifyInstance) {
     return reply.send(ok({ webhooks }));
   });
 
+  // GET /api/admin/webhooks/recent — delivery monitor (recent events + summary)
+  fastify.get('/webhooks/recent', async (request, reply) => {
+    const q = request.query as { limit?: string };
+    const limit = Math.min(Math.max(Number(q.limit) || 50, 1), 200);
+    const result = await adminService.getRecentWebhooks(limit);
+    return reply.send(ok(result));
+  });
+
   // GET /api/admin/creators/:id/reconcile
   fastify.get('/creators/:id/reconcile', { preHandler: [requirePermission('admin.finance')] }, async (request, reply) => {
     const { id } = request.params as { id: string };
