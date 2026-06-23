@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { ArrowUpRight, Check, Crown, Loader2 } from "lucide-react"
+import { AlertTriangle, ArrowUpRight, Check, Crown, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { useAuth } from "@/context/AuthContext"
 import {
@@ -11,11 +11,19 @@ import {
   initiateBrandSubscriptionPayment,
   verifySubscriptionPayment,
   verifyBrandSubscriptionPayment,
+  fetchSubscription,
+  fetchBrandSubscription,
+  cancelSubscription,
+  cancelBrandSubscription,
   type PremiumStatus,
+  type SubscriptionInfo,
   type BillingPeriod,
 } from "@/services/premium"
 import { PLANS, BRAND_PLANS } from "@/lib/tiers"
 import { formatNaira } from "@/utils/format"
+
+const formatDate = (iso: string): string =>
+  new Date(iso).toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric" })
 
 const ANNUAL_DISCOUNT = 0.15
 const TIER_RANK: Record<string, number> = { NONE: 0, STANDARD: 1, POPULAR: 2, PREMIUM: 3 }
@@ -31,21 +39,46 @@ export default function Premium() {
   const isBrand = user?.role === "brand"
   const plans = isBrand ? BRAND_PLANS : PLANS
   const [status, setStatus] = useState<PremiumStatus | null>(null)
+  const [subscription, setSubscription] = useState<SubscriptionInfo["subscription"]>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isAnnual, setIsAnnual] = useState(true)
   const [busyTier, setBusyTier] = useState<string | null>(null)
+  const [isCancelling, setIsCancelling] = useState(false)
   const verifiedRef = useRef(false)
 
   const load = useCallback(async () => {
     setIsLoading(true)
     try {
-      setStatus(await (isBrand ? fetchBrandPremiumStatus() : fetchPremiumStatus()))
+      const [premium, sub] = await Promise.all([
+        isBrand ? fetchBrandPremiumStatus() : fetchPremiumStatus(),
+        (isBrand ? fetchBrandSubscription() : fetchSubscription()).catch(() => null),
+      ])
+      setStatus(premium)
+      setSubscription(sub?.subscription ?? null)
     } catch {
       // zero-state - show catalogue with no active plan
     } finally {
       setIsLoading(false)
     }
   }, [isBrand])
+
+  const handleCancel = async () => {
+    if (!window.confirm("Cancel auto-renewal? You'll keep access until the end of your current billing period.")) {
+      return
+    }
+    setIsCancelling(true)
+    try {
+      const fn = isBrand ? cancelBrandSubscription : cancelSubscription
+      const res = await fn()
+      toast.success(res.message)
+      await load()
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { error?: string } } }
+      toast.error(e?.response?.data?.error || "Could not cancel your subscription")
+    } finally {
+      setIsCancelling(false)
+    }
+  }
 
   useEffect(() => { load() }, [load])
 
@@ -120,9 +153,26 @@ export default function Premium() {
         </p>
       </div>
 
+      {/* Dunning banner — renewal charge failed */}
+      {subscription?.status === "PAST_DUE" && (
+        <div className="flex items-start gap-3 rounded-xl border border-amber-500/40 bg-amber-50 p-4 text-sm dark:bg-amber-950/30">
+          <AlertTriangle className="mt-0.5 size-5 shrink-0 text-amber-600" />
+          <div>
+            <p className="font-semibold text-amber-800 dark:text-amber-300">
+              We couldn&apos;t process your last renewal payment.
+            </p>
+            <p className="mt-0.5 text-amber-700/90 dark:text-amber-300/80">
+              Paystack will retry automatically. To avoid losing access
+              {subscription.currentPeriodEnd ? ` after ${formatDate(subscription.currentPeriodEnd)}` : ""},
+              make sure your card has sufficient funds or re-subscribe below.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Active plan banner */}
       {active && (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-[#1A24B8]/30 bg-[#1A24B8]/5 p-4 text-sm">
+        <div className="flex flex-col gap-3 rounded-xl border border-[#1A24B8]/30 bg-[#1A24B8]/5 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
           <span>
             <span className="font-semibold text-[#1A24B8]">
               You&apos;re on the{" "}
@@ -130,19 +180,34 @@ export default function Premium() {
             </span>
             {status?.until && (
               <span className="ml-2 text-muted-foreground">
-                Active until{" "}
-                {new Date(status.until).toLocaleDateString("en-NG", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
-                .
+                {subscription?.cancelAtPeriodEnd ? "Access until" : "Renews"}{" "}
+                {formatDate(status.until)}
+                {subscription && !subscription.cancelAtPeriodEnd && subscription.hasPaymentMethod
+                  ? " (auto-renews)"
+                  : "."}
               </span>
             )}
           </span>
-          <span className="shrink-0 rounded-full bg-[#1A24B8] px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
-            Active
-          </span>
+          <div className="flex shrink-0 items-center gap-3">
+            {subscription?.cancelAtPeriodEnd ? (
+              <span className="rounded-full bg-muted px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                Cancels at period end
+              </span>
+            ) : (
+              <span className="rounded-full bg-[#1A24B8] px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+                Active
+              </span>
+            )}
+            {subscription?.hasPaymentMethod && !subscription.cancelAtPeriodEnd && (
+              <button
+                onClick={handleCancel}
+                disabled={isCancelling}
+                className="rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-destructive/40 hover:text-destructive disabled:opacity-60"
+              >
+                {isCancelling ? "Cancelling…" : "Cancel auto-renewal"}
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -352,7 +417,7 @@ export default function Premium() {
         {isAnnual
           ? "Annual plans are billed yearly at a 15% discount."
           : "Switch to annual billing to save 15%."}{" "}
-        Plans activate for 30 days; full payment integration coming soon.
+        Subscriptions renew automatically via Paystack — cancel anytime; access continues until the end of your billing period.
       </p>
     </div>
   )
