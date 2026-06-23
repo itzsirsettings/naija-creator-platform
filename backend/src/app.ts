@@ -40,7 +40,7 @@ const buildApp = async () => {
 
   await fastify.register(fastifyCompress, {
     global: true,
-    encodings: ['br', 'gzip', 'deflate'],
+    encodings: ['br', 'gzip', 'deflate'] as any,
   });
 
   await fastify.register(fastifyHelmet, {
