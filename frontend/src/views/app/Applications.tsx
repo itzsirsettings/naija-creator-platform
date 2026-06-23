@@ -56,7 +56,7 @@ function BrandApplications() {
                 <div className="flex min-w-0 items-start gap-3">
                   <Avatar className="size-10 border border-border">
                     {a.creator?.avatar && /^https?:\/\//i.test(a.creator.avatar) ? <AvatarImage src={a.creator.avatar} alt="" /> : null}
-                    <AvatarFallback className="bg-[#2f6bff]/10 text-[#2f6bff] font-semibold">{initials(a.creator?.name || "?")}</AvatarFallback>
+                    <AvatarFallback className="bg-[#0A0A9F]/10 text-[#0A0A9F] font-semibold">{initials(a.creator?.name || "?")}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">{a.creator?.name} <span className="text-muted-foreground">@{a.creator?.handle}</span></p>
@@ -68,7 +68,7 @@ function BrandApplications() {
               </div>
               {a.status === "PENDING" ? (
                 <div className="mt-3 flex gap-2">
-                  <button onClick={() => respond(a.id, "ACCEPTED")} className="rounded-lg bg-[#2f6bff] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1e40af]">Accept</button>
+                  <button onClick={() => respond(a.id, "ACCEPTED")} className="rounded-lg bg-[#0A0A9F] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#5E5AA8]">Accept</button>
                   <button onClick={() => respond(a.id, "DECLINED")} className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted">Decline</button>
                 </div>
               ) : null}

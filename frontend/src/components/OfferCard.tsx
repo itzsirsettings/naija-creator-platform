@@ -12,9 +12,9 @@ const STATUS_CONFIG: Record<string, {
   label: string; color: string; bg: string; dot: string
 }> = {
   PENDING:   { label: "Awaiting your response",         color: "text-amber-700 dark:text-amber-400",  bg: "bg-amber-500/10",   dot: "bg-amber-500"   },
-  ACCEPTED:  { label: "Accepted — awaiting escrow",     color: "text-[#0098f2]",                      bg: "bg-[#0098f2]/10",   dot: "bg-[#0098f2]"   },
+  ACCEPTED:  { label: "Accepted — awaiting escrow",     color: "text-[#5E5AA8]",                      bg: "bg-[#5E5AA8]/10",   dot: "bg-[#5E5AA8]"   },
   FUNDED:    { label: "Escrow funded, ready to start",  color: "text-[#5d9c06]",                      bg: "bg-[#5d9c06]/10",   dot: "bg-[#5d9c06]"   },
-  SUBMITTED: { label: "Work submitted for review",      color: "text-[#2f6bff]",                      bg: "bg-[#2f6bff]/10",   dot: "bg-[#2f6bff]"   },
+  SUBMITTED: { label: "Work submitted for review",      color: "text-[#0A0A9F]",                      bg: "bg-[#0A0A9F]/10",   dot: "bg-[#0A0A9F]"   },
   APPROVED:  { label: "Approved — payout queued",       color: "text-[#5d9c06]",                      bg: "bg-[#5d9c06]/10",   dot: "bg-[#5d9c06]"   },
   DISPUTED:  { label: "Under dispute",                  color: "text-red-700",                        bg: "bg-red-500/10",     dot: "bg-red-500"     },
   REJECTED:  { label: "Offer declined",                 color: "text-red-700",                        bg: "bg-red-500/10",     dot: "bg-red-500"     },
@@ -113,7 +113,7 @@ export default function OfferCard({
         </div>
         <div className="text-right">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-[#8d8d8d]">Amount</span>
-          <div className="font-runde text-[20px] font-semibold text-[#0098f2] leading-tight">{formatNaira(offer.amount)}</div>
+          <div className="font-runde text-[20px] font-semibold text-[#5E5AA8] leading-tight">{formatNaira(offer.amount)}</div>
         </div>
       </div>
 
@@ -186,7 +186,7 @@ export default function OfferCard({
                       <span className="text-[9.1px] font-semibold text-[#8d8d8d] uppercase tracking-wider block">Card Payout</span>
                       <span className="text-[12.7px] font-medium text-[#0f0f0f]">Withdraw via Paystack</span>
                     </div>
-                    <span className="text-[10.9px] font-semibold text-[#0098f2] bg-[#0098f2]/10 px-2.5 py-1 rounded-full shrink-0 ml-3">2.7% Fee</span>
+                    <span className="text-[10.9px] font-semibold text-[#5E5AA8] bg-[#5E5AA8]/10 px-2.5 py-1 rounded-full shrink-0 ml-3">2.7% Fee</span>
                   </div>
                   <p className="text-[10.9px] text-[#666] leading-relaxed">
                     Withdraw directly to your debit card. Funds are available instantly after approval.
@@ -201,7 +201,7 @@ export default function OfferCard({
                       <span className="text-[9.1px] font-semibold text-[#8d8d8d] uppercase tracking-wider block">Stablecoin</span>
                       <span className="text-[12.7px] font-medium text-[#0f0f0f]">USDC via Polygon</span>
                     </div>
-                    <span className="text-[10.9px] font-semibold text-[#2f6bff] bg-[#2f6bff]/10 px-2.5 py-1 rounded-full shrink-0 ml-3">1% Fee</span>
+                    <span className="text-[10.9px] font-semibold text-[#0A0A9F] bg-[#0A0A9F]/10 px-2.5 py-1 rounded-full shrink-0 ml-3">1% Fee</span>
                   </div>
                   <p className="text-[10.9px] text-[#666] leading-relaxed">
                     Receive payment in USDC on the Polygon network. Add your wallet address in Settings.
@@ -272,8 +272,8 @@ export default function OfferCard({
       {/* ── Status-only secondary info ── */}
       {offer.status === "SUBMITTED" && offer.deliverableUrl && (
         <div className="mt-4 rounded-xl border border-[#d8d8d8]/60 bg-[#fafafa] p-3 flex items-center gap-2">
-          <Send className="size-3.5 text-[#2f6bff] shrink-0" />
-          <a href={offer.deliverableUrl} target="_blank" rel="noopener noreferrer" className="text-[11px] font-medium text-[#2f6bff] hover:underline truncate">
+          <Send className="size-3.5 text-[#0A0A9F] shrink-0" />
+          <a href={offer.deliverableUrl} target="_blank" rel="noopener noreferrer" className="text-[11px] font-medium text-[#0A0A9F] hover:underline truncate">
             {offer.deliverableUrl}
           </a>
           {canBrandApprove && (

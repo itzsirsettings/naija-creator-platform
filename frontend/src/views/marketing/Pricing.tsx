@@ -44,10 +44,10 @@ export default function Pricing() {
       {/* HEADER */}
       <Section className="pt-24 pb-8 text-center">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#d8d8d8]/80 bg-white px-4 py-1.5 text-[12.7px] font-semibold text-[#0f0f0f] shadow-xs">
-          <Sparkles className="size-3.5 text-[#0098f2]" /> Trusted by Creators &amp; Brands
+          <Sparkles className="size-3.5 text-[#5E5AA8]" /> Trusted by Creators &amp; Brands
         </div>
         <h1 className="font-runde text-hero-sm sm:text-hero font-semibold text-[#0f0f0f] leading-none tracking-tight">
-          Choose Your <span className="text-[#0098f2]">Growth Plan</span>
+          Choose Your <span className="text-[#5E5AA8]">Growth Plan</span>
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-[14.6px] text-[#666] leading-relaxed">
           Scale your creator business with the tools, visibility, and trust features you need to win more deals and earn more revenue.
@@ -79,7 +79,7 @@ export default function Pricing() {
             className={`flex items-center gap-2 rounded-full px-5 py-2 text-[12.7px] font-semibold transition-all ${isAnnual ? "bg-[#0f0f0f] text-white" : "text-[#666] hover:text-[#0f0f0f]"}`}
           >
             Annually
-            <span className="rounded-full bg-[#0098f2]/15 px-2 py-0.5 text-[10px] font-bold text-[#0098f2]">Save 15%</span>
+            <span className="rounded-full bg-[#5E5AA8]/15 px-2 py-0.5 text-[10px] font-bold text-[#5E5AA8]">Save 15%</span>
           </button>
         </div>
       </Section>
@@ -137,7 +137,7 @@ export default function Pricing() {
                   <ul className="mt-8 space-y-4">
                     {plan.features.map((f) => (
                       <li key={f} className={`flex items-start gap-3 text-body-sm ${plan.featured ? "text-slate-200" : "text-[#0f0f0f]"}`}>
-                        <Check className={`mt-0.5 size-4 shrink-0 ${plan.featured ? "text-[#8B5CF6]" : "text-[#0098f2]"}`} />
+                        <Check className={`mt-0.5 size-4 shrink-0 ${plan.featured ? "text-[#8B5CF6]" : "text-[#5E5AA8]"}`} />
                         <span className="leading-tight">{f}</span>
                       </li>
                     ))}
@@ -179,7 +179,7 @@ export default function Pricing() {
               <tr className="border-b border-[#d8d8d8]/60 bg-[#fafafa]">
                 <th className="py-4 px-6 text-left font-semibold text-[#0f0f0f]">Feature</th>
                 <th className="py-4 px-6 text-center font-semibold text-[#0f0f0f]">Standard</th>
-                <th className="py-4 px-6 text-center font-semibold text-[#0098f2]">Popular</th>
+                <th className="py-4 px-6 text-center font-semibold text-[#5E5AA8]">Popular</th>
                 <th className="py-4 px-6 text-center font-semibold text-[#0f0f0f]">Premium</th>
               </tr>
             </thead>
@@ -188,13 +188,13 @@ export default function Pricing() {
                 <tr key={row.name} className="border-b border-[#d8d8d8]/60 last:border-0 hover:bg-[#fafafa] transition-colors">
                   <td className="py-4 px-6 font-medium">{row.name}</td>
                   <td className="py-4 px-6 text-center">
-                    {row.standard ? <Check className="mx-auto size-5 text-[#0098f2]" /> : <X className="mx-auto size-5 text-[#d8d8d8]" />}
+                    {row.standard ? <Check className="mx-auto size-5 text-[#5E5AA8]" /> : <X className="mx-auto size-5 text-[#d8d8d8]" />}
                   </td>
                   <td className="py-4 px-6 text-center">
-                    {row.popular ? <Check className="mx-auto size-5 text-[#0098f2]" /> : <X className="mx-auto size-5 text-[#d8d8d8]" />}
+                    {row.popular ? <Check className="mx-auto size-5 text-[#5E5AA8]" /> : <X className="mx-auto size-5 text-[#d8d8d8]" />}
                   </td>
                   <td className="py-4 px-6 text-center">
-                    {row.premium ? <Check className="mx-auto size-5 text-[#0098f2]" /> : <X className="mx-auto size-5 text-[#d8d8d8]" />}
+                    {row.premium ? <Check className="mx-auto size-5 text-[#5E5AA8]" /> : <X className="mx-auto size-5 text-[#d8d8d8]" />}
                   </td>
                 </tr>
               ))}
@@ -213,7 +213,7 @@ export default function Pricing() {
               <div key={i} className="border border-[#d8d8d8]/80 rounded-2xl px-6 py-1 bg-white hover:border-[#0f0f0f] transition-all">
                 <button
                   onClick={() => setExpandedFaq(isExpanded ? null : i)}
-                  className="w-full flex items-center justify-between py-4 text-left font-runde text-[14.6px] font-medium text-[#0f0f0f] hover:text-[#0098f2] transition-colors"
+                  className="w-full flex items-center justify-between py-4 text-left font-runde text-[14.6px] font-medium text-[#0f0f0f] hover:text-[#5E5AA8] transition-colors"
                 >
                   <span>{faq.q}</span>
                   {isExpanded ? <ChevronUp className="size-5 shrink-0 text-[#8d8d8d]" /> : <ChevronDown className="size-5 shrink-0 text-[#8d8d8d]" />}

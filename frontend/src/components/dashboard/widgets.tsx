@@ -20,13 +20,13 @@ interface StatTileProps {
 }
 
 export function StatTile({
-  label, value, delta, icon: Icon, tint = "bg-[#2f6bff]/10 text-[#2f6bff]", variant = "plain", positive = true,
+  label, value, delta, icon: Icon, tint = "bg-[#0A0A9F]/10 text-[#0A0A9F]", variant = "plain", positive = true,
 }: StatTileProps) {
   const filled = variant === "filled"
   return (
     <div
       className={`rounded-2xl border p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
-        filled ? "border-transparent bg-[#2f6bff] text-white" : "border-border bg-card text-card-foreground"
+        filled ? "border-transparent bg-[linear-gradient(135deg,#0A0A9F,#5E5AA8)] text-white" : "border-border bg-card text-card-foreground"
       }`}
     >
       <div className="flex items-center gap-2.5">
@@ -111,13 +111,13 @@ export function WeeklyBars({ data }: { data: WeeklyBar[] }) {
           <div key={i} className="flex h-full flex-1 flex-col items-center justify-end gap-2.5">
             <div className="relative flex w-full flex-1 items-end justify-center">
               {b.badge ? (
-                <span className="absolute -top-1 z-10 rounded-md bg-[#2f6bff] px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm">
+                <span className="absolute -top-1 z-10 rounded-md bg-[#0A0A9F] px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm">
                   {b.badge}
                 </span>
               ) : null}
               <div
                 className={`w-full max-w-[34px] rounded-t-md transition-all duration-300 ${
-                  b.highlight ? "bg-[#2f6bff]" : "bg-[#2f6bff]/15"
+                  b.highlight ? "bg-[#0A0A9F]" : "bg-[#0A0A9F]/15"
                 }`}
                 style={{ height: `${h}%` }}
               />
@@ -204,9 +204,9 @@ export function ProgressDonut({
 /* ------------------------------------------------------------------ */
 
 const STATUS_STYLES: Record<string, string> = {
-  completed: "bg-[#2f6bff]/10 text-[#2f6bff]",
-  approved: "bg-[#2f6bff]/10 text-[#2f6bff]",
-  paid: "bg-[#2f6bff]/10 text-[#2f6bff]",
+  completed: "bg-[#0A0A9F]/10 text-[#0A0A9F]",
+  approved: "bg-[#0A0A9F]/10 text-[#0A0A9F]",
+  paid: "bg-[#0A0A9F]/10 text-[#0A0A9F]",
   "in progress": "bg-amber-100 text-amber-700",
   accepted: "bg-amber-100 text-amber-700",
   pending: "bg-orange-100 text-orange-700",
@@ -228,7 +228,7 @@ export function StatusPill({ status }: { status: string }) {
 /* ------------------------------------------------------------------ */
 
 const TILE_PALETTE = [
-  "bg-[#2f6bff]/10 text-[#2f6bff]",
+  "bg-[#0A0A9F]/10 text-[#0A0A9F]",
   "bg-sky-100 text-sky-700",
   "bg-amber-100 text-amber-700",
   "bg-purple-100 text-purple-700",

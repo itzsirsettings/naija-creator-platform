@@ -129,14 +129,14 @@ export default function Agency() {
           {brands.map((b) => (
             <div key={b.id} className="flex items-start justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-sm">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#2f6bff]/10 text-xs font-bold text-[#2f6bff]">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#0A0A9F]/10 text-xs font-bold text-[#0A0A9F]">
                   {initials(b.name)}
                 </div>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold">{b.name}</p>
                   <p className="truncate text-xs text-muted-foreground">{b.industry}</p>
                   {b.website ? (
-                    <a href={b.website} target="_blank" rel="noreferrer" className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-[#0098f2] hover:underline">
+                    <a href={b.website} target="_blank" rel="noreferrer" className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-[#5E5AA8] hover:underline">
                       <Globe className="size-2.5" /> Website
                     </a>
                   ) : null}
@@ -161,7 +161,7 @@ function Header() {
   return (
     <div>
       <h1 className="flex items-center gap-2 font-heading text-2xl font-bold tracking-tight">
-        <Building2 className="size-6 text-[#2f6bff]" /> Agency Workspace
+        <Building2 className="size-6 text-[#0A0A9F]" /> Agency Workspace
       </h1>
       <p className="text-muted-foreground">Manage every brand your agency runs from one account.</p>
     </div>

@@ -172,9 +172,9 @@ export default function Premium() {
 
       {/* Active plan banner */}
       {active && (
-        <div className="flex flex-col gap-3 rounded-xl border border-[#2f6bff]/30 bg-[#2f6bff]/5 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-xl border border-[#0A0A9F]/30 bg-[#0A0A9F]/5 p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
           <span>
-            <span className="font-semibold text-[#2f6bff]">
+            <span className="font-semibold text-[#0A0A9F]">
               You&apos;re on the{" "}
               {currentTier.charAt(0) + currentTier.slice(1).toLowerCase()} plan.
             </span>
@@ -194,7 +194,7 @@ export default function Premium() {
                 Cancels at period end
               </span>
             ) : (
-              <span className="rounded-full bg-[#2f6bff] px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+              <span className="rounded-full bg-[#0A0A9F] px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
                 Active
               </span>
             )}
@@ -253,7 +253,7 @@ export default function Premium() {
             }`}
           >
             Annually
-            <span className="rounded-full bg-[#0098f2]/20 px-2 py-0.5 text-[9px] font-bold text-[#0098f2]">
+            <span className="rounded-full bg-[#5E5AA8]/20 px-2 py-0.5 text-[9px] font-bold text-[#5E5AA8]">
               Save 15%
             </span>
           </button>
@@ -357,7 +357,7 @@ export default function Premium() {
                 key={plan.tier}
                 className={`flex flex-col justify-between rounded-2xl border bg-card p-8 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md ${
                   isCurrent
-                    ? "ring-2 ring-[#2f6bff] border-[#2f6bff]/40"
+                    ? "ring-2 ring-[#0A0A9F] border-[#0A0A9F]/40"
                     : isAmber
                     ? "border-amber-500/40"
                     : "border-border"
@@ -384,7 +384,7 @@ export default function Premium() {
                       <li key={f} className="flex items-start gap-3 text-sm">
                         <Check
                           className={`mt-0.5 size-4 shrink-0 ${
-                            isAmber ? "text-amber-500" : "text-[#0098f2]"
+                            isAmber ? "text-amber-500" : "text-[#5E5AA8]"
                           }`}
                         />
                         <span className="leading-tight">{f}</span>

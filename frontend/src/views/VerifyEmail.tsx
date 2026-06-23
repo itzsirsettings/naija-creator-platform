@@ -51,8 +51,8 @@ export default function VerifyEmail() {
 
         <div className="space-y-4">
           {message && (
-            <div className={`rounded-xl px-4 py-4 ${verified ? "bg-[#5d9c06]/10" : "bg-[#0098f2]/10"}`}>
-              <p className={`text-[12.7px] font-medium font-runde text-center ${verified ? "text-[#5d9c06]" : "text-[#0098f2]"}`}>
+            <div className={`rounded-xl px-4 py-4 ${verified ? "bg-[#5d9c06]/10" : "bg-[#5E5AA8]/10"}`}>
+              <p className={`text-[12.7px] font-medium font-runde text-center ${verified ? "text-[#5d9c06]" : "text-[#5E5AA8]"}`}>
                 {message}
               </p>
             </div>

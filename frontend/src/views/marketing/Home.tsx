@@ -168,13 +168,13 @@ export default function Home() {
               </Link>
               <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 font-runde text-[12px] sm:text-[13px] text-[#666] uppercase tracking-wider">
                 <span className="flex items-center gap-1.5">
-                  <Check className="size-4 text-[#0098f2]" /> Create Content
+                  <Check className="size-4 text-[#5E5AA8]" /> Create Content
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Check className="size-4 text-[#5d9c06]" /> Post
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Check className="size-4 text-[#2f6bff]" /> Instant Payout
+                  <Check className="size-4 text-[#0A0A9F]" /> Instant Payout
                 </span>
               </div>
             </motion.div>
@@ -361,7 +361,7 @@ export default function Home() {
       {/* WHO IS THIS FOR */}
       <Section id="features" zIndex={6}>
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="font-runde text-[10px] font-medium text-[#0098f2] uppercase tracking-wider">
+          <span className="font-runde text-[10px] font-medium text-[#5E5AA8] uppercase tracking-wider">
             Who is this for?
           </span>
           <h2 className="mt-4 font-runde text-[24px] sm:text-[30px] lg:text-[34px] font-semibold text-[#0f0f0f] leading-[1.2] tracking-tight">
@@ -372,19 +372,19 @@ export default function Home() {
           {[
             {
               role: "Creator",
-              color: "#0098f2",
+              color: "#5E5AA8",
               description:
                 "Monetize your influence with transparent sponsorship offers from Nigeria's biggest brands. No more guessing what your content is worth.",
             },
             {
               role: "Brand",
-              color: "#2f6bff",
+              color: "#0A0A9F",
               description:
                 "Discover vetted creators, manage campaigns, and pay with confidence. Find the perfect match for your next campaign.",
             },
             {
               role: "Agency",
-              color: "#2f6bff",
+              color: "#0A0A9F",
               description:
                 "Manage multiple creator partnerships for your clients from a single dashboard. Track deliverables, approvals, and payments.",
             },
@@ -430,21 +430,21 @@ export default function Home() {
           {[
             {
               label: "Slow",
-              badgeColor: "bg-[#0098f2]/10 text-[#0098f2]",
+              badgeColor: "bg-[#5E5AA8]/10 text-[#5E5AA8]",
               text: "Manual negotiations take weeks",
               detail:
                 ": endless DMs, emails, and back-and-forth before you even agree on a price.",
             },
             {
               label: "Expensive",
-              badgeColor: "bg-[#2f6bff]/10 text-[#2f6bff]",
+              badgeColor: "bg-[#0A0A9F]/10 text-[#0A0A9F]",
               text: "Middlemen take 30% or more",
               detail:
                 ": agencies, managers, and platforms eat into your earnings before you see a dime.",
             },
             {
               label: "Opaque",
-              badgeColor: "bg-[#2f6bff]/10 text-[#2f6bff]",
+              badgeColor: "bg-[#0A0A9F]/10 text-[#0A0A9F]",
               text: "No pricing standards",
               detail:
                 ": every brand has a different rate. You never know if you're being paid fairly for your work.",
@@ -518,7 +518,7 @@ export default function Home() {
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-[#8d8d8d]">
                     Amount
                   </span>
-                  <div className="font-runde text-[20px] font-semibold text-[#0098f2]">
+                  <div className="font-runde text-[20px] font-semibold text-[#5E5AA8]">
                     ₦850,000
                   </div>
                 </div>
@@ -634,7 +634,7 @@ export default function Home() {
                             Visa •••• 4242
                           </span>
                         </div>
-                        <span className="text-[10.9px] font-semibold text-[#0098f2] bg-[#0098f2]/10 px-2.5 py-1 rounded-full">
+                        <span className="text-[10.9px] font-semibold text-[#5E5AA8] bg-[#5E5AA8]/10 px-2.5 py-1 rounded-full">
                           2.7% Fee
                         </span>
                       </div>
@@ -662,7 +662,7 @@ export default function Home() {
                             USDC via Polygon
                           </span>
                         </div>
-                        <span className="text-[10.9px] font-semibold text-[#2f6bff] bg-[#2f6bff]/10 px-2.5 py-1 rounded-full">
+                        <span className="text-[10.9px] font-semibold text-[#0A0A9F] bg-[#0A0A9F]/10 px-2.5 py-1 rounded-full">
                           1% Fee
                         </span>
                       </div>
@@ -698,7 +698,7 @@ export default function Home() {
       {/* FEATURE SHOWCASE */}
       <Section noBorderB={true} bg="bg-white" zIndex={9}>
         <div className="text-center px-6 py-16 border-b border-[#d8d8d8]/60 max-w-[1200px] mx-auto -mx-6">
-          <span className="font-runde text-[12px] font-medium text-[#2f6bff] uppercase tracking-wider">
+          <span className="font-runde text-[12px] font-medium text-[#0A0A9F] uppercase tracking-wider">
             Smarter sponsorship
           </span>
           <h2 className="mt-4 font-runde text-[24px] sm:text-[30px] lg:text-[34px] font-semibold text-[#0f0f0f] leading-none tracking-tight">
@@ -715,7 +715,7 @@ export default function Home() {
               quote:
                 '"I used to send 50 DMs to get one sponsorship. Now brands come to me."',
               author: "Chioma Okafor, Fashion Creator",
-              gradient: "from-[#0098f2] to-[#2f6bff]",
+              gradient: "from-[#5E5AA8] to-[#0A0A9F]",
               animClass: "animate-feature-float",
             },
             {
@@ -725,7 +725,7 @@ export default function Home() {
               quote:
                 '"Getting paid used to be the hardest part. With Tehilla, the money is there before I even start working."',
               author: "Emeka Nwosu, Tech Creator",
-              gradient: "from-[#5d9c06] to-[#0098f2]",
+              gradient: "from-[#5d9c06] to-[#5E5AA8]",
               animClass: "animate-feature-float-d1",
             },
             {
@@ -735,7 +735,7 @@ export default function Home() {
               quote:
                 '"The analytics dashboard showed me I was underselling myself by 40%. Now I negotiate with confidence."',
               author: "Zainab Bello, Beauty Creator",
-              gradient: "from-[#2f6bff] to-[#1e40af]",
+              gradient: "from-[#0A0A9F] to-[#5E5AA8]",
               animClass: "animate-feature-float-d2",
             },
             {
@@ -745,7 +745,7 @@ export default function Home() {
               quote:
                 '"I had money stuck in platforms for weeks. Tehilla pays me the same day. It changed my business."',
               author: "Segun Adeyemi, Video Creator",
-              gradient: "from-[#ff6363] to-[#2f6bff]",
+              gradient: "from-[#ff6363] to-[#0A0A9F]",
               animClass: "animate-feature-float-d3",
             },
           ].map((item, idx) => (
@@ -833,7 +833,7 @@ export default function Home() {
       <Section id="faq" stickyZ={11}>
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4 space-y-4">
-            <span className="font-runde text-[12px] font-medium text-[#0098f2] uppercase tracking-wider block">
+            <span className="font-runde text-[12px] font-medium text-[#5E5AA8] uppercase tracking-wider block">
               Have questions?
             </span>
             <h2 className="font-runde text-[24px] sm:text-[30px] lg:text-[34px] font-semibold text-[#0f0f0f] leading-none tracking-tight">
@@ -850,7 +850,7 @@ export default function Home() {
                 >
                   <button
                     onClick={() => toggleFaq(index)}
-                    className="w-full flex items-center justify-between py-3 text-left font-runde text-[16px] sm:text-[17px] font-medium text-[#0f0f0f] hover:text-[#0098f2] transition-colors"
+                    className="w-full flex items-center justify-between py-3 text-left font-runde text-[16px] sm:text-[17px] font-medium text-[#0f0f0f] hover:text-[#5E5AA8] transition-colors"
                   >
                     <span>{faq.question}</span>
                     {isExpanded ? (
@@ -961,7 +961,7 @@ export function SecuritySection() {
     <Section bg="bg-[#fafafa]">
       <div className="grid gap-12 md:grid-cols-3 items-start">
         <div className="space-y-4">
-          <span className="font-runde text-[10px] font-medium text-[#2f6bff] uppercase tracking-wider block">
+          <span className="font-runde text-[10px] font-medium text-[#0A0A9F] uppercase tracking-wider block">
             Security first
           </span>
           <h4 className="font-runde text-[18px] font-semibold text-[#0f0f0f]">
@@ -969,7 +969,7 @@ export function SecuritySection() {
           </h4>
         </div>
         <div className="rounded-2xl border border-[#d8d8d8]/60 bg-white p-8 space-y-4">
-          <div className="flex size-10 items-center justify-center rounded-full bg-[#2f6bff]/10 text-[#2f6bff]">
+          <div className="flex size-10 items-center justify-center rounded-full bg-[#0A0A9F]/10 text-[#0A0A9F]">
             <ShieldCheck className="size-5" />
           </div>
           <h6 className="font-runde text-[13px] font-semibold text-[#0f0f0f]">
@@ -981,7 +981,7 @@ export function SecuritySection() {
           </p>
         </div>
         <div className="rounded-2xl border border-[#d8d8d8]/60 bg-white p-8 space-y-4">
-          <div className="flex size-10 items-center justify-center rounded-full bg-[#2f6bff]/10 text-[#2f6bff]">
+          <div className="flex size-10 items-center justify-center rounded-full bg-[#0A0A9F]/10 text-[#0A0A9F]">
             <Lock className="size-5" />
           </div>
           <h6 className="font-runde text-[13px] font-semibold text-[#0f0f0f]">

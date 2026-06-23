@@ -170,14 +170,14 @@ function LockedInline({ title, body }: { title: string; body: string }) {
 function LockedCard({ title, body, cta }: { title: string; body: string; cta: string }) {
   return (
     <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border py-16 text-center">
-      <div className="flex size-12 items-center justify-center rounded-full bg-[#2f6bff]/10">
-        <Crown className="size-6 text-[#2f6bff]" />
+      <div className="flex size-12 items-center justify-center rounded-full bg-[#0A0A9F]/10">
+        <Crown className="size-6 text-[#0A0A9F]" />
       </div>
       <div>
         <p className="font-heading text-sm font-semibold">{title}</p>
         <p className="mx-auto mt-1 max-w-xs text-xs text-muted-foreground">{body}</p>
       </div>
-      <Link to="/app/premium" className="rounded-lg bg-[#2f6bff] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1e40af]">
+      <Link to="/app/premium" className="rounded-lg bg-[#0A0A9F] px-4 py-2 text-xs font-semibold text-white hover:bg-[#5E5AA8]">
         {cta}
       </Link>
     </div>

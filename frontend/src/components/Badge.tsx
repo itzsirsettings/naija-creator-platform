@@ -2,13 +2,13 @@ import { Badge as ShadcnBadge } from "@/components/ui/badge"
 
 const statusColors: Record<string, string> = {
   PENDING: "bg-amber-100 text-amber-700",
-  ACCEPTED: "bg-[#2f6bff]/10 text-[#2f6bff]",
-  FUNDED: "bg-[#2f6bff]/10 text-[#2f6bff]",
+  ACCEPTED: "bg-[#0A0A9F]/10 text-[#0A0A9F]",
+  FUNDED: "bg-[#0A0A9F]/10 text-[#0A0A9F]",
   SUBMITTED: "bg-orange-100 text-orange-700",
-  APPROVED: "bg-[#2f6bff]/10 text-[#2f6bff]",
+  APPROVED: "bg-[#0A0A9F]/10 text-[#0A0A9F]",
   DISPUTED: "bg-red-100 text-red-700",
   REJECTED: "bg-red-100 text-red-700",
-  COMPLETED: "bg-[#2f6bff]/10 text-[#2f6bff]",
+  COMPLETED: "bg-[#0A0A9F]/10 text-[#0A0A9F]",
   PROCESSING: "bg-purple-100 text-purple-700",
 }
 

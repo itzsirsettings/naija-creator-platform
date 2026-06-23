@@ -137,7 +137,7 @@ function BrandCampaigns() {
                     onClick={() => viewSuggestions(c.id)}
                     className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors ${
                       suggestFor === c.id
-                        ? "bg-[#2f6bff] text-white"
+                        ? "bg-[#0A0A9F] text-white"
                         : "border border-border hover:bg-muted"
                     }`}
                     title="AI-suggested creators for this campaign"
@@ -168,7 +168,7 @@ function BrandCampaigns() {
               ) : null}
               {suggestFor === c.id ? (
                 <div className="mt-3 border-t border-border pt-3">
-                  <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-[#2f6bff]">
+                  <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-[#0A0A9F]">
                     <Sparkles className="size-3.5" /> Suggested creators
                   </p>
                   {suggestLoading ? (
@@ -186,7 +186,7 @@ function BrandCampaigns() {
                           <span className="flex shrink-0 items-center gap-2">
                             <span className="text-xs text-muted-foreground">{s.followers.toLocaleString()}</span>
                             <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                              s.matchScore >= 70 ? "bg-[#5d9c06]/15 text-[#5d9c06]" : s.matchScore >= 40 ? "bg-[#0098f2]/15 text-[#0098f2]" : "bg-muted text-muted-foreground"
+                              s.matchScore >= 70 ? "bg-[#5d9c06]/15 text-[#5d9c06]" : s.matchScore >= 40 ? "bg-[#5E5AA8]/15 text-[#5E5AA8]" : "bg-muted text-muted-foreground"
                             }`}>{s.matchScore}%</span>
                           </span>
                         </div>
@@ -265,10 +265,10 @@ function CreatorCampaigns() {
       {/* Inbound offers always work - only outbound campaign applications need Popular+ */}
       {!canApply && (
         <div className="space-y-2">
-          <div className="flex items-start gap-3 rounded-xl border border-[#2f6bff]/30 bg-[#2f6bff]/5 p-4 text-sm">
-            <Crown className="mt-0.5 size-5 shrink-0 text-[#2f6bff]" />
+          <div className="flex items-start gap-3 rounded-xl border border-[#0A0A9F]/30 bg-[#0A0A9F]/5 p-4 text-sm">
+            <Crown className="mt-0.5 size-5 shrink-0 text-[#0A0A9F]" />
             <div className="flex-1">
-              <p className="font-semibold text-[#2f6bff]">Popular plan required to apply to campaigns</p>
+              <p className="font-semibold text-[#0A0A9F]">Popular plan required to apply to campaigns</p>
               <p className="mt-0.5 text-muted-foreground">
                 Brands can still send you direct offers from your profile.{" "}
                 Upgrade to Popular to also apply to posted campaigns, and get 24h early access before Standard creators see them.
@@ -276,7 +276,7 @@ function CreatorCampaigns() {
             </div>
             <Link
               to="/app/premium"
-              className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-[#2f6bff] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1e40af] transition-colors"
+              className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-[#0A0A9F] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#5E5AA8] transition-colors"
             >
               Upgrade <ArrowUpRight className="size-3" />
             </Link>
@@ -302,7 +302,7 @@ function CreatorCampaigns() {
                           c.matchScore >= 70
                             ? "bg-[#5d9c06]/15 text-[#5d9c06]"
                             : c.matchScore >= 40
-                            ? "bg-[#0098f2]/15 text-[#0098f2]"
+                            ? "bg-[#5E5AA8]/15 text-[#5E5AA8]"
                             : "bg-muted text-muted-foreground"
                         }`}
                         title="How well this campaign fits your profile"
@@ -325,7 +325,7 @@ function CreatorCampaigns() {
                 onClick={() => handleApply(c)}
                 className={`inline-flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold shadow-sm transition-colors ${
                   canApply
-                    ? "bg-[#2f6bff] text-white hover:bg-[#1e40af]"
+                    ? "bg-[#0A0A9F] text-white hover:bg-[#5E5AA8]"
                     : "border border-border bg-muted text-muted-foreground cursor-not-allowed"
                 }`}
               >

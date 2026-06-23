@@ -89,7 +89,7 @@ export default function MarketingLayout({
   };
 
   return (
-    <div className="min-h-screen bg-white text-[#0f0f0f] font-runde antialiased selection:bg-[#0098f2]/10 selection:text-[#0f0f0f]">
+    <div className="min-h-screen bg-white text-[#0f0f0f] font-runde antialiased selection:bg-[#5E5AA8]/10 selection:text-[#0f0f0f]">
       {/* NAVIGATION */}
       <header className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-3">
         <div className="flex items-center justify-between w-full max-w-[900px] px-4 py-1.5 rounded-full border border-[#d8d8d8]/80 bg-white/80 backdrop-blur-[6px] shadow-xs">
@@ -296,17 +296,17 @@ export default function MarketingLayout({
               </h6>
               <ul className="space-y-2.5 text-[12px] text-[#666]">
                 <li>
-                  <Link to="/for-creators" className="hover:text-[#0098f2] transition-colors">
+                  <Link to="/for-creators" className="hover:text-[#5E5AA8] transition-colors">
                     For Creators
                   </Link>
                 </li>
                 <li>
-                  <Link to="/for-brands" className="hover:text-[#0098f2] transition-colors">
+                  <Link to="/for-brands" className="hover:text-[#5E5AA8] transition-colors">
                     For Brands
                   </Link>
                 </li>
                 <li>
-                  <Link to="/pricing" className="hover:text-[#0098f2] transition-colors">
+                  <Link to="/pricing" className="hover:text-[#5E5AA8] transition-colors">
                     Pricing
                   </Link>
                 </li>
@@ -319,17 +319,17 @@ export default function MarketingLayout({
               </h6>
               <ul className="space-y-2.5 text-[12px] text-[#666]">
                 <li>
-                  <Link to="/about" className="hover:text-[#0098f2] transition-colors">
+                  <Link to="/about" className="hover:text-[#5E5AA8] transition-colors">
                     About
                   </Link>
                 </li>
                 <li>
-                  <a href="mailto:hello@tehilla.work" className="hover:text-[#0098f2] transition-colors">
+                  <a href="mailto:hello@tehilla.work" className="hover:text-[#5E5AA8] transition-colors">
                     Contact
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:support@tehilla.work" className="hover:text-[#0098f2] transition-colors">
+                  <a href="mailto:support@tehilla.work" className="hover:text-[#5E5AA8] transition-colors">
                     Support
                   </a>
                 </li>
@@ -342,12 +342,12 @@ export default function MarketingLayout({
               </h6>
               <ul className="space-y-2.5 text-[12px] text-[#666]">
                 <li>
-                  <Link to="/legal" className="hover:text-[#0098f2] transition-colors">
+                  <Link to="/legal" className="hover:text-[#5E5AA8] transition-colors">
                     Terms of Service
                   </Link>
                 </li>
                 <li>
-                  <Link to="/legal" className="hover:text-[#0098f2] transition-colors">
+                  <Link to="/legal" className="hover:text-[#5E5AA8] transition-colors">
                     Privacy Policy
                   </Link>
                 </li>

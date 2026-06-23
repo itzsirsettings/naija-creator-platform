@@ -139,7 +139,7 @@ export default function Home() {
   return (
     <div className="space-y-6">
       {/* Hero - the single bold, premium moment of the app */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#2f6bff] to-[#1e40af] p-6 text-white shadow-sm sm:p-8">
+      <section className="relative overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#0A0A9F,#5E5AA8)] p-6 text-white shadow-sm sm:p-8">
         <div className="pointer-events-none absolute -top-16 -right-10 size-56 rounded-full bg-white/15 blur-3xl" aria-hidden="true" />
         <div className="pointer-events-none absolute -bottom-24 right-32 size-44 rounded-full bg-white/10 blur-3xl" aria-hidden="true" />
         <div className="relative max-w-2xl">
@@ -183,7 +183,7 @@ export default function Home() {
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-heading text-[15px] font-semibold text-foreground">Recent activity</h2>
-            <Link to={isBrand ? "/offers" : "/payments"} className="text-[11px] font-semibold uppercase tracking-wide text-[#2f6bff] hover:underline">
+            <Link to={isBrand ? "/offers" : "/payments"} className="text-[11px] font-semibold uppercase tracking-wide text-[#0A0A9F] hover:underline">
               View all
             </Link>
           </div>
@@ -225,7 +225,7 @@ export default function Home() {
                   to={a.to}
                   className="group flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-muted"
                 >
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#2f6bff]/10 text-[#2f6bff]">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#0A0A9F]/10 text-[#0A0A9F]">
                     <Icon className="size-4" />
                   </span>
                   <div className="min-w-0 flex-1">

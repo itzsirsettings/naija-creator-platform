@@ -144,7 +144,7 @@ function Header() {
   return (
     <div>
       <h1 className="flex items-center gap-2 font-heading text-2xl font-bold tracking-tight">
-        <FileText className="size-6 text-[#2f6bff]" /> Proposal Templates
+        <FileText className="size-6 text-[#0A0A9F]" /> Proposal Templates
       </h1>
       <p className="text-muted-foreground">Reusable pitches you can drop into any campaign application.</p>
     </div>

@@ -70,7 +70,7 @@ export default function Legal() {
 
           <p className="text-body-sm text-[#666]">
             Questions about these policies? Contact us at{" "}
-            <Link to="mailto:support@tehilla.work" className="text-[#0098f2] underline underline-offset-2 hover:text-[#0098f2]/80 transition-colors">
+            <Link to="mailto:support@tehilla.work" className="text-[#5E5AA8] underline underline-offset-2 hover:text-[#5E5AA8]/80 transition-colors">
               support@tehilla.work
             </Link>
           </p>

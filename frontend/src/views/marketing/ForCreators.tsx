@@ -9,7 +9,7 @@ const benefits = [
     icon: Wallet,
     title: "Monetize Your Influence",
     description: "Earn from brand sponsorships with transparent pricing and fair offers. No more guessing what your content is worth.",
-    color: "#0098f2",
+    color: "#5E5AA8",
   },
   {
     icon: Shield,
@@ -21,7 +21,7 @@ const benefits = [
     icon: Handshake,
     title: "Direct Brand Deals",
     description: "Work directly with Africa's biggest brands. Clear briefs, fair deadlines, and escrowed payments every time.",
-    color: "#2f6bff",
+    color: "#0A0A9F",
   },
 ]
 
@@ -55,7 +55,7 @@ export default function ForCreators() {
       <Section className="pt-24 pb-16 text-center">
         <div className="mx-auto max-w-3xl">
           <h1 className="font-runde text-hero-sm sm:text-hero font-semibold text-[#0f0f0f] leading-none tracking-tight">
-            Turn Your Content Into <span className="text-[#0098f2]">a Career</span>
+            Turn Your Content Into <span className="text-[#5E5AA8]">a Career</span>
           </h1>
           <p className="mt-6 text-[16.4px] sm:text-body-lg text-[#666] leading-relaxed max-w-2xl mx-auto">
             Stop chasing invoices and start doing your best work. Tehilla connects you with brands that respect your craft and pay on time.
@@ -74,7 +74,7 @@ export default function ForCreators() {
       {/* BENEFITS */}
       <Section>
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="font-runde text-[11.8px] font-medium text-[#0098f2] uppercase tracking-wider">
+          <span className="font-runde text-[11.8px] font-medium text-[#5E5AA8] uppercase tracking-wider">
             Why Tehilla
           </span>
           <h2 className="mt-4 font-runde text-hero-sm font-semibold text-[#0f0f0f] leading-tight tracking-tight">
@@ -101,7 +101,7 @@ export default function ForCreators() {
       {/* HOW IT WORKS */}
       <Section bg="bg-[#fafafa]">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="font-runde text-[11.8px] font-medium text-[#2f6bff] uppercase tracking-wider">
+          <span className="font-runde text-[11.8px] font-medium text-[#0A0A9F] uppercase tracking-wider">
             How it works
           </span>
           <h2 className="mt-4 font-runde text-hero-sm font-semibold text-[#0f0f0f] leading-tight tracking-tight">
@@ -116,7 +116,7 @@ export default function ForCreators() {
                 <div className="flex size-12 items-center justify-center rounded-xl bg-[#f0f0f0] text-[#0f0f0f]">
                   <Icon className="size-5" />
                 </div>
-                <div className="mt-6 text-[10.9px] font-semibold text-[#0098f2] uppercase tracking-wider">Step {i + 1}</div>
+                <div className="mt-6 text-[10.9px] font-semibold text-[#5E5AA8] uppercase tracking-wider">Step {i + 1}</div>
                 <h3 className="mt-1 font-runde text-[16.4px] font-semibold text-[#0f0f0f] leading-tight">{step.title}</h3>
                 <p className="mt-3 text-body-sm text-[#666] leading-relaxed">{step.description}</p>
               </div>

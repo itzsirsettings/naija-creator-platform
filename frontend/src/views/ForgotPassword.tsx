@@ -74,7 +74,7 @@ export default function ForgotPassword() {
             </button>
 
             <div className="text-center">
-              <Link to="/login" className="inline-block py-3 text-[11.8px] text-[#666] hover:text-[#0098f2] transition-colors font-runde">
+              <Link to="/login" className="inline-block py-3 text-[11.8px] text-[#666] hover:text-[#5E5AA8] transition-colors font-runde">
                 Back to login
               </Link>
             </div>

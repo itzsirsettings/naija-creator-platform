@@ -11,9 +11,9 @@ import { Toaster } from "@/components/ui/sonner"
 // a floating inset panel, matching the admin dashboard's design language.
 export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <SidebarProvider className="bg-[radial-gradient(130%_130%_at_75%_-12%,#5b8def_0%,#2f5fd0_44%,#16317f_100%)]">
+    <SidebarProvider className="bg-[radial-gradient(130%_130%_at_75%_-12%,#5E5AA8_0%,#0A0A9F_44%,#1A1B2E_100%)]">
       <AppSidebar />
-      <SidebarInset className="bg-[#f4f7fb] dark:bg-background">
+      <SidebarInset className="bg-[linear-gradient(135deg,#F4F4F7,#EDEAF6)] dark:bg-none dark:bg-background">
         <header className="flex h-14 items-center gap-2 border-b border-border/60 bg-transparent px-4 sm:gap-4 sm:px-6">
           <SidebarTrigger className="border border-border bg-card rounded-lg shadow-sm hover:bg-muted size-8 shrink-0" />
           <Navbar />

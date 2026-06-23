@@ -9,7 +9,7 @@ const values = [
     icon: Heart,
     title: "Creator-First",
     description: "Every decision we make starts with the question: does this benefit the creator?",
-    color: "#0098f2",
+    color: "#5E5AA8",
   },
   {
     icon: Shield,
@@ -21,13 +21,13 @@ const values = [
     icon: Lightbulb,
     title: "Innovation",
     description: "We build tools that make brand collaborations smarter, faster, and more rewarding.",
-    color: "#2f6bff",
+    color: "#0A0A9F",
   },
   {
     icon: Target,
     title: "African Excellence",
     description: "Proudly built for the African market, solving real problems for local creators and brands.",
-    color: "#2f6bff",
+    color: "#0A0A9F",
   },
 ]
 
@@ -44,7 +44,7 @@ export default function About() {
       <Section className="pt-24 pb-16 text-center">
         <div className="mx-auto max-w-3xl">
           <h1 className="font-runde text-hero-sm sm:text-hero font-semibold text-[#0f0f0f] leading-none tracking-tight">
-            Building the Future of <span className="text-[#0098f2]">Creator Commerce</span> in Africa
+            Building the Future of <span className="text-[#5E5AA8]">Creator Commerce</span> in Africa
           </h1>
           <p className="mt-6 text-[16.4px] sm:text-body-lg text-[#666] leading-relaxed max-w-2xl mx-auto">
             We believe African creators deserve a platform that pays them fairly, connects them with top brands, and respects their craft.
@@ -55,7 +55,7 @@ export default function About() {
       {/* MISSION */}
       <Section bg="bg-[#fafafa]" className="text-center">
         <div className="mx-auto max-w-3xl">
-          <span className="font-runde text-[11.8px] font-medium text-[#0098f2] uppercase tracking-wider">
+          <span className="font-runde text-[11.8px] font-medium text-[#5E5AA8] uppercase tracking-wider">
             Our Mission
           </span>
           <h2 className="mt-4 font-runde text-hero-sm font-semibold text-[#0f0f0f] leading-tight tracking-tight">
@@ -75,7 +75,7 @@ export default function About() {
       {/* VALUES */}
       <Section>
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="font-runde text-[11.8px] font-medium text-[#2f6bff] uppercase tracking-wider">
+          <span className="font-runde text-[11.8px] font-medium text-[#0A0A9F] uppercase tracking-wider">
             Our Values
           </span>
           <h2 className="mt-4 font-runde text-hero-sm font-semibold text-[#0f0f0f] leading-tight tracking-tight">

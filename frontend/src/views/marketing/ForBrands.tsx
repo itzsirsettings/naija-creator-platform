@@ -9,13 +9,13 @@ const features = [
     icon: Search,
     title: "Creator Discovery",
     description: "Find the perfect match for your campaign. Filter by niche, audience size, engagement rate, and location.",
-    color: "#0098f2",
+    color: "#5E5AA8",
   },
   {
     icon: BarChart3,
     title: "Campaign Management",
     description: "Send briefs, track deliverables, and manage multiple creator partnerships from a single dashboard.",
-    color: "#2f6bff",
+    color: "#0A0A9F",
   },
   {
     icon: Shield,
@@ -27,7 +27,7 @@ const features = [
     icon: Users,
     title: "Analytics & Reporting",
     description: "Measure campaign performance, track ROI, and get actionable insights for your next partnership.",
-    color: "#2f6bff",
+    color: "#0A0A9F",
   },
 ]
 
@@ -51,7 +51,7 @@ export default function ForBrands() {
       <Section className="pt-24 pb-16 text-center">
         <div className="mx-auto max-w-3xl">
           <h1 className="font-runde text-hero-sm sm:text-hero font-semibold text-[#0f0f0f] leading-none tracking-tight">
-            Find Your <span className="text-[#0098f2]">Perfect Creator</span> Match
+            Find Your <span className="text-[#5E5AA8]">Perfect Creator</span> Match
           </h1>
           <p className="mt-6 text-[16.4px] sm:text-body-lg text-[#666] leading-relaxed max-w-2xl mx-auto">
             Discover vetted Nigerian creators, manage campaigns effortlessly, and pay with confidence, all from one platform.
@@ -76,7 +76,7 @@ export default function ForBrands() {
       {/* FEATURES */}
       <Section>
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="font-runde text-[11.8px] font-medium text-[#0098f2] uppercase tracking-wider">
+          <span className="font-runde text-[11.8px] font-medium text-[#5E5AA8] uppercase tracking-wider">
             Brand tools
           </span>
           <h2 className="mt-4 font-runde text-hero-sm font-semibold text-[#0f0f0f] leading-tight tracking-tight">
@@ -103,7 +103,7 @@ export default function ForBrands() {
       {/* TESTIMONIALS */}
       <Section bg="bg-[#fafafa]">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="font-runde text-[11.8px] font-medium text-[#2f6bff] uppercase tracking-wider">
+          <span className="font-runde text-[11.8px] font-medium text-[#0A0A9F] uppercase tracking-wider">
             Testimonials
           </span>
           <h2 className="mt-4 font-runde text-hero-sm font-semibold text-[#0f0f0f] leading-tight tracking-tight">

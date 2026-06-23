@@ -76,7 +76,7 @@ export default function BrandDashboard() {
         <div className="flex items-center gap-2.5">
           <Link
             to="/discover"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#2f6bff] px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#1e40af]"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[#0A0A9F] px-4 py-2.5 text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-[#5E5AA8]"
           >
             <Plus className="size-4 stroke-[3]" /> Find Creators
           </Link>
@@ -94,7 +94,7 @@ export default function BrandDashboard() {
         <StatTile variant="filled" icon={Megaphone} label="Active Campaigns" value={active} delta="live" />
         <StatTile icon={Wallet} tint="bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400" label="Total Spent" value={formatNaira(totalSpent)} />
         <StatTile icon={Clock} tint="bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400" label="Pending Review" value={pending} delta={pending > 0 ? "action" : "clear"} positive={pending === 0} />
-        <StatTile icon={CheckCircle2} tint="bg-[#2f6bff]/10 text-[#2f6bff]" label="Completed" value={completed} />
+        <StatTile icon={CheckCircle2} tint="bg-[#0A0A9F]/10 text-[#0A0A9F]" label="Completed" value={completed} />
       </div>
 
       {/* Row 2 */}
@@ -103,7 +103,7 @@ export default function BrandDashboard() {
           <PanelHeading
             title="Creator Collaboration"
             action={
-              <Link to="/discover" className="text-[11px] font-semibold uppercase tracking-wide text-[#2f6bff] hover:underline">
+              <Link to="/discover" className="text-[11px] font-semibold uppercase tracking-wide text-[#0A0A9F] hover:underline">
                 Find more
               </Link>
             }
@@ -115,7 +115,7 @@ export default function BrandDashboard() {
                   key={o.id}
                   className="flex items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-muted"
                 >
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#2f6bff] text-[12px] font-semibold text-white">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#0A0A9F] text-[12px] font-semibold text-white">
                     {o.creatorName.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -137,9 +137,9 @@ export default function BrandDashboard() {
             centerValue={`${completionPct}%`}
             centerLabel="Completed"
             segments={[
-              { label: "Completed", value: completed, color: "#2f6bff" },
-              { label: "Active", value: active, color: "#1e40af" },
-              { label: "Pending", value: pending, color: "#C8CCE6" },
+              { label: "Completed", value: completed, color: "#0A0A9F" },
+              { label: "Active", value: active, color: "#5E5AA8" },
+              { label: "Pending", value: pending, color: "#B8ABD4" },
             ]}
           />
         </Panel>
@@ -147,7 +147,7 @@ export default function BrandDashboard() {
         {/* Budget card */}
         <div className="lg:col-span-3 flex flex-col justify-between rounded-2xl border border-border bg-card p-5 shadow-sm">
           <div>
-            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-[#2f6bff]">
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-[#0A0A9F]">
               <Wallet className="size-4" /> Campaign Budget
             </div>
             <div className="mt-5 font-heading text-[32px] font-semibold tracking-tight tabular-nums text-foreground">
@@ -160,7 +160,7 @@ export default function BrandDashboard() {
           <div className="mt-6 flex gap-2.5">
             <Link
               to="/discover"
-              className="flex-1 rounded-lg bg-[#2f6bff] py-2.5 text-center text-[12.5px] font-semibold text-white shadow-sm transition-colors hover:bg-[#1e40af]"
+              className="flex-1 rounded-lg bg-[#0A0A9F] py-2.5 text-center text-[12.5px] font-semibold text-white shadow-sm transition-colors hover:bg-[#5E5AA8]"
             >
               New campaign
             </Link>

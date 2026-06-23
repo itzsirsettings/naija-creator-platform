@@ -145,7 +145,7 @@ export default function Login() {
           </button>
 
           <div className="text-center">
-            <Link to="/forgot-password" className="inline-block py-3 text-[11.8px] text-[#666] hover:text-[#0098f2] transition-colors font-runde">
+            <Link to="/forgot-password" className="inline-block py-3 text-[11.8px] text-[#666] hover:text-[#5E5AA8] transition-colors font-runde">
               Forgot password?
             </Link>
           </div>
@@ -154,7 +154,7 @@ export default function Login() {
         <div className="mt-6 pt-6 border-t border-[#d8d8d8]/60 text-center">
           <p className="text-[11.8px] text-[#666] font-runde">
             New to Tehilla?{" "}
-            <Link to="/register" className="text-[#0098f2] hover:text-[#0098f2]/80 transition-colors font-medium">
+            <Link to="/register" className="text-[#5E5AA8] hover:text-[#5E5AA8]/80 transition-colors font-medium">
               Create an account
             </Link>
           </p>
