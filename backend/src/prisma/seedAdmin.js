@@ -1,7 +1,10 @@
 require('dotenv').config();
 
 const bcrypt = require('bcryptjs');
-const prisma = require('../lib/prisma');
+// lib/prisma uses `export default`, which tsx exposes to CommonJS `require` as
+// `{ default: prisma }`. Unwrap it so `prisma.user` resolves to the real client.
+const prismaModule = require('../lib/prisma');
+const prisma = prismaModule.default || prismaModule;
 
 const fail = (message) => {
   console.error(message);

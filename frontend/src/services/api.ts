@@ -49,6 +49,38 @@ export async function adminListOffers(status?: string): Promise<AdminOffer[]> {
   return unwrap<{ offers: AdminOffer[] }>(res).offers ?? []
 }
 
+// ─── Admin: real platform overview + users ─────────────────────────────────
+export interface AdminOverview {
+  totalUsers: number
+  creators: number
+  brands: number
+  pendingKyc: number
+  disputedOffers: number
+  activeOffers: number
+}
+
+export async function adminOverview(): Promise<AdminOverview> {
+  const res = await api.get("/admin/overview")
+  return unwrap<AdminOverview>(res)
+}
+
+export interface AdminUser {
+  id: string
+  email: string
+  role: "CREATOR" | "BRAND" | "ADMIN"
+  emailVerifiedAt: string | null
+  suspendedAt: string | null
+  kycStatus: "NONE" | "PENDING" | "VERIFIED" | "REJECTED"
+  createdAt: string
+  creator?: { id: string; name: string; isVerified: boolean } | null
+  brand?: { id: string; name: string } | null
+}
+
+export async function adminListUsers(params?: { role?: string; email?: string; limit?: number }): Promise<AdminUser[]> {
+  const res = await api.get("/admin/users", { params })
+  return unwrap<{ users: AdminUser[] }>(res).users ?? []
+}
+
 // Offer lifecycle actions an admin can drive (the state machine enforces validity).
 export const disputeOffer = (offerId: string) => api.put(`/offers/${offerId}/dispute`)
 export const refundOffer = (offerId: string) => api.put(`/offers/${offerId}/refund`)

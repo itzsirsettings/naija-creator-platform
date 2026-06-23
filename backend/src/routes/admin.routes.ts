@@ -12,6 +12,12 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.addHook('preHandler', authenticate);
   fastify.addHook('preHandler', requireRole('ADMIN'));
 
+  // GET /api/admin/overview — real platform counts
+  fastify.get('/overview', async (_request, reply) => {
+    const overview = await adminService.getOverview();
+    return reply.send(ok(overview));
+  });
+
   // GET /api/admin/users
   fastify.get('/users', async (request, reply) => {
     const q = request.query as { role?: string; email?: string; limit?: string; cursor?: string };

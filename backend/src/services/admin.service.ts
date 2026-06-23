@@ -13,6 +13,19 @@ import logger from '../lib/logger';
 
 export const listUsers = (params: adminRepo.ListUsersParams) => adminRepo.listUsers(params);
 
+// Real platform counts for the admin overview (no hardcoded figures).
+export const getOverview = async () => {
+  const [totalUsers, creators, brands, pendingKyc, disputedOffers, activeOffers] = await Promise.all([
+    prisma.user.count(),
+    prisma.user.count({ where: { role: 'CREATOR' } }),
+    prisma.user.count({ where: { role: 'BRAND' } }),
+    prisma.user.count({ where: { kycStatus: 'PENDING' } }),
+    prisma.offer.count({ where: { status: 'DISPUTED' } }),
+    prisma.offer.count({ where: { status: { in: ['ACCEPTED', 'FUNDED', 'SUBMITTED', 'APPROVED'] } } }),
+  ]);
+  return { totalUsers, creators, brands, pendingKyc, disputedOffers, activeOffers };
+};
+
 export const suspendUser = async (
   targetId: string,
   actorId: string,
