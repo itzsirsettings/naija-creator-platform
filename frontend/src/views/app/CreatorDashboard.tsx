@@ -98,8 +98,8 @@ export default function CreatorDashboard() {
       {/* Stats */}
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile variant="filled" icon={Handshake} label="Active Offers" value={active} delta="live" />
-        <StatTile icon={Wallet} tint="bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400" label="Earnings" value={formatNaira(earnings)} />
-        <StatTile icon={Clock} tint="bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400" label="Pending" value={pending} delta={pending > 0 ? "review" : "clear"} positive={pending === 0} />
+        <StatTile icon={Wallet} tint="bg-[#12B76A]/12 text-[#12B76A]" label="Earnings" value={formatNaira(earnings)} />
+        <StatTile icon={Clock} tint="bg-[#F59E0B]/15 text-[#F59E0B]" label="Pending" value={pending} delta={pending > 0 ? "review" : "clear"} positive={pending === 0} />
         <StatTile icon={CheckCircle2} tint="bg-[#0A0A9F]/10 text-[#0A0A9F]" label="Completed" value={completed} />
       </div>
 

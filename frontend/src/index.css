@@ -148,6 +148,15 @@
     --accent-red: #ff6363;
     --accent-orange: #aa2d00;
 
+    /* ── Tehilla semantic palette ──────────────────────────────────────
+       Brand-harmonized status colors that sit alongside the blue/lilac core.
+         Earnings  → green   #12B76A
+         Pending   → amber   #F59E0B
+         Errors    → rose    #F43F5E                                        */
+    --semantic-earnings: #12B76A;
+    --semantic-pending: #F59E0B;
+    --semantic-error: #F43F5E;
+
     --font-heading: 'Montserrat', system-ui, sans-serif;
     --font-body: 'Ubuntu Sans', system-ui, sans-serif;
     --font-mono: 'SF Mono', 'JetBrains Mono', monospace;

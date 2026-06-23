@@ -12,7 +12,7 @@ interface StatTileProps {
   value: string | number
   delta?: string
   icon?: LucideIcon
-  /** Icon-chip color classes, e.g. "bg-emerald-100 text-emerald-600". */
+  /** Icon-chip color classes, e.g. "bg-[#12B76A]/12 text-[#12B76A]" (earnings green). */
   tint?: string
   variant?: "filled" | "plain"
   /** Controls the delta badge color. */
@@ -47,8 +47,8 @@ export function StatTile({
               filled
                 ? "bg-white/15 text-white"
                 : positive
-                ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400"
-                : "bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400"
+                ? "bg-[#12B76A]/12 text-[#12B76A]"
+                : "bg-[#F43F5E]/12 text-[#F43F5E]"
             }`}
           >
             {delta}
@@ -207,10 +207,10 @@ const STATUS_STYLES: Record<string, string> = {
   completed: "bg-[#0A0A9F]/10 text-[#0A0A9F]",
   approved: "bg-[#0A0A9F]/10 text-[#0A0A9F]",
   paid: "bg-[#0A0A9F]/10 text-[#0A0A9F]",
-  "in progress": "bg-amber-100 text-amber-700",
-  accepted: "bg-amber-100 text-amber-700",
-  pending: "bg-orange-100 text-orange-700",
-  rejected: "bg-rose-100 text-rose-700",
+  "in progress": "bg-[#F59E0B]/15 text-[#F59E0B]",
+  accepted: "bg-[#F59E0B]/15 text-[#F59E0B]",
+  pending: "bg-[#F59E0B]/15 text-[#F59E0B]",
+  rejected: "bg-[#F43F5E]/12 text-[#F43F5E]",
 }
 
 export function StatusPill({ status }: { status: string }) {
