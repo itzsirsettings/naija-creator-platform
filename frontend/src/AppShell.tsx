@@ -4,7 +4,6 @@ import { Suspense } from "react"
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/Sidebar"
 import Navbar from "@/components/Navbar"
-import { RouteFallback } from "@/components/RouteFallback"
 import { Toaster } from "@/components/ui/sonner"
 
 // Shared app chrome — a blue gradient frame with the sidebar + content sitting in
@@ -19,7 +18,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <Navbar />
         </header>
         <div className="min-w-0 flex-1 overflow-auto p-4 sm:p-6">
-          <Suspense fallback={<RouteFallback label="Loading" />}>
+          <Suspense fallback={null}>
             {children}
           </Suspense>
         </div>

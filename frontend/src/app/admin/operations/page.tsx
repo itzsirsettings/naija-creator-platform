@@ -1,2 +1,3 @@
 "use client"
-export { default } from "@/pages/admin/AdminApp"
+
+export { AdminOffersPanel as default } from "@/pages/admin/AdminApp"

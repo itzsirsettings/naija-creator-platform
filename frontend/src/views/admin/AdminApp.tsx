@@ -68,7 +68,7 @@ export default function AdminApp() {
 }
 
 // ─── Real platform overview ───────────────────────────────────────────────────
-function OverviewStats() {
+export function OverviewStats() {
   const [data, setData] = useState<AdminOverview | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -129,7 +129,7 @@ const KYC_BADGE: Record<string, "default" | "secondary" | "destructive" | "outli
   NONE: "outline",
 }
 
-function UsersPanel() {
+export function UsersPanel() {
   const [users, setUsers] = useState<AdminUser[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -218,7 +218,7 @@ const OFFER_BADGE: Record<string, "default" | "secondary" | "destructive" | "out
   CANCELLED: "outline",
 }
 
-function AdminOffersPanel() {
+export function AdminOffersPanel() {
   const [offers, setOffers] = useState<AdminOffer[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

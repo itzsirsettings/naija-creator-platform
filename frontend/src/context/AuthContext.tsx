@@ -28,7 +28,7 @@ interface AuthContextValue {
   isLoading: boolean
   setUser: (user: User | null) => void
   refreshUser: () => Promise<void>
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string) => Promise<User>
   register: (data: { name: string; email: string; password: string; role: "brand" | "creator" }) => Promise<{ emailVerificationRequired?: boolean }>
   logout: () => void
   forgotPassword: (email: string) => Promise<void>
@@ -144,7 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("tehilla:auth-expired", handleExpired)
   }, [navigate])
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string): Promise<User> => {
     const response = await api.post("/auth/login", { email, password })
     const { accessToken, emailVerified } = unwrap<{
       accessToken: string
@@ -159,7 +159,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     localStorage.setItem("tehilla_access_token", accessToken)
     setAccessToken(accessToken)
-    setUser(await fetchMe())
+    const me = await fetchMe()
+    setUser(me)
+    return me
   }, [])
 
   const register = useCallback(async (data: { name: string; email: string; password: string; role: "brand" | "creator" }) => {

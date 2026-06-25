@@ -26,8 +26,9 @@ export default function Login() {
     setResendSent(false)
     setLoading(true)
     try {
-      await login(email, password)
-      navigate(redirectTo, { replace: true })
+      const me = await login(email, password)
+      const dest = me.role === "admin" ? "/admin" : redirectTo
+      navigate(dest, { replace: true })
     } catch (err: unknown) {
       if (err && typeof err === "object" && "code" in err && (err as { code: string }).code === "EMAIL_NOT_VERIFIED") {
         setNeedsVerification(true)

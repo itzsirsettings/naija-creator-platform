@@ -3,22 +3,24 @@
 import { useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/context/AuthContext"
-import { RouteFallback } from "@/components/RouteFallback"
 import AppShell from "@/AppShell"
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading, user } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (isLoading) return
+    if (!isAuthenticated) {
       router.replace(`/login?redirect=${encodeURIComponent(pathname)}`)
+    } else if (user?.role === "admin") {
+      router.replace("/admin")
     }
-  }, [isLoading, isAuthenticated, pathname, router])
+  }, [isLoading, isAuthenticated, user, pathname, router])
 
-  if (isLoading || !isAuthenticated) {
-    return <RouteFallback label="Checking access" />
+  if (isLoading || !isAuthenticated || user?.role === "admin") {
+    return null
   }
 
   return <AppShell>{children}</AppShell>
