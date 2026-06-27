@@ -163,7 +163,7 @@ export default function MarketingLayout({
           {/* Right Actions */}
           <div className="flex items-center gap-3">
             <Link
-              to="/login"
+              to="/register"
               className="hidden sm:inline-flex text-[12px] font-medium text-[#666] hover:text-[#0f0f0f] transition-colors"
             >
               Log in
@@ -247,7 +247,7 @@ export default function MarketingLayout({
 
               <hr className="my-4 border-[#d8d8d8]" />
               <Link
-                to="/login"
+                to="/register"
                 onClick={() => setDrawerOpen(false)}
                 className="px-4 py-4 text-[14.6px] font-medium text-[#666] hover:text-[#0f0f0f] rounded-xl active:bg-[#f5f5f5] transition-colors"
               >
