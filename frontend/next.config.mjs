@@ -13,6 +13,12 @@ const nextConfig = {
   // Serve compressed static assets (gzip + brotli)
   compress: true,
 
+  // Remove the "X-Powered-By: Next.js" header (minor security hardening)
+  poweredByHeader: false,
+
+  // Generate ETags for conditional GET requests (reduces bandwidth for crawlers)
+  generateEtags: true,
+
   // Image optimisation: auto WebP/AVIF, lazy-load by default.
   // External hostnames that serve creator/brand assets need to be listed here.
   images: {
@@ -50,6 +56,14 @@ const nextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // HSTS — tells browsers and search engines this site is HTTPS-only.
+          // max-age=63072000 = 2 years. preload submits to HSTS preload list.
+          // WARNING: Only enable once you are CERTAIN HTTPS is permanent.
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
+          // Permissions policy — restrict dangerous browser features
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+          // Speed up DNS for embedded resources
+          { key: "X-DNS-Prefetch-Control", value: "on" },
         ],
       },
       {
@@ -64,6 +78,13 @@ const nextConfig = {
         source: "/fonts/(.*)",
         headers: [
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        // Sitemap and robots.txt: short cache to reflect updates quickly
+        source: "/(sitemap.xml|robots.txt)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=0, s-maxage=86400, stale-while-revalidate=3600" },
         ],
       },
     ]

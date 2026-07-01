@@ -1,4 +1,6 @@
-﻿import { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect } from "react";
 import { Link } from "@/lib/router";
 import LazyVideo from "@/components/LazyVideo";
 import { motion, AnimatePresence } from "framer-motion";
@@ -181,12 +183,16 @@ export default function Home() {
           </div>
         </Section>
         {/* Mobile only: character image anchored to the bottom of the hero */}
+        {/* LCP element on mobile — preloaded in layout.tsx <head>, explicit size prevents CLS */}
         <div className="sm:hidden relative z-10 mt-auto w-full flex justify-center">
           <img
             src="/mobile_hero.png"
             alt=""
             aria-hidden="true"
+            width={320}
+            height={256}
             className="w-[75%] max-w-[320px] h-auto object-contain pointer-events-none select-none"
+            fetchPriority="high"
           />
         </div>
       </div>

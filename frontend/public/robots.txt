@@ -1,9 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /app
-Disallow: /discover
-Disallow: /offers
-Disallow: /payments
-Disallow: /analytics
-
-Sitemap: https://tehilla.work/sitemap.xml
